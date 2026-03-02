@@ -1,0 +1,423 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Imprimir Fichas</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .page {
+      max-width: 1420px;
+    }
+
+    .pendencias-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(2, 6, 23, 0.12);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .pendencias-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .pendencias-table thead th {
+      background: #0b6b57;
+      color: #fff;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+
+    .pendencias-table thead th:last-child {
+      border-right: none;
+    }
+
+    .pendencias-table tbody td {
+      border-top: 1px solid rgba(2, 6, 23, 0.12);
+      padding: 9px 8px;
+      vertical-align: middle;
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.92);
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.25;
+    }
+
+    .pendencias-table tbody tr:nth-child(even) td {
+      background: rgba(238, 246, 243, 0.9);
+    }
+
+    .btn-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      width: 100%;
+      max-width: 110px;
+      padding: 6px 12px;
+      border: 1px solid rgba(7, 66, 56, 0.28);
+      border-radius: 8px;
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin: 0 0 10px;
+    }
+
+    .table-tools label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .table-tools input {
+      width: 280px;
+      max-width: 44vw;
+      min-height: 34px;
+      border: 1px solid rgba(2, 6, 23, 0.16);
+      border-radius: 8px;
+      background: #fff;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .left-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      padding: 16px;
+      text-align: center;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .pendencias-table th:nth-child(1),
+    .pendencias-table td:nth-child(1) { width: 13%; }
+    .pendencias-table th:nth-child(2),
+    .pendencias-table td:nth-child(2) { width: 15%; }
+    .pendencias-table th:nth-child(3),
+    .pendencias-table td:nth-child(3) { width: 10%; }
+    .pendencias-table th:nth-child(4),
+    .pendencias-table td:nth-child(4) { width: 9%; }
+    .pendencias-table th:nth-child(5),
+    .pendencias-table td:nth-child(5) { width: 13%; }
+    .pendencias-table th:nth-child(6),
+    .pendencias-table td:nth-child(6) { width: 22%; }
+    .pendencias-table th:nth-child(7),
+    .pendencias-table td:nth-child(7) { width: 12%; }
+    .pendencias-table th:nth-child(8),
+    .pendencias-table td:nth-child(8) { width: 8%; text-align: center; }
+
+    .pendencias-table td:nth-child(8) {
+      overflow-wrap: normal;
+      word-break: keep-all;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        max-width: 980px;
+      }
+
+      .pendencias-wrap {
+        overflow-x: auto;
+      }
+
+      .pendencias-table {
+        min-width: 980px;
+        table-layout: auto;
+      }
+
+      .actions {
+        justify-content: center;
+      }
+
+      .table-tools {
+        justify-content: flex-start;
+      }
+
+      .table-tools input {
+        width: 100%;
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <header class="panel-header">
+        <div class="head-main">
+          <div class="logo-box">
+            <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
+          </div>
+          <div class="head-text">
+            <h1 id="tituloTela">Impress&atilde;o de Fichas</h1>
+            <p id="subtituloTela">Perfil: Admin</p>
+          </div>
+        </div>
+      </header>
+
+      <div class="table-tools">
+        <label for="filtroNumeroFerramenta">N&ordm; da Ferramenta</label>
+        <input
+          id="filtroNumeroFerramenta"
+          type="search"
+          placeholder="Buscar por n&uacute;mero da ferramenta"
+          autocomplete="off">
+      </div>
+
+      <div class="pendencias-wrap">
+        <table class="pendencias-table" aria-label="Tabela de fichas para impress&atilde;o">
+          <thead>
+            <tr>
+              <th>N&uacute;mero da Ficha</th>
+              <th>Data Entrega Evento (SAP)</th>
+              <th>AME Resp.</th>
+              <th>JOB</th>
+              <th>N&ordm; da Ferramenta</th>
+              <th>Descri&ccedil;&atilde;o da Ferramenta</th>
+              <th>N&ordm; Desenho Ferramenta</th>
+              <th>A&ccedil;&atilde;o</th>
+            </tr>
+          </thead>
+          <tbody id="fichasBody"></tbody>
+        </table>
+        <div class="empty" id="emptyState" hidden>Nenhuma ficha encontrada.</div>
+      </div>
+
+      <div class="actions">
+        <div class="left-actions" id="leftActions"></div>
+        <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
+      </div>
+    </section>
+  </main>
+
+    <script>
+    (function () {
+      const perfilAtivo = sessionStorage.getItem("perfil_ativo");
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+      const perfilPermitido = perfilAtivo === "admin" || perfilAtivo === "engenheiro";
+      if (!perfilPermitido) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const tipo = params.get("tipo") === "processo" ? "processo" : "manutencao";
+      const API_URL = "/api";
+      let fichas = [];
+
+      const tituloTela = document.getElementById("tituloTela");
+      const subtituloTela = document.getElementById("subtituloTela");
+      if (tituloTela) {
+        tituloTela.textContent = tipo === "processo" ? "Impressao de Fichas de Processo" : "Impressao de Fichas de Manutencao";
+      }
+      if (subtituloTela) {
+        const perfilNomes = {
+          admin: "Admin",
+          engenheiro: "Engenheiro de Processo",
+          producao: "Producao",
+          ferramenteiro: "Ferramenteiro"
+        };
+        const partesUsuario = usuarioAtivo.split(":");
+        const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
+        const nomeUsuario = partesUsuario.slice(1).join(":").trim();
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuario";
+        const perfilTexto = nomeUsuario ? "Perfil " + perfilLabel + ": " + nomeUsuario : "Perfil " + perfilLabel;
+        const contextoTela = tipo === "processo" ? "AME Imprimir ficha de processo" : "AME Imprimir ficha de manutencao";
+        subtituloTela.textContent = perfilTexto + " | " + contextoTela;
+      }
+
+      const fichasBody = document.getElementById("fichasBody");
+      const emptyState = document.getElementById("emptyState");
+      const filtroNumeroFerramenta = document.getElementById("filtroNumeroFerramenta");
+      let termoFiltroFerramenta = "";
+
+      function createCell(text) {
+        const td = document.createElement("td");
+        td.textContent = repairMojibake(text || "");
+        return td;
+      }
+
+      function repairMojibake(value) {
+        let text = String(value || "");
+        if (!/[ÃÂâ]/.test(text)) {
+          return text;
+        }
+        for (let i = 0; i < 3; i += 1) {
+          try {
+            const rawBytes = Uint8Array.from(text, function (char) {
+              return char.charCodeAt(0) & 0xff;
+            });
+            const decoded = new TextDecoder("utf-8", { fatal: true }).decode(rawBytes);
+            if (decoded === text) {
+              break;
+            }
+            text = decoded;
+            if (!/[ÃÂâ]/.test(text)) {
+              break;
+            }
+          } catch (_error) {
+            break;
+          }
+        }
+        return text;
+      }
+
+      function normalizeText(value) {
+        return repairMojibake(value).trim().toLowerCase();
+      }
+
+      function formatDateToBrShort(value) {
+        if (!value) {
+          return "";
+        }
+        const dt = new Date(value);
+        if (Number.isNaN(dt.getTime())) {
+          return String(value);
+        }
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const day = String(dt.getDate()).padStart(2, "0");
+        return day + "-" + monthNames[dt.getMonth()] + "-" + dt.getFullYear();
+      }
+
+      function toFichaTabela(item) {
+        return {
+          id: String(item.numero_ficha || item.id || ""),
+          numero_ficha: String(item.numero_ficha || ""),
+          data_entrega_evento_sap: formatDateToBrShort(item.data_entrega_evento || item.data_cadastro),
+          ame_resp_abertura: repairMojibake(item.responsavel_abertura || item.responsavel || ""),
+          job_cabecalho: repairMojibake(item.job || ""),
+          numero_ferramenta: repairMojibake(item.numero_ferramental || ""),
+          descricao_ferramenta: repairMojibake(item.descricao_ferramenta || item.descricao || ""),
+          numero_desenho_ferramenta: repairMojibake(item.numero_desenho_ferramental || ""),
+          raw: item
+        };
+      }
+
+      function renderFichas() {
+        fichasBody.innerHTML = "";
+        const filtradas = termoFiltroFerramenta
+          ? fichas.filter((item) => normalizeText(item.numero_ferramenta).includes(termoFiltroFerramenta))
+          : fichas;
+        if (filtradas.length === 0) {
+          emptyState.hidden = false;
+          return;
+        }
+        emptyState.hidden = true;
+
+        filtradas.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.appendChild(createCell(item.numero_ficha));
+          tr.appendChild(createCell(item.data_entrega_evento_sap));
+          tr.appendChild(createCell(item.ame_resp_abertura));
+          tr.appendChild(createCell(item.job_cabecalho));
+          tr.appendChild(createCell(item.numero_ferramenta));
+          tr.appendChild(createCell(item.descricao_ferramenta));
+          tr.appendChild(createCell(item.numero_desenho_ferramenta));
+
+          const tdAcao = document.createElement("td");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn-row";
+          btn.textContent = "Imprimir";
+          btn.dataset.fichaId = item.id;
+          tdAcao.appendChild(btn);
+          tr.appendChild(tdAcao);
+
+          fichasBody.appendChild(tr);
+        });
+      }
+
+      async function carregarFichas() {
+        try {
+          const response = await fetch(API_URL + "/fichas", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Falha ao carregar fichas");
+          }
+          const rows = await response.json();
+          fichas = Array.isArray(rows) ? rows.map(toFichaTabela) : [];
+        } catch (_error) {
+          fichas = [];
+        }
+        renderFichas();
+      }
+
+      fichasBody.addEventListener("click", function (event) {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+        const button = target.closest("button[data-ficha-id]");
+        if (!button) {
+          return;
+        }
+        const fichaId = button.getAttribute("data-ficha-id");
+        const ficha = fichas.find((item) => item.id === fichaId);
+        if (!ficha) {
+          return;
+        }
+
+        sessionStorage.setItem("admin_impressao_ficha_ativa", JSON.stringify(ficha.raw || {}));
+        window.location.href = "impressao_modelo.html?tipo=" + encodeURIComponent(tipo) + "&ficha=" + encodeURIComponent(ficha.numero_ficha);
+      });
+
+      if (filtroNumeroFerramenta) {
+        filtroNumeroFerramenta.addEventListener("input", function () {
+          termoFiltroFerramenta = normalizeText(filtroNumeroFerramenta.value);
+          renderFichas();
+        });
+      }
+
+      const leftActions = document.getElementById("leftActions");
+      if (leftActions) {
+        const backHref = perfilAtivo === "engenheiro" ? "engenheiro.html" : "admin.html";
+        leftActions.innerHTML = '<a class="btn btn-secondary" href="' + backHref + '">Voltar</a>';
+      }
+
+      const btnSair = document.getElementById("btnSair");
+      if (btnSair) {
+        btnSair.addEventListener("click", function () {
+          sessionStorage.removeItem("perfil_ativo");
+          sessionStorage.removeItem("usuario_ativo");
+          sessionStorage.removeItem("admin_impressao_ficha_ativa");
+          window.location.replace("login.html");
+        });
+      }
+
+      carregarFichas();
+    })();
+  </script>
+</body>
+</html>
+

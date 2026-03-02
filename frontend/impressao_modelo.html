@@ -1,0 +1,1010 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Impress&atilde;o da Ficha</title>
+  <style>
+    :root {
+      --green-dark: #0d6d59;
+      --green-mid: #159178;
+      --line: #2b2b2b;
+      --paper: #ffffff;
+      --ink: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Calibri, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 10% -10%, #ffffff 0%, transparent 60%),
+        radial-gradient(700px 420px at 100% 10%, rgba(11, 107, 87, 0.1) 0%, transparent 55%),
+        linear-gradient(140deg, #f5f8f6, #eaf2ef);
+      padding: 14px 10px 30px;
+    }
+
+    .print-bar {
+      width: min(210mm, 100%);
+      margin: 10px auto 0;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .btn-print {
+      border: 1px solid rgba(7, 66, 56, 0.28);
+      border-radius: 10px;
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+      min-height: 48px;
+      min-width: 132px;
+      padding: 10px 18px;
+      cursor: pointer;
+    }
+
+    .print-tip {
+      font-size: 12px;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .sheet {
+      width: min(210mm, 100%);
+      min-height: auto;
+      margin: 0 auto 14px;
+      background: var(--paper);
+      border: 2px solid var(--line);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+      page-break-after: always;
+      break-after: page;
+    }
+
+    .sheet:last-of-type {
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .top-head {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      align-items: center;
+      gap: 10px;
+      background: var(--green-dark);
+      border-bottom: 2px solid var(--line);
+      padding: 8px 10px;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid #d6f0ea;
+      overflow: hidden;
+      background: #fff;
+      justify-self: center;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .title h1 {
+      margin: 0;
+      color: #fff;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 0.01em;
+    }
+
+    .title p {
+      margin: 4px 0 0;
+      color: #d6f2ee;
+      font-size: 16px;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 115px 105px 90px 1fr 120px 95px;
+      grid-template-rows: repeat(2, 28px);
+      border-bottom: 2px solid var(--line);
+      font-size: 12px;
+      font-weight: 700;
+      background: #efefef;
+    }
+
+    .meta div {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 1px 4px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+    }
+
+    .meta div:nth-child(1),
+    .meta div:nth-child(2),
+    .meta div:nth-child(3),
+    .meta div:nth-child(4) {
+      grid-row: 1 / span 2;
+      border-bottom: none;
+    }
+
+    .meta div:nth-child(6),
+    .meta div:nth-child(8) {
+      border-right: none;
+    }
+
+    .block-head {
+      background: var(--green-mid);
+      color: #fff;
+      text-align: center;
+      font-weight: 700;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 3px 6px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .line-grid {
+      border-bottom: 1px solid var(--line);
+      padding: 6px 8px 4px;
+    }
+
+    .line-row {
+      display: grid;
+      grid-template-columns: 34% 66%;
+      align-items: center;
+      gap: 8px;
+      margin: 2px 0;
+      font-size: 13px;
+    }
+
+    .label {
+      font-weight: 700;
+    }
+
+    .value {
+      border-bottom: 1px solid #4b5563;
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .value.strong {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: 0.02em;
+      min-height: 44px;
+    }
+
+    .data-grid {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #8a96a0;
+    }
+
+    .data-row:last-child {
+      border-bottom: none;
+    }
+
+    .data-cell {
+      padding: 4px 6px;
+      border-right: 1px solid #8a96a0;
+    }
+
+    .data-cell:last-child {
+      border-right: none;
+    }
+
+    .inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .inline .v {
+      border-bottom: 1px solid #4b5563;
+      min-height: 19px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .line5 {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 3px;
+    }
+
+    .line5 span {
+      border-bottom: 1px solid #4b5563;
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      padding: 0 2px;
+    }
+
+    .obs {
+      border: 1px solid #8a96a0;
+      min-height: 72px;
+      padding: 4px 6px;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    .rnc-lines {
+      border-left: 1px solid #8a96a0;
+      border-right: 1px solid #8a96a0;
+      border-bottom: 1px solid #8a96a0;
+    }
+
+    .rnc-line {
+      min-height: 20px;
+      border-top: 1px solid #8a96a0;
+      padding: 2px 6px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    .operador-line {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      border-left: 1px solid #8a96a0;
+      border-right: 1px solid #8a96a0;
+      border-bottom: 1px solid #8a96a0;
+      padding: 2px 6px;
+      font-size: 13px;
+    }
+
+    .operador-line .v {
+      border-bottom: 1px solid #4b5563;
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .prensa-line {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: center;
+      border-left: 1px solid #8a96a0;
+      border-right: 1px solid #8a96a0;
+      border-bottom: 1px solid #8a96a0;
+      min-height: 38px;
+      padding: 2px 6px;
+    }
+
+    .prensa-line .press-value {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1;
+    }
+
+    .end-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      table-layout: fixed;
+    }
+
+    .end-table td {
+      border: 1px solid #3c3c3c;
+      padding: 4px 6px;
+      vertical-align: middle;
+    }
+
+    .end-label {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .end-line {
+      min-height: 16px;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .end-golpes {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .end-golpes span {
+      min-height: 16px;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+    }
+
+    .end-golpes b {
+      color: #159178;
+      margin-right: 2px;
+    }
+
+    .end-rnc-lines {
+      min-height: 64px;
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+    }
+
+    .end-rnc-lines div {
+      border-bottom: 1px solid #8a96a0;
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      padding: 0 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .end-rnc-lines div:last-child {
+      border-bottom: none;
+    }
+
+    .end-operador {
+      color: #159178;
+      font-weight: 700;
+    }
+
+    .end-prensa {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.01em;
+    }
+
+    .table-wrap {
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    th, td {
+      border: 1px solid #3c3c3c;
+      padding: 3px 4px;
+    }
+
+    th {
+      background: #1c9f89;
+      color: #fff;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .th-2 {
+      background: #159178;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .sheet-2 .manut-table td {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .sheet-2 .manut-table tbody tr:nth-last-child(-n+3) td {
+      height: 36px;
+    }
+
+    .sheet-2 .nao-conf-table td {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .sheet-2 .revisao-table td {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        background: #fff;
+        padding: 0;
+        margin: 0;
+      }
+
+      .print-bar {
+        display: none;
+      }
+
+      .sheet {
+        width: 210mm;
+        min-height: 0;
+        height: auto;
+        margin: 0;
+        border: 2px solid var(--line);
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+        overflow: visible;
+      }
+
+      .sheet-2 .manut-table td {
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      .sheet-2 .manut-table tbody tr:nth-last-child(-n+3) td {
+        height: 44px;
+      }
+
+      .sheet-2 .nao-conf-table td {
+        padding-top: 7px;
+        padding-bottom: 7px;
+      }
+
+      .sheet-2 .revisao-table td {
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      .sheet:last-of-type {
+        page-break-after: auto;
+        break-after: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="sheet">
+    <div class="top-head">
+      <div class="logo"><img src="assets/gevernova_logo.jpg" alt="GE Vernova"></div>
+      <div class="title">
+        <h1>Ficha de Manuten&ccedil;&atilde;o de Estampos</h1>
+        <p id="estampoTitulo">ESTAMPO DE</p>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div>Documento:</div>
+      <div>FM-FE-001</div>
+      <div>&Aacute;rea:</div>
+      <div>FE - FERRAMENTARIA</div>
+      <div>Rev. Formul&aacute;rio</div>
+      <div id="revFormularioValor">0</div>
+      <div>Data:</div>
+      <div>5-May-2022</div>
+    </div>
+
+    <div class="line-grid">
+      <div class="line-row"><div class="label">N&uacute;mero da Ficha:</div><div class="value" data-field="numero_ficha"></div></div>
+      <div class="line-row"><div class="label">Data de Entrega do Evento (SAP):</div><div class="value" data-field="data_entrega_evento"></div></div>
+      <div class="line-row"><div class="label"><span style="color:#138a6f;">AME</span> Resp. pela abertura da ficha:</div><div class="value" data-field="ame_resp"></div></div>
+      <div class="line-row"><div class="label">JOB:</div><div class="value" data-field="job"></div></div>
+      <div class="line-row"><div class="label">N&ordm; da Ferramenta:</div><div class="value strong" data-field="numero_ferramenta"></div></div>
+      <div class="line-row"><div class="label">Descri&ccedil;&atilde;o da Ferramenta:</div><div class="value" data-field="descricao_ferramenta"></div></div>
+      <div class="line-row"><div class="label">N&ordm; do Desenho da Ferramenta:</div><div class="value" data-field="numero_desenho_ferramenta"></div></div>
+    </div>
+
+    <div class="block-head">&Uacute;ltimos servi&ccedil;os / checagens executadas</div>
+    <div class="data-grid">
+      <div class="data-row">
+        <div class="data-cell" style="grid-column: 1 / -1;">
+          <div class="label" style="margin-bottom: 2px; font-size:13px;">Observa&ccedil;&atilde;o da &uacute;ltima manuten&ccedil;&atilde;o da ferramenta</div>
+          <div class="obs" data-field="obs_ultima_manutencao"></div>
+        </div>
+      </div>
+      <div class="data-row">
+        <div class="data-cell"><div class="inline"><strong>Qtde. Total de Afia&ccedil;&otilde;es:</strong><span class="v" data-field="qtde_total_afiacoes"></span></div></div>
+        <div class="data-cell"><div class="inline"><strong style="color:#138a6f;">Altura da vida &uacute;til atual "mm":</strong><span class="v" data-field="altura_vida_util_mm"></span></div></div>
+      </div>
+      <div class="data-row">
+        <div class="data-cell" style="grid-column: 1 / -1;">
+          <div class="inline"><strong><span style="color:#138a6f;">Ferramenteiro</span> Respons&aacute;vel:</strong><span class="v" data-field="ferramenteiro_responsavel"></span></div>
+        </div>
+      </div>
+      <div class="data-row">
+        <div class="data-cell"><div class="inline"><strong>Data Prevista de Envio para Ferramentaria:</strong><span class="v" data-field="data_prevista_envio"></span></div></div>
+        <div class="data-cell"><div class="inline"><strong>Data da Entrega da Ferramenta:</strong><span class="v" data-field="data_entrega_ferramenta"></span></div></div>
+      </div>
+      <div class="data-row">
+        <div class="data-cell"><div class="inline"><strong>Hora de In&iacute;cio da Manuten&ccedil;&atilde;o:</strong><span class="v" data-field="hora_inicio_manutencao"></span></div></div>
+        <div class="data-cell"><div class="inline"><strong>Hora de T&eacute;rmino da Manuten&ccedil;&atilde;o:</strong><span class="v" data-field="hora_termino_manutencao"></span></div></div>
+      </div>
+    </div>
+
+    <div class="block-head">Dados sobre o t&eacute;rmino da produ&ccedil;&atilde;o</div>
+    <table class="end-table">
+      <tr>
+        <td class="end-label" style="width:250px;">Data de T&eacute;rmino da Produ&ccedil;&atilde;o:</td>
+        <td><div class="end-line" data-field="data_termino_producao"></div></td>
+        <td class="end-label" style="width:130px;">N&ordm; da RNC</td>
+        <td><div class="end-line" data-field="numero_rnc"></div></td>
+      </tr>
+      <tr>
+        <td class="end-label">JOB:</td>
+        <td><div class="end-line" data-field="job_principal"></div></td>
+        <td class="end-label">Qtde total de Golpes:</td>
+        <td><div class="end-line" data-field="qtde_total_golpes_principal"></div></td>
+      </tr>
+      <tr>
+        <td class="end-label">Qtde de Golpes por afia&ccedil;&atilde;o:</td>
+        <td colspan="3">
+          <div class="end-golpes">
+            <span><b>1&ordf;</b><span data-field="golpes_afiacao_principal_1"></span></span>
+            <span><b>2&ordf;</b><span data-field="golpes_afiacao_principal_2"></span></span>
+            <span><b>3&ordf;</b><span data-field="golpes_afiacao_principal_3"></span></span>
+            <span><b>4&ordf;</b><span data-field="golpes_afiacao_principal_4"></span></span>
+            <span><b>5&ordf;</b><span data-field="golpes_afiacao_principal_5"></span></span>
+          </div>
+        </td>
+      </tr>
+      <tr data-group="irma1">
+        <td class="end-label">JOBs Irm&atilde;s:</td>
+        <td><div class="end-line" data-field="job_irma_1"></div></td>
+        <td class="end-label">Qtde total de Golpes:</td>
+        <td><div class="end-line" data-field="qtde_total_golpes_irma_1"></div></td>
+      </tr>
+      <tr data-group="irma1">
+        <td class="end-label">Qtde de Golpes por afia&ccedil;&atilde;o:</td>
+        <td colspan="3">
+          <div class="end-golpes">
+            <span><b>1&ordf;</b></span>
+            <span><b>2&ordf;</b></span>
+            <span><b>3&ordf;</b></span>
+            <span><b>4&ordf;</b></span>
+            <span><b>5&ordf;</b></span>
+          </div>
+        </td>
+      </tr>
+      <tr data-group="irma2">
+        <td class="end-label">JOBs Irm&atilde;s:</td>
+        <td><div class="end-line" data-field="job_irma_2"></div></td>
+        <td class="end-label">Qtde total de Golpes:</td>
+        <td><div class="end-line" data-field="qtde_total_golpes_irma_2"></div></td>
+      </tr>
+      <tr data-group="irma2">
+        <td class="end-label">Qtde de Golpes por afia&ccedil;&atilde;o:</td>
+        <td colspan="3">
+          <div class="end-golpes">
+            <span><b>1&ordf;</b></span>
+            <span><b>2&ordf;</b></span>
+            <span><b>3&ordf;</b></span>
+            <span><b>4&ordf;</b></span>
+            <span><b>5&ordf;</b></span>
+          </div>
+        </td>
+      </tr>
+      <tr data-group="irma3">
+        <td class="end-label">JOBs Irm&atilde;s:</td>
+        <td><div class="end-line" data-field="job_irma_3"></div></td>
+        <td class="end-label">Qtde total de Golpes:</td>
+        <td><div class="end-line" data-field="qtde_total_golpes_irma_3"></div></td>
+      </tr>
+      <tr data-group="irma3">
+        <td class="end-label">Qtde de Golpes por afia&ccedil;&atilde;o:</td>
+        <td colspan="3">
+          <div class="end-golpes">
+            <span><b>1&ordf;</b></span>
+            <span><b>2&ordf;</b></span>
+            <span><b>3&ordf;</b></span>
+            <span><b>4&ordf;</b></span>
+            <span><b>5&ordf;</b></span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="end-label">Observa&ccedil;&atilde;o da RNC:</td>
+        <td colspan="3" style="padding:0;">
+          <div class="end-rnc-lines">
+            <div data-field="observacao_rnc"></div>
+            <div></div>
+            <div></div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="end-label"><span class="end-operador">Operador</span> Respons&aacute;vel:</td>
+        <td colspan="3"><div class="end-line" data-field="operador_responsavel"></div></td>
+      </tr>
+      <tr>
+        <td class="end-label">Prensa:</td>
+        <td colspan="3"><span class="end-prensa" data-field="prensa"></span></td>
+      </tr>
+    </table>
+
+    <div class="block-head">Controle vida &uacute;til da ferramenta</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:56px;">Item</th>
+          <th>Descri&ccedil;&atilde;o</th>
+          <th style="width:170px;">Dados</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="center">1</td><td>Vida &uacute;til total da ferramenta</td><td class="center">3 milh&otilde;es de golpes</td></tr>
+        <tr><td class="center">2</td><td>Afia&ccedil;&atilde;o geral - pun&ccedil;&otilde;es e matrizes</td><td class="center">100 mil golpes</td></tr>
+        <tr><td class="center">3</td><td>Altura &uacute;til de trabalho das matrizes e pun&ccedil;&otilde;es</td><td class="center">0.00</td></tr>
+        <tr><td class="center">4</td><td>Altura &uacute;til para confeccionar novos pun&ccedil;&otilde;es e matrizes</td><td class="center">2,0 mm</td></tr>
+        <tr><td class="center"></td><td><strong>N&uacute;mero total de golpes acumulados do estampo</strong></td><td class="center">0</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="sheet sheet-2">
+    <div class="block-head">Manuten&ccedil;&atilde;o programada - Itens para verifica&ccedil;&atilde;o</div>
+    <div class="table-wrap">
+      <table class="manut-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="width:34px;">Item</th>
+            <th rowspan="2">Descri&ccedil;&atilde;o</th>
+            <th colspan="2">N&uacute;mero de golpes</th>
+            <th colspan="3">Verifica&ccedil;&atilde;o</th>
+          </tr>
+          <tr>
+            <th class="th-2" style="width:110px;">Meta</th>
+            <th class="th-2" style="width:120px;">Acumulado atual</th>
+            <th class="th-2" style="width:46px;">N&ordm;</th>
+            <th class="th-2" style="width:46px;">OK</th>
+            <th class="th-2" style="width:46px;">NOK</th>
+          </tr>
+        </thead>
+        <tbody id="manutRows"></tbody>
+      </table>
+    </div>
+
+    <div class="block-head" style="margin-top: 8px;">Itens n&atilde;o conformes</div>
+    <table class="nao-conf-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">Item</th>
+          <th>Observa&ccedil;&otilde;es / Descri&ccedil;&atilde;o melhorias e trabalhos necess&aacute;rios</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="center">1</td><td>&nbsp;</td></tr>
+      </tbody>
+    </table>
+
+    <table class="revisao-table" style="margin-top: 8px;">
+      <thead>
+        <tr>
+          <th style="width:50px;">REV</th>
+          <th style="width:140px;">NOME AME</th>
+          <th>Descri&ccedil;&atilde;o da Revis&atilde;o</th>
+          <th style="width:160px;">Data Revis&atilde;o</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="center">0</td><td class="center">Sabrina Freitas</td><td class="center">Emiss&atilde;o Inicial</td><td class="center">May 3, 2022</td></tr>
+        <tr><td class="center">1</td><td class="center">Sabrina Freitas</td><td class="center">Melhoria nos dados de reporte e f&oacute;rmulas</td><td class="center">June 16, 2022</td></tr>
+        <tr><td class="center">2</td><td class="center">Sabrina Freitas</td><td class="center">Melhoria nos campos de apontamento de afia&ccedil;&atilde;o</td><td class="center">July 28, 2022</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="print-bar">
+    <span class="print-tip">Dica: selecione frente e verso na impressora para sair em 1 folha.</span>
+    <button type="button" class="btn-print" id="btnPrint">Imprimir</button>
+  </div>
+
+    <script>
+    (function () {
+      const perfilAtivo = sessionStorage.getItem("perfil_ativo");
+      const perfilPermitido = perfilAtivo === "admin" || perfilAtivo === "engenheiro";
+      if (!perfilPermitido) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const fichaParam = (params.get("ficha") || "").trim();
+      const STORAGE_KEY = "admin_impressao_ficha_ativa";
+      const rawStored = sessionStorage.getItem(STORAGE_KEY);
+      let stored = null;
+      try {
+        stored = rawStored ? JSON.parse(rawStored) : null;
+      } catch (_error) {
+        stored = null;
+      }
+
+      function parseRevValue(value) {
+        const raw = String(value == null ? "" : value).trim();
+        if (!/^\d+$/.test(raw)) {
+          return null;
+        }
+        return Number(raw);
+      }
+
+      function getMaxRevFromTable() {
+        const cells = document.querySelectorAll(".revisao-table tbody tr td:first-child");
+        let maxRev = null;
+        cells.forEach((cell) => {
+          const parsed = parseRevValue(cell.textContent);
+          if (parsed == null) {
+            return;
+          }
+          if (maxRev == null || parsed > maxRev) {
+            maxRev = parsed;
+          }
+        });
+        return maxRev;
+      }
+
+      function applyRevFormularioValue() {
+        const node = document.getElementById("revFormularioValor");
+        if (!node) {
+          return;
+        }
+        const revFallback = getMaxRevFromTable();
+        const value = revFallback == null ? 2 : revFallback;
+        node.textContent = String(value);
+      }
+
+      function fmtDate(value) {
+        const raw = String(value || "").trim();
+        if (!raw) {
+          return "";
+        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+          const parts = raw.split("-");
+          return parts[2] + "/" + parts[1] + "/" + parts[0];
+        }
+        return raw;
+      }
+
+      function buildPayload(row) {
+        const src = row || {};
+        return {
+          numero_ficha_producao: src.numero_ficha || "",
+          data_entrega_evento_sap_producao: src.data_entrega_evento || src.data_cadastro || "",
+          ame_resp_abertura_producao: src.responsavel_abertura || src.responsavel || "",
+          job_cabecalho_producao: src.job || "",
+          numero_ferramenta_producao: src.numero_ferramental || "",
+          descricao_ferramenta_producao: src.descricao_ferramenta || src.descricao || "",
+          numero_desenho_ferramenta_producao: src.numero_desenho_ferramental || "",
+          data_termino_producao: src.data_termino_producao || "",
+          numero_rnc: src.numero_rnc || "",
+          job_principal: src.job || "",
+          qtde_total_golpes_principal: src.total_golpes_final || "",
+          observacao_rnc: src.observacao_rnc || "",
+          operador_responsavel: src.responsavel || src.operador_responsavel || "",
+          prensa: src.prensa || "",
+          numero_ficha_ferramenteiro: src.numero_ficha || "",
+          data_entrega_evento_sap_ferramenteiro: src.data_entrega_evento || src.data_cadastro || "",
+          ame_resp_abertura_ferramenteiro: src.responsavel_abertura || src.responsavel || "",
+          job_cabecalho_ferramenteiro: src.job || "",
+          numero_ferramenta_ferramenteiro: src.numero_ferramental || "",
+          descricao_ferramenta_ferramenteiro: src.descricao_ferramenta || src.descricao || "",
+          numero_desenho_ferramenta_ferramenteiro: src.numero_desenho_ferramental || "",
+          obs_ultima_manutencao: src.observacao_ultima_manutencao_ferramenta || src.observacoes || "",
+          qtde_total_afiacoes: src.qtde_afiacao || src.qtde_total_afiacao || "",
+          altura_vida_util_mm: src.vida_util_ferramenta || "",
+          ferramenteiro_responsavel: src.ferramenteiro_responsavel || src.ferramenteiro || "",
+          data_prevista_envio: src.data_envio_ferramentaria || "",
+          data_entrega_ferramenta: src.data_entrega_evento || "",
+          hora_inicio_manutencao: src.horario_inicio_ferramenteiro || "",
+          hora_termino_manutencao: src.horario_termino_ferramenteiro || "",
+          golpes_afiacao_principal_1: src.golpes_afiacao_1 || "",
+          golpes_afiacao_principal_2: src.golpes_afiacao_2 || "",
+          golpes_afiacao_principal_3: src.golpes_afiacao_3 || "",
+          golpes_afiacao_principal_4: src.golpes_afiacao_4 || "",
+          golpes_afiacao_principal_5: src.golpes_afiacao_5 || "",
+          job_irma_1: src.job_envolvidas || "",
+          qtde_total_golpes_irma_1: src.total_golpes_sem_afiar || "",
+          job_irma_2: "",
+          qtde_total_golpes_irma_2: "",
+          job_irma_3: "",
+          qtde_total_golpes_irma_3: ""
+        };
+      }
+
+      function renderFromPayload(payload) {
+        function pick() {
+          for (let i = 0; i < arguments.length; i += 1) {
+            const key = arguments[i];
+            const value = payload[key];
+            if (value != null && String(value).trim() !== "") {
+              return String(value).trim();
+            }
+          }
+          return "";
+        }
+
+        const map = {
+          numero_ficha: pick("numero_ficha_producao", "numero_ficha_ferramenteiro"),
+          data_entrega_evento: fmtDate(pick("data_entrega_evento_sap_producao", "data_entrega_evento_sap_ferramenteiro")),
+          ame_resp: pick("ame_resp_abertura_producao", "ame_resp_abertura_ferramenteiro"),
+          job: pick("job_cabecalho_producao", "job_cabecalho_ferramenteiro"),
+          numero_ferramenta: pick("numero_ferramenta_producao", "numero_ferramenta_ferramenteiro"),
+          descricao_ferramenta: pick("descricao_ferramenta_producao", "descricao_ferramenta_ferramenteiro"),
+          numero_desenho_ferramenta: pick("numero_desenho_ferramenta_producao", "numero_desenho_ferramenta_ferramenteiro"),
+          obs_ultima_manutencao: pick("obs_ultima_manutencao"),
+          qtde_total_afiacoes: pick("qtde_total_afiacoes"),
+          altura_vida_util_mm: pick("altura_vida_util_mm"),
+          ferramenteiro_responsavel: pick("ferramenteiro_responsavel"),
+          data_prevista_envio: fmtDate(pick("data_prevista_envio")),
+          data_entrega_ferramenta: fmtDate(pick("data_entrega_ferramenta")),
+          hora_inicio_manutencao: pick("hora_inicio_manutencao"),
+          hora_termino_manutencao: pick("hora_termino_manutencao"),
+          data_termino_producao: fmtDate(pick("data_termino_producao")),
+          numero_rnc: pick("numero_rnc"),
+          job_principal: pick("job_principal"),
+          qtde_total_golpes_principal: pick("qtde_total_golpes_principal"),
+          golpes_afiacao_principal_1: pick("golpes_afiacao_principal_1"),
+          golpes_afiacao_principal_2: pick("golpes_afiacao_principal_2"),
+          golpes_afiacao_principal_3: pick("golpes_afiacao_principal_3"),
+          golpes_afiacao_principal_4: pick("golpes_afiacao_principal_4"),
+          golpes_afiacao_principal_5: pick("golpes_afiacao_principal_5"),
+          job_irma_1: pick("job_irma_1"),
+          qtde_total_golpes_irma_1: pick("qtde_total_golpes_irma_1"),
+          job_irma_2: pick("job_irma_2"),
+          qtde_total_golpes_irma_2: pick("qtde_total_golpes_irma_2"),
+          job_irma_3: pick("job_irma_3"),
+          qtde_total_golpes_irma_3: pick("qtde_total_golpes_irma_3"),
+          observacao_rnc: pick("observacao_rnc"),
+          operador_responsavel: pick("operador_responsavel"),
+          prensa: pick("prensa")
+        };
+
+        document.querySelectorAll("[data-field]").forEach((node) => {
+          const key = node.getAttribute("data-field");
+          const value = map[key] || "";
+          node.textContent = value;
+        });
+
+        const temIrma2 = Boolean(map.job_irma_2 || map.qtde_total_golpes_irma_2);
+        const temIrma3 = Boolean(map.job_irma_3 || map.qtde_total_golpes_irma_3);
+        document.querySelectorAll('[data-group="irma2"]').forEach((row) => {
+          row.style.display = temIrma2 ? "" : "none";
+        });
+        document.querySelectorAll('[data-group="irma3"]').forEach((row) => {
+          row.style.display = temIrma3 ? "" : "none";
+        });
+
+        const estampoTitulo = document.getElementById("estampoTitulo");
+        if (estampoTitulo) {
+          const descricaoFerramenta = map.descricao_ferramenta || "";
+          estampoTitulo.textContent = descricaoFerramenta ? "ESTAMPO DE " + descricaoFerramenta : "ESTAMPO DE";
+        }
+      }
+
+      async function carregarDados() {
+        let row = null;
+        const targetId = fichaParam || (stored && (stored.numero_ficha || stored.id)) || "";
+        if (targetId) {
+          try {
+            const response = await fetch("/api/ficha/" + encodeURIComponent(targetId), { cache: "no-store" });
+            if (response.ok) {
+              row = await response.json();
+            }
+          } catch (_error) {
+            row = null;
+          }
+        }
+
+        if (!row && stored && typeof stored === "object") {
+          row = stored;
+        }
+
+        const payload = buildPayload(row || {});
+        renderFromPayload(payload);
+      }
+
+      applyRevFormularioValue();
+
+      const manutRows = document.getElementById("manutRows");
+      const itens = [
+        ["Matrizes de ranhura - trincas, fixacao, altura util e afiacao", "100,000"],
+        ["Puncoes de ranhuras - trincas, fixacao e altura util e afiacao", "100,000"],
+        ["Matrizes aparador - trincas, fixacao, altura util e afiacao", "100,000"],
+        ["Puncoes aparador - trincas, fixacao e altura util e afiacao", "100,000"],
+        ["Colares de esferas - Verificar deformacao esferas, sulcos e folgas", "200,000"],
+        ["Colunas - Verificar estrias, alinhamento e folga", "200,000"],
+        ["Buchas - Verificar estrias, alinhamento e folga", "200,000"],
+        ["Folga de corte - Verificar com papel", "100,000"],
+        ["Bases - Verificar paralelismo e condicoes das roscas e alojamentos", "500,000"],
+        ["Molas danly placa pisadora - Verificar / Substituir", "100,000"],
+        ["Molas danly placa pisadora - Verificar / Substituir", "1,000,000"],
+        ["Placa pisadora - Verificar paralelismo e deformacoes - Retificar", "500,000"],
+        ["Parafusos, verificar condicoes das roscas e substituir se necessario", "200,000"],
+        ["Pinos - Verificar quanto a folga e deformacoes - Substituir se necessario", "500,000"],
+        ["Saidas de cavaco - Verificar obstrucoes e rebarbas", "25,000"],
+        ["Molas almofada - checar / Substituir", "50,000"],
+        ["Molas almofada - checar / Substituir", "1,000,000"],
+        ["Espiga - Verificar deformacoes, paralelismo e fixacoes, retificar", "200,000"],
+        ["Placa de choque - Verificar deformacoes e alojamento", "100,000"],
+        ["Checagem das condicoes de uso do dispositivo de arraste da lamina.", "Todas"],
+        ["", ""],
+        ["", ""],
+        ["", ""]
+      ];
+
+      itens.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td class=\"center\">" + (index + 1) + "</td>" +
+          "<td>" + item[0] + "</td>" +
+          "<td class=\"center\">" + item[1] + "</td>" +
+          "<td class=\"center\">" + (item[1] ? "0" : "") + "</td>" +
+          "<td class=\"center\">NA</td>" +
+          "<td class=\"center\">NA</td>" +
+          "<td class=\"center\">NA</td>";
+        manutRows.appendChild(tr);
+      });
+
+      const btnPrint = document.getElementById("btnPrint");
+      if (btnPrint) {
+        btnPrint.addEventListener("click", function () {
+          window.print();
+        });
+      }
+
+      carregarDados();
+    })();
+  </script>
+</body>
+</html>
+

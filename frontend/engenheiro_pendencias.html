@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel - Engenheiro de Processo</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .page {
+      max-width: 1420px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .toolbar .btn {
+      min-height: 48px;
+      min-width: 112px;
+      padding: 10px 20px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 12px;
+    }
+
+    .pendencias-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(2, 6, 23, 0.12);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .pendencias-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      font-size: 13px;
+      min-width: 1220px;
+    }
+
+    .pendencias-table thead th {
+      background: #0b6b57;
+      color: #fff;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+
+    .pendencias-table thead th:last-child {
+      border-right: none;
+    }
+
+    .pendencias-table tbody td {
+      border-top: 1px solid rgba(2, 6, 23, 0.12);
+      padding: 9px 8px;
+      vertical-align: middle;
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.92);
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.25;
+    }
+
+    .pendencias-table tbody tr:nth-child(even) td {
+      background: rgba(238, 246, 243, 0.9);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid #94a3b8;
+      color: #334155;
+      background: #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .status-badge.status-producao {
+      border-color: #6b7280;
+      color: #374151;
+      background: #f3f4f6;
+    }
+
+    .status-badge.status-ferramentaria {
+      border-color: #64748b;
+      color: #334155;
+      background: #eef2f7;
+    }
+
+    .status-badge.status-cancelada {
+      border-color: #a8a29e;
+      color: #57534e;
+      background: #f5f5f4;
+    }
+
+    .status-badge.status-ferramenta-aprovada {
+      border-color: #6b7280;
+      color: #374151;
+      background: #f3f4f6;
+    }
+
+    .status-badge.status-ja-estampado {
+      border-color: #64748b;
+      color: #334155;
+      background: #eef2f7;
+    }
+
+    .status-badge.status-liberacao-prevista {
+      border-color: #9ca3af;
+      color: #4b5563;
+      background: #f3f4f6;
+    }
+
+    .status-badge.status-cisinox {
+      border-color: #64748b;
+      color: #334155;
+      background: #f1f5f9;
+    }
+
+    .status-badge.status-liberado-producao {
+      border-color: #6b7280;
+      color: #374151;
+      background: #f3f4f6;
+    }
+
+    .status-badge.status-na {
+      border-color: #9ca3af;
+      color: #6b7280;
+      background: #f8fafc;
+    }
+
+    .btn-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      min-width: 94px;
+      padding: 6px 12px;
+      border: 1px solid rgba(7, 66, 56, 0.28);
+      border-radius: 8px;
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .left-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      padding: 16px;
+      text-align: center;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .pendencias-table th:nth-child(1),
+    .pendencias-table td:nth-child(1) { width: 12%; }
+    .pendencias-table th:nth-child(2),
+    .pendencias-table td:nth-child(2) { width: 14%; }
+    .pendencias-table th:nth-child(3),
+    .pendencias-table td:nth-child(3) { width: 10%; }
+    .pendencias-table th:nth-child(4),
+    .pendencias-table td:nth-child(4) { width: 8%; }
+    .pendencias-table th:nth-child(5),
+    .pendencias-table td:nth-child(5) { width: 12%; }
+    .pendencias-table th:nth-child(6),
+    .pendencias-table td:nth-child(6) { width: 18%; }
+    .pendencias-table th:nth-child(7),
+    .pendencias-table td:nth-child(7) { width: 12%; }
+    .pendencias-table th:nth-child(8),
+    .pendencias-table td:nth-child(8) { width: 8%; min-width: 130px; text-align: center; }
+    .pendencias-table th:nth-child(9),
+    .pendencias-table td:nth-child(9) { width: 6%; min-width: 100px; text-align: center; }
+
+    @media (max-width: 760px) {
+      .page {
+        max-width: 980px;
+      }
+
+      .header-row {
+        flex-direction: column;
+      }
+
+      .toolbar {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .toolbar .btn {
+        min-height: 44px;
+        min-width: 104px;
+        font-size: 16px;
+      }
+
+      .pendencias-table {
+        min-width: 980px;
+      }
+
+      .actions {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <header class="panel-header">
+        <div class="header-row">
+          <div class="head-main">
+            <div class="logo-box">
+              <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
+            </div>
+            <div class="head-text">
+              <h1>Pend&ecirc;ncias do Engenheiro de Processo</h1>
+              <p id="perfilInfo">Perfil: Engenheiro de Processo</p>
+            </div>
+          </div>
+          <div class="toolbar">
+            <a class="btn" href="form.html?perfil=engenheiro">INSERIR JOB</a>
+          </div>
+        </div>
+      </header>
+
+      <div class="pendencias-wrap">
+        <table class="pendencias-table" aria-label="Tabela de pend&ecirc;ncias do engenheiro de processo">
+          <thead>
+            <tr>
+              <th>N&uacute;mero da Ficha</th>
+              <th>Data Entrega Evento (SAP)</th>
+              <th>AME Resp.</th>
+              <th>JOB</th>
+              <th>N&ordm; da Ferramenta</th>
+              <th>Descri&ccedil;&atilde;o da Ferramenta</th>
+              <th>N&ordm; Desenho Ferramenta</th>
+              <th>Status</th>
+              <th>A&ccedil;&atilde;o</th>
+            </tr>
+          </thead>
+          <tbody id="pendenciasBody"></tbody>
+        </table>
+        <div class="empty" id="emptyState" hidden>Nenhuma pend&ecirc;ncia encontrada.</div>
+      </div>
+
+      <div class="actions">
+        <div class="left-actions" id="leftActions"></div>
+        <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const perfilAtivo = sessionStorage.getItem("perfil_ativo");
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+      const perfisPermitidos = ["engenheiro", "admin"];
+      if (!perfisPermitidos.includes(perfilAtivo)) {
+        window.location.replace("login.html");
+        return;
+      }
+      sessionStorage.removeItem("redirect_engenheiro_menu");
+
+      const perfilInfo = document.getElementById("perfilInfo");
+      if (perfilInfo) {
+        const perfilNomes = {
+          admin: "Admin",
+          engenheiro: "Engenheiro de Processo",
+          producao: "Produção",
+          ferramenteiro: "Ferramenteiro"
+        };
+        const partesUsuario = usuarioAtivo.split(":");
+        const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
+        const nomeUsuario = partesUsuario.slice(1).join(":").trim();
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuário";
+        let textoPerfil = nomeUsuario ? "Perfil " + perfilLabel + ": " + nomeUsuario : "Perfil " + perfilLabel;
+        if (perfilAtivo === "admin") {
+          textoPerfil += " (visualizando pendências do engenheiro)";
+        }
+        perfilInfo.textContent = textoPerfil;
+      }
+
+      const API_URL = "/api";
+      let pendencias = [];
+
+      const pendenciasBody = document.getElementById("pendenciasBody");
+      const emptyState = document.getElementById("emptyState");
+
+      function createCell(text) {
+        const td = document.createElement("td");
+        td.textContent = text || "";
+        return td;
+      }
+
+      function formatDateToBrShort(value) {
+        if (!value) {
+          return "";
+        }
+        const dt = new Date(value);
+        if (Number.isNaN(dt.getTime())) {
+          return String(value);
+        }
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const day = String(dt.getDate()).padStart(2, "0");
+        return day + "-" + monthNames[dt.getMonth()] + "-" + dt.getFullYear();
+      }
+
+      function normalizeStatus(status) {
+        return String(status || "").trim().toLowerCase();
+      }
+
+      function getStatusMeta(status) {
+        const normalized = normalizeStatus(status);
+        if (normalized.includes("cancel")) {
+          return { texto: "Cancelada", classe: "status-cancelada" };
+        }
+        if (normalized.includes("ferramenta aprovada")) {
+          return { texto: "Ferramenta Aprovada", classe: "status-ferramenta-aprovada" };
+        }
+        if (normalized.includes("ja estamp")) {
+          return { texto: "J\u00E1 estampado", classe: "status-ja-estampado" };
+        }
+        if (normalized.includes("liberacao prevista")) {
+          return { texto: "Libera\u00E7\u00E3o Prevista", classe: "status-liberacao-prevista" };
+        }
+        if (normalized.includes("cisinox")) {
+          return { texto: "Liberado para Cisinox", classe: "status-cisinox" };
+        }
+        if (normalized.includes("liberado para produ")) {
+          return { texto: "Liberado para produ\u00E7\u00E3o", classe: "status-liberado-producao" };
+        }
+        if (normalized === "na") {
+          return { texto: "NA", classe: "status-na" };
+        }
+        if (normalized.includes("ferrament")) {
+          return { texto: "Na Ferramentaria", classe: "status-ferramentaria" };
+        }
+        if (normalized.includes("produc")) {
+          return { texto: "Em Produ\u00E7\u00E3o", classe: "status-producao" };
+        }
+        return { texto: "Pendente", classe: "" };
+      }
+
+      function renderPendencias() {
+        pendenciasBody.innerHTML = "";
+        if (pendencias.length === 0) {
+          emptyState.hidden = false;
+          return;
+        }
+        emptyState.hidden = true;
+
+        pendencias.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.appendChild(createCell(item.numero_ficha_engenheiro));
+          tr.appendChild(createCell(item.data_entrega_evento_sap_engenheiro));
+          tr.appendChild(createCell(item.ame_resp_abertura_engenheiro));
+          tr.appendChild(createCell(item.job_cabecalho_engenheiro));
+          tr.appendChild(createCell(item.numero_ferramenta_engenheiro));
+          tr.appendChild(createCell(item.descricao_ferramenta_engenheiro));
+          tr.appendChild(createCell(item.numero_desenho_ferramenta_engenheiro));
+
+          const tdStatus = document.createElement("td");
+          const badge = document.createElement("span");
+          const status = getStatusMeta(item.status);
+          badge.className = "status-badge" + (status.classe ? " " + status.classe : "");
+          badge.textContent = status.texto;
+          tdStatus.appendChild(badge);
+          tr.appendChild(tdStatus);
+
+          const tdAcao = document.createElement("td");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn-row";
+          btn.textContent = "Visualizar";
+          btn.dataset.pendenciaId = item.id;
+          tdAcao.appendChild(btn);
+          tr.appendChild(tdAcao);
+
+          pendenciasBody.appendChild(tr);
+        });
+      }
+
+      function toEngenheiroPendencia(item) {
+        return {
+          id: String(item.numero_ficha || item.id || ""),
+          numero_ficha_engenheiro: String(item.numero_ficha || ""),
+          data_entrega_evento_sap_engenheiro: formatDateToBrShort(item.data_entrega_evento || item.data_cadastro),
+          ame_resp_abertura_engenheiro: item.responsavel_abertura || item.responsavel || "",
+          job_cabecalho_engenheiro: item.job || "",
+          numero_ferramenta_engenheiro: item.numero_ferramental || "",
+          descricao_ferramenta_engenheiro: item.descricao_ferramenta || item.descricao || "",
+          numero_desenho_ferramenta_engenheiro: item.numero_desenho_ferramental || "",
+          status: item.status_roteiro || item.status || "Pendente"
+        };
+      }
+
+      async function carregarPendencias() {
+        try {
+          const response = await fetch(API_URL + "/fichas", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Falha ao buscar pendencias do banco");
+          }
+          const rows = await response.json();
+          pendencias = Array.isArray(rows) ? rows.map(toEngenheiroPendencia) : [];
+        } catch (_error) {
+          pendencias = [];
+        }
+        renderPendencias();
+      }
+
+      pendenciasBody.addEventListener("click", function (event) {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+        const button = target.closest("button[data-pendencia-id]");
+        if (!button) {
+          return;
+        }
+        const pendenciaId = button.getAttribute("data-pendencia-id");
+        const pendencia = pendencias.find((item) => item.id === pendenciaId);
+        if (!pendencia) {
+          return;
+        }
+
+        sessionStorage.setItem("engenheiro_pendencia_ativa", JSON.stringify(pendencia));
+        window.location.href = "form.html?perfil=engenheiro&modo=visualizar";
+      });
+
+      const leftActions = document.getElementById("leftActions");
+      if (leftActions) {
+        if (perfilAtivo === "admin") {
+          leftActions.innerHTML = '<a class="btn btn-secondary" href="admin.html">Voltar</a>';
+        } else {
+          leftActions.innerHTML = '<a class="btn btn-secondary" href="engenheiro.html">Voltar</a>';
+        }
+      }
+
+      const btnSair = document.getElementById("btnSair");
+      if (btnSair) {
+        btnSair.addEventListener("click", function () {
+          sessionStorage.removeItem("perfil_ativo");
+          sessionStorage.removeItem("usuario_ativo");
+          sessionStorage.removeItem("engenheiro_pendencia_ativa");
+          window.location.replace("login.html");
+        });
+      }
+
+      carregarPendencias();
+    })();
+  </script>
+</body>
+</html>

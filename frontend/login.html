@@ -1,0 +1,103 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estamparia - Login</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+  <div class="brand">
+    <img src="assets/gevernova_logo.jpg" alt="Logo GE Vernova">
+  </div>
+
+  <div class="card">
+    <div class="hero-icon" aria-hidden="true">
+      GE
+    </div>
+    <div class="pill">GE VERNOVA</div>
+
+    <h1>ESTAMPARIA</h1>
+    <div class="sub">Selecione o usuário e digite a senha.</div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label>Usuário</label>
+        <select name="usuario" required>
+          <option value="" selected>Selecione</option>
+          <optgroup label="Engenheiro de processo">
+            <option value="engenheiro:Bruno Almeida" data-profile="engenheiro">Bruno Almeida</option>
+            <option value="engenheiro:Diego Martins" data-profile="engenheiro">Diego Martins</option>
+          </optgroup>
+          <optgroup label="Produção">
+            <option value="producao:Fabio Teixeira" data-profile="producao">Fabio Teixeira</option>
+            <option value="producao:Hugo Fernandes" data-profile="producao">Hugo Fernandes</option>
+            <option value="producao:Joao Cardoso" data-profile="producao">Joao Cardoso</option>
+          </optgroup>
+          <optgroup label="Ferramenteiro">
+            <option value="ferramenteiro:Lucas Barros (verificar)" data-profile="ferramenteiro">Lucas Barros (verificar)</option>
+            <option value="ferramenteiro:Nicolas Vieira" data-profile="ferramenteiro">Nicolas Vieira</option>
+          </optgroup>
+          <optgroup label="Admin">
+            <option value="admin:Sabrina Freitas" data-profile="admin">Sabrina Freitas</option>
+            <option value="admin:Gustavo Nascimento" data-profile="admin">Gustavo Nascimento</option>
+            <option value="admin:Patricia Gomes" data-profile="admin">Patricia Gomes</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+
+      <div id="loginError" class="error" style="display:none;">Email e senha inválidos.</div>
+
+      <button type="submit" aria-label="Entrar com email">
+        <span aria-hidden="true">&#9993;</span>
+        Entrar com Usuário
+      </button>
+    </form>
+
+    <div class="foot"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const error = document.getElementById('loginError');
+    const allowedPassword = '123';
+    const profileRoutes = {
+      engenheiro: 'engenheiro.html',
+      producao: 'producao.html',
+      ferramenteiro: 'ferramenteiro.html',
+      admin: 'admin.html'
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const selectedOption = form.usuario.options[form.usuario.selectedIndex];
+      const selectedValue = form.usuario.value || '';
+      const inferredProfile = selectedValue.includes(':') ? selectedValue.split(':')[0] : '';
+      const profile = selectedOption?.dataset?.profile || inferredProfile;
+      const password = form.password.value.trim();
+      const normalizedPassword = password.replace(/[^0-9]/g, '');
+      if (!profile || normalizedPassword !== allowedPassword) {
+        error.style.display = 'block';
+        return;
+      }
+      error.style.display = 'none';
+      sessionStorage.setItem('perfil_ativo', profile);
+      sessionStorage.setItem('usuario_ativo', selectedValue);
+      if (profile === 'engenheiro') {
+        sessionStorage.setItem('redirect_engenheiro_menu', '1');
+      } else {
+        sessionStorage.removeItem('redirect_engenheiro_menu');
+      }
+      window.location.href = profileRoutes[profile] || 'login.html';
+    });
+  </script>
+
+</body>
+</html>

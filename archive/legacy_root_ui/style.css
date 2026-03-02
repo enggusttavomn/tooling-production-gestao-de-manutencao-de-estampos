@@ -1,0 +1,386 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --ink: #1b1b1b;
+    --line: #1f1f1f;
+    --blue: #b7c9e6;
+    --blue-dark: #9fb5df;
+    --paper: #ffffff;
+    --bg: #c8c8c8;
+}
+
+body.page {
+    font-family: "Arial", sans-serif;
+    background: #bdbdbd;
+    color: var(--ink);
+}
+
+
+.btn {
+    border: 1px solid var(--line);
+    background: #e9e9e9;
+    padding: 5px 10px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #1e4aa8;
+    color: #fff;
+}
+
+.btn-secondary {
+    background: #f1f1f1;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+}
+
+.form-paper {
+    width: 612px;
+    background: var(--paper);
+    border: 2px solid var(--line);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+.paper-header {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 6px 10px;
+    background: var(--blue);
+    border-bottom: 2px solid var(--line);
+}
+
+.logo-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-weight: bold;
+    color: #2a5fb8;
+    background: #e8f0ff;
+}
+
+.logo-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.header-text {
+    text-align: center;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+}
+
+.subtitle {
+    font-weight: bold;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.doc-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr 0.7fr 1fr;
+    border-bottom: 2px solid var(--line);
+}
+
+.doc-cell {
+    border-right: 1px solid var(--line);
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.doc-cell:last-child {
+    border-right: none;
+}
+
+.label {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.label-blue {
+    color: #1147b6;
+}
+
+.label-red {
+    color: #c40000;
+    font-weight: bold;
+}
+
+.value {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.value.line input {
+    width: 100%;
+}
+
+.section {
+    border-top: 2px solid var(--line);
+}
+
+.section-title {
+    background: var(--blue);
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    font-weight: bold;
+    font-size: 11px;
+    padding: 3px 6px;
+}
+
+.line-grid {
+    display: grid;
+    gap: 8px;
+    padding: 4px 6px;
+    border-bottom: 1px solid var(--line);
+}
+
+.section .line-grid:last-of-type {
+    border-bottom: none;
+}
+
+.line-grid.one {
+    grid-template-columns: 1fr;
+}
+
+.line-grid.two {
+    grid-template-columns: 1fr 1fr;
+}
+
+.line-grid.three {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.line-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.line-item label {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.line-item-textarea {
+    align-items: center;
+}
+
+.line-item-textarea label {
+    padding-top: 2px;
+}
+
+.line-item input,
+.line-item select,
+.line-item textarea,
+.doc-cell input {
+    font-family: inherit;
+    font-size: 11px;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    padding: 1px 4px;
+    outline: none;
+}
+
+.short-input {
+    max-width: 160px;
+}
+
+.line-item textarea {
+    border: 1px solid var(--line);
+    padding: 4px;
+    resize: vertical;
+}
+
+.lined-textarea {
+    background-image: linear-gradient(to bottom, transparent 18px, #1f1f1f 19px);
+    background-size: 100% 19px;
+}
+
+.date-split {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.date-split input {
+    width: 28px;
+    text-align: center;
+}
+
+.date-split input:last-child {
+    width: 44px;
+}
+
+.time-split {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-split input {
+    width: 22px;
+    text-align: center;
+}
+
+.afias {
+    display: grid;
+    grid-template-columns: repeat(5, auto 1fr);
+    align-items: center;
+    gap: 4px 6px;
+}
+
+.afias input {
+    width: 42px;
+    text-align: center;
+}
+
+.afias-label {
+    color: #1147b6;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.inline-strong {
+    font-weight: bold;
+    padding: 2px 4px;
+    font-size: 12px;
+}
+
+.highlight input {
+    font-weight: bold;
+}
+
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+    table-layout: fixed;
+}
+
+.form-table th,
+.form-table td {
+    border: 1px solid var(--line);
+    padding: 3px 4px;
+    vertical-align: top;
+}
+
+.table-vida th,
+.table-vida td {
+    text-align: center;
+}
+
+.table-vida td:nth-child(2) {
+    text-align: left;
+}
+
+.table-maint th {
+    text-align: center;
+}
+
+.table-maint td:nth-child(1),
+.table-maint td:nth-child(3),
+.table-maint td:nth-child(4),
+.table-maint td:nth-child(5),
+.table-maint td:nth-child(6),
+.table-maint td:nth-child(7) {
+    text-align: center;
+}
+
+.table-maint td:nth-child(2) {
+    text-align: left;
+}
+
+.table-nc th,
+.table-nc td:nth-child(1) {
+    text-align: center;
+}
+
+.table-rev th,
+.table-rev td:nth-child(1),
+.table-rev td:nth-child(4) {
+    text-align: center;
+}
+
+.form-table thead th {
+    background: var(--blue);
+    text-align: center;
+}
+
+.table-note {
+    background: var(--blue);
+    text-align: center;
+    font-weight: bold;
+}
+
+.note-value {
+    color: #1e4aa8;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.message-box {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    padding: 12px 20px;
+    border-radius: 2px;
+    font-weight: bold;
+    display: none;
+    z-index: 1000;
+    border: 1px solid #333;
+    background: #fff;
+}
+
+@media (max-width: 860px) {
+    .form-paper {
+        width: 100%;
+    }
+
+    .doc-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .line-grid.two,
+    .line-grid.three {
+        grid-template-columns: 1fr;
+    }
+
+    .line-item {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+
+    .afias {
+        grid-template-columns: repeat(2, auto 1fr);
+    }
+}

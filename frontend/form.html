@@ -1,0 +1,5944 @@
+﻿<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Formul&aacute;rio - Ficha de Manuten&ccedil;&atilde;o</title>
+
+  <script>
+
+    (function () {
+
+      const params = new URLSearchParams(window.location.search);
+
+      const perfil = params.get("perfil");
+
+      const modo = params.get("modo");
+
+      if (perfil === "admin" && modo === "impressao") {
+
+        const tipo = params.get("tipo") === "processo" ? "processo" : "manutencao";
+
+        window.location.replace("impressao_modelo.html?tipo=" + encodeURIComponent(tipo));
+
+        return;
+
+      }
+
+      if (perfil === "admin" && modo !== "impressao") {
+
+        window.location.replace("admin.html");
+
+        return;
+
+      }
+
+      if (perfil === "engenheiro" && sessionStorage.getItem("redirect_engenheiro_menu") === "1") {
+
+        sessionStorage.removeItem("redirect_engenheiro_menu");
+
+        window.location.replace("engenheiro.html");
+
+      }
+
+    })();
+
+  </script>
+
+  <style>
+
+    :root {
+
+      --green: #138a6f;
+
+      --green-dark: #0b6b57;
+
+      --paper: #f7f8f9;
+
+      --ink: #0f172a;
+
+      --line: #2a2a2a;
+
+      --line-soft: #6b7280;
+
+      --danger: #c50000;
+
+      --white: #ffffff;
+      --eng-sticky-col-width: 190px;
+      --eng-sticky-left-offset: 1px;
+
+    }
+
+
+
+    * {
+
+      box-sizing: border-box;
+
+      margin: 0;
+
+      padding: 0;
+
+    }
+
+
+
+    body {
+
+      font-family: Calibri, Arial, sans-serif;
+
+      background:
+
+        radial-gradient(900px 420px at 10% -10%, #ffffff 0%, transparent 60%),
+
+        radial-gradient(700px 420px at 100% 10%, rgba(11, 107, 87, 0.1) 0%, transparent 55%),
+
+        linear-gradient(140deg, #f5f8f6, #eaf2ef);
+
+      color: var(--ink);
+
+      min-height: 100vh;
+
+      padding: 10px 6px;
+
+      position: relative;
+
+      overflow-x: hidden;
+
+    }
+
+
+
+    body::before {
+
+      content: "";
+
+      position: absolute;
+
+      width: 280px;
+
+      height: 280px;
+
+      border-radius: 80px;
+
+      background: linear-gradient(140deg, rgba(11, 107, 87, 0.18), rgba(11, 107, 87, 0));
+
+      top: 50px;
+
+      left: -120px;
+
+      pointer-events: none;
+
+      z-index: 0;
+
+    }
+
+
+
+    body::after {
+
+      content: "";
+
+      position: absolute;
+
+      width: 220px;
+
+      height: 220px;
+
+      border-radius: 60px;
+
+      background: linear-gradient(130deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+
+      bottom: -80px;
+
+      right: -40px;
+
+      pointer-events: none;
+
+      z-index: 0;
+
+    }
+
+
+
+    .wrap {
+
+      width: calc(100vw - 12px);
+
+      max-width: none;
+
+      margin: 0 auto;
+
+      position: relative;
+
+      z-index: 1;
+
+    }
+
+
+
+    .form-layout {
+
+      display: grid;
+
+      grid-template-columns: minmax(0, 1fr);
+
+      gap: 12px;
+
+      align-items: start;
+
+    }
+
+
+
+    .form-layout.has-licoes {
+
+      grid-template-columns: minmax(0, 1fr) 240px;
+
+    }
+
+
+
+    .form-card {
+
+      background: var(--paper);
+
+      border: 2px solid var(--line);
+
+      padding: 0;
+
+      box-shadow: none;
+
+      order: 1;
+
+    }
+
+
+
+    .form-head {
+
+      display: grid;
+
+      grid-template-columns: 100px 1fr;
+
+      align-items: center;
+
+      gap: 14px;
+
+      background: var(--green-dark);
+
+      border-bottom: 2px solid var(--line);
+
+      padding: 12px 14px;
+
+    }
+
+
+
+    .logo-box {
+
+      width: 74px;
+
+      height: 74px;
+
+      border-radius: 50%;
+
+      overflow: hidden;
+
+      border: 2px solid #d6f0ea;
+
+      background: #fff;
+
+      justify-self: center;
+
+    }
+
+
+
+    .logo-box img {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+
+    }
+
+
+
+    .head-text h1 {
+
+      font-size: 22px;
+
+      color: #fff;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.01em;
+
+      text-align: center;
+
+    }
+
+
+
+    .head-text p {
+
+      margin-top: 6px;
+
+      font-size: 16px;
+
+      color: #d6f2ee;
+
+      text-align: center;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+    }
+
+
+
+    .meta-row {
+
+      display: grid;
+
+      grid-template-columns: 140px 120px 110px minmax(220px, 1fr) 150px 160px;
+
+      grid-template-rows: repeat(2, auto);
+
+      border-bottom: 2px solid var(--line);
+
+      background: #efefef;
+
+      width: 100%;
+
+    }
+
+
+
+    .meta-item {
+
+      padding: 5px 8px;
+
+      border-right: 1px solid var(--line);
+
+      border-bottom: 1px solid var(--line);
+
+      font-size: 15px;
+
+      font-weight: 700;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-align: center;
+
+      min-width: 0;
+
+    }
+
+
+
+    .meta-item:nth-child(1),
+
+    .meta-item:nth-child(2),
+
+    .meta-item:nth-child(3),
+
+    .meta-item:nth-child(4) {
+
+      grid-row: 1 / span 2;
+
+      border-bottom: none;
+
+    }
+
+
+
+    .meta-item:nth-child(6),
+
+    .meta-item:nth-child(8) {
+
+      border-right: none;
+
+    }
+
+
+
+    .meta-label {
+
+      color: var(--ink);
+
+      font-weight: 700;
+
+    }
+
+
+
+    .meta-value {
+
+      color: var(--ink);
+
+      font-weight: 700;
+
+    }
+
+
+
+    .section {
+
+      border-top: 1px solid var(--line);
+
+      padding: 0;
+
+      margin-top: 0;
+
+      background: transparent;
+
+    }
+
+
+
+    .section-title {
+
+      display: block;
+
+      background: var(--green);
+
+      color: var(--white);
+
+      font-weight: 700;
+
+      padding: 6px 10px;
+
+      margin-bottom: 0;
+
+      font-size: 15px;
+
+      letter-spacing: 0.015em;
+
+      border-bottom: 1px solid var(--line);
+
+      text-transform: uppercase;
+
+      text-align: center;
+
+    }
+
+
+
+    .sheet-block {
+
+      border-bottom: 1px solid var(--line);
+
+      padding: 10px 12px;
+
+      background: transparent;
+
+    }
+
+
+
+    .sheet-line {
+
+      display: grid;
+
+      grid-template-columns: minmax(300px, 32%) minmax(420px, 68%);
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin: 4px 0;
+
+    }
+
+
+
+    .sheet-line label {
+
+      font-size: 17px;
+
+      font-weight: 700;
+
+    }
+
+
+
+    .sheet-line input {
+
+      width: 100%;
+
+      border: 1px solid #8fa3a8;
+
+      border-radius: 2px;
+
+      background: rgba(255, 255, 255, 0.88);
+
+      font-size: 14px;
+
+      padding: 3px 6px;
+
+      min-height: 34px;
+
+      outline: none;
+
+    }
+
+
+
+    .sheet-line-strong {
+
+      align-items: end;
+
+    }
+
+
+
+    .sheet-line .label-accent {
+
+      color: var(--green);
+
+    }
+
+
+
+    .sheet-line .value-strong {
+
+      font-size: 34px;
+
+      font-weight: 700;
+
+      line-height: 1;
+
+      letter-spacing: 0.02em;
+
+    }
+
+
+
+    .sheet-line input::placeholder {
+
+      color: #6f7882;
+
+    }
+
+
+
+    .sheet-line-strong input {
+
+      min-height: 48px;
+
+      padding-top: 3px;
+
+      padding-bottom: 3px;
+
+    }
+
+
+
+    .prod-block {
+
+      border-top: 1px solid var(--line);
+
+      border-bottom: 1px solid var(--line);
+
+      background: rgba(255, 255, 255, 0.08);
+
+    }
+
+
+
+    .workflow-subtitle {
+
+      background: #e6efec;
+
+      color: #0b6b57;
+
+      font-size: 13px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      border-top: 1px solid var(--line);
+
+      border-bottom: 1px solid var(--line);
+
+      padding: 6px 8px;
+
+    }
+
+
+
+    .prod-title {
+
+      background: var(--green);
+
+      color: #fff;
+
+      font-size: 16px;
+
+      font-weight: 700;
+
+      text-align: center;
+
+      padding: 3px 8px;
+
+      border-bottom: 1px solid var(--line);
+
+    }
+
+
+
+    .prod-row {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      border-bottom: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .prod-cell {
+
+      padding: 6px 8px;
+
+      border-right: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .prod-cell:last-child {
+
+      border-right: none;
+
+    }
+
+
+
+    .prod-cell-full {
+
+      grid-column: 1 / -1;
+
+      border-right: none;
+
+    }
+
+
+
+    .prod-label {
+
+      font-size: 15px;
+
+      font-weight: 700;
+
+      margin-right: 6px;
+
+    }
+
+
+
+    .prod-inline {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      width: 100%;
+
+    }
+
+
+
+    .line-input {
+
+      flex: 1;
+
+      border: 1px solid #8fa3a8;
+
+      border-radius: 2px;
+
+      background: rgba(255, 255, 255, 0.9);
+
+      font-size: 15px;
+
+      padding: 4px 7px;
+
+      outline: none;
+
+      min-width: 40px;
+
+      min-height: 32px;
+
+    }
+
+
+
+    .line-input::placeholder {
+
+      color: #6f7882;
+
+    }
+
+
+
+    .line-input:focus,
+
+    .sheet-line input:focus {
+
+      border-color: var(--green-dark);
+
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.16);
+
+      background: #f2faf8;
+
+    }
+
+
+
+    .sheet-line input.readonly-field {
+
+      background: #ebefef;
+
+      color: #55616f;
+
+      border-color: #96a3ae;
+
+      box-shadow: none;
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    .readonly-field,
+
+    select:disabled {
+
+      background: #ebefef !important;
+
+      color: #55616f !important;
+
+      border-color: #96a3ae !important;
+
+      box-shadow: none !important;
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    .line-input[type="date"],
+
+    .sheet-line input[type="date"] {
+
+      min-height: 32px;
+
+      color: var(--ink);
+
+      padding: 4px 7px;
+
+    }
+
+
+
+    .prod-job-row {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1.3fr;
+
+      gap: 10px;
+
+      padding: 4px 8px 2px;
+
+    }
+
+
+
+    .prod-job-line {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      min-height: 28px;
+
+    }
+
+
+
+    .prod-job-name {
+
+      font-size: 15px;
+
+      font-weight: 700;
+
+    }
+
+
+
+    .prod-golpes-row {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      padding: 2px 8px 6px;
+
+      border-bottom: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .golpes-label {
+
+      font-size: 15px;
+
+      min-width: 195px;
+
+    }
+
+
+
+    .golpes-parts {
+
+      display: grid;
+
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+
+      gap: 10px;
+
+      width: 100%;
+
+    }
+
+
+
+    .golpe-item {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    .prod-golpes-row .line-input {
+
+      min-height: 30px;
+
+      font-size: 14px;
+
+      padding: 3px 6px;
+
+    }
+
+
+
+    .golpe-item span {
+
+      color: var(--green);
+
+      font-weight: 700;
+
+      font-size: 15px;
+
+    }
+
+
+
+    .obs-wrap {
+
+      padding: 6px 8px;
+
+      border-bottom: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .obs-label {
+
+      font-size: 15px;
+
+      margin-bottom: 2px;
+
+    }
+
+
+
+    .obs-lines {
+
+      width: 100%;
+
+      height: 120px;
+
+      border: 1px solid #8fa3a8;
+
+      border-radius: 2px;
+
+      outline: none;
+
+      resize: vertical;
+
+      background: rgba(255, 255, 255, 0.9);
+
+      line-height: 1.4;
+
+      font-size: 14px;
+
+      padding: 8px 10px;
+
+    }
+
+
+
+    .prod-footer {
+
+      display: grid;
+
+      grid-template-columns: 1fr;
+
+      gap: 4px;
+
+      padding: 6px;
+
+    }
+
+
+
+    .prod-footer .prod-inline {
+
+      max-width: 680px;
+
+    }
+
+
+
+    .label-accent-strong {
+
+      color: var(--green);
+
+      font-weight: 700;
+
+    }
+
+
+
+    #secFerramenteiro .req {
+
+      display: none;
+
+    }
+
+
+
+    #secFerramenteiro .obs-lines {
+
+      height: 90px;
+
+    }
+
+
+
+    #secFerramenteiro .prod-row {
+
+      border-bottom: 1px solid #7d8b94;
+
+    }
+
+
+
+    #secFerramenteiro .prod-cell {
+
+      padding-top: 7px;
+
+      padding-bottom: 7px;
+
+    }
+
+
+
+    #secEngenheiro .prod-inline {
+
+      display: block;
+
+    }
+
+
+
+    #secEngenheiro .prod-label {
+
+      display: block;
+
+      margin: 0 0 4px 0;
+
+    }
+
+
+
+    #secEngenheiro .line-input {
+
+      width: 100%;
+
+    }
+
+
+
+    .eng-controls {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      padding: 10px 12px;
+
+      border: 1px solid #8fb6a9;
+
+      border-bottom: none;
+
+      background: linear-gradient(180deg, #eef7f3, #e6f0ec);
+
+    }
+
+
+
+    .eng-control-btn {
+
+      border: 1px solid #6d9f90;
+      border-radius: 4px;
+      background: #ffffff;
+      color: #0b6b57;
+      font-size: 12px;
+
+      font-weight: 700;
+      text-transform: uppercase;
+
+      padding: 5px 10px;
+
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    }
+
+
+
+    .eng-control-btn.is-off {
+
+      color: #64748b;
+
+      border-color: #9ca3af;
+
+      background: #f3f4f6;
+
+    }
+
+    .eng-control-btn[aria-pressed="true"] {
+      background: #0b6b57;
+      border-color: #085345;
+      color: #ffffff;
+    }
+
+
+
+    .eng-table-shell {
+
+      position: relative;
+
+    }
+
+
+
+    .eng-table-shell::before,
+
+    .eng-table-shell::after {
+
+      content: "";
+
+      position: absolute;
+
+      top: 0;
+
+      bottom: 0;
+
+      width: 18px;
+
+      pointer-events: none;
+
+      opacity: 0;
+
+      transition: opacity 0.15s ease;
+
+      z-index: 2;
+
+    }
+
+
+
+    .eng-table-shell::before {
+
+      left: var(--eng-sticky-col-width);
+
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.14), rgba(15, 23, 42, 0));
+
+    }
+
+
+
+    .eng-table-shell::after {
+
+      right: 0;
+
+      background: linear-gradient(270deg, rgba(15, 23, 42, 0.14), rgba(15, 23, 42, 0));
+
+    }
+
+
+
+    .eng-table-shell:not(.at-start)::before {
+
+      opacity: 1;
+
+    }
+
+
+
+    .eng-table-shell:not(.at-end)::after {
+
+      opacity: 1;
+
+    }
+
+
+
+    .eng-table-wrap {
+
+      overflow-x: auto;
+
+      border: 1px solid var(--line-soft);
+
+      background: #fdfefe;
+}
+
+    .eng-table-wrap.hide-native-scrollbar {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .eng-table-wrap.hide-native-scrollbar::-webkit-scrollbar {
+      height: 0;
+    }
+
+    .eng-scroll-dock {
+      position: fixed;
+      bottom: 8px;
+      left: 8px;
+      height: 14px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border: 1px solid #8fa3b0;
+      background: rgba(247, 250, 252, 0.95);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+      z-index: 40;
+      display: none;
+    }
+
+    .eng-scroll-dock.is-visible {
+      display: block;
+    }
+
+    .eng-scroll-dock-inner {
+      height: 1px;
+    }
+
+
+
+    .eng-common-fields {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line-soft);
+      border-bottom: none;
+      background: #f7fbf9;
+    }
+
+    .eng-common-field {
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 6px;
+      min-height: 78px;
+      padding: 8px 10px;
+      border: 1px solid #9cb7ad;
+      background: #eef6f2;
+      align-content: center;
+    }
+
+
+
+    .eng-common-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0;
+      color: #0b6b57;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+
+    .eng-common-field .eng-cell-input {
+      width: 100%;
+      min-width: 0;
+      min-height: 34px;
+      font-size: 13px;
+      padding: 4px 8px;
+    }
+
+
+
+    .eng-table {
+
+      width: 100%;
+
+      min-width: 1900px;
+
+      border-collapse: collapse;
+
+    }
+
+
+
+    .eng-table th,
+
+    .eng-table td {
+
+      border: 1px solid var(--line-soft);
+
+      padding: 4px;
+
+      vertical-align: middle;
+
+      font-size: 12px;
+
+    }
+
+
+
+    .eng-table th {
+
+      background: #edf3f0;
+
+      color: #0f172a;
+
+      text-transform: uppercase;
+
+      font-size: 12px;
+
+      white-space: nowrap;
+
+    }
+
+
+
+    .eng-table thead tr:first-child th {
+
+      position: sticky;
+
+      top: 0;
+
+      z-index: 5;
+
+      background: #dcefe8;
+
+      color: #0b6b57;
+      font-size: 14px;
+      font-weight: 800;
+
+    }
+
+    .eng-table thead tr:first-child th:not(:first-child) {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+
+
+    .eng-table thead tr:nth-child(2) th {
+
+      position: sticky;
+
+      top: 28px;
+
+      z-index: 4;
+      font-size: 12px;
+      font-weight: 700;
+
+    }
+
+
+
+    .eng-table thead tr:first-child th:first-child,
+
+    .eng-table tbody tr:not(.eng-group-row) td:first-child {
+
+      position: sticky;
+
+      left: var(--eng-sticky-left-offset);
+
+      min-width: var(--eng-sticky-col-width);
+      width: var(--eng-sticky-col-width);
+      z-index: 8;
+      padding-left: 10px;
+      background-clip: padding-box;
+
+    }
+
+
+
+    .eng-table thead tr:first-child th:first-child {
+
+      z-index: 7;
+
+      background: #cde4db;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+
+    }
+
+
+
+    .eng-table tbody tr:not(.eng-group-row) td:first-child {
+
+      background: #f6fbf8;
+
+      z-index: 7;
+      box-shadow: 2px 0 0 rgba(107, 114, 128, 0.35);
+
+    }
+
+
+
+    .eng-row-title {
+
+      min-width: var(--eng-sticky-col-width);
+
+      font-size: 12px;
+      font-weight: 700;
+
+      background: #f6fbf8;
+
+      color: #000000;
+
+      white-space: nowrap;
+      text-transform: uppercase;
+
+    }
+
+
+
+    .eng-cell-input {
+
+      min-width: 88px;
+
+      min-height: 28px;
+
+      font-size: 11px;
+
+      padding: 3px 4px;
+
+    }
+
+
+
+    .eng-group-row td {
+      background: #dfeee8;
+      color: #0b6b57;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 6px 8px;
+      border-top: 2px solid #8fb6a9;
+    }
+
+    .eng-group-row .eng-group-title {
+      position: sticky;
+      left: var(--eng-sticky-left-offset);
+      min-width: var(--eng-sticky-col-width);
+      width: var(--eng-sticky-col-width);
+      z-index: 9;
+      padding-left: 10px;
+      background: #dfeee8;
+      background-clip: padding-box;
+      box-shadow: 2px 0 0 rgba(107, 114, 128, 0.35);
+    }
+
+    .eng-group-row .eng-group-fill {
+      background: #dfeee8;
+    }
+
+
+
+    #secEngenheiro.hide-processo .eng-table thead tr:first-child th.group-processo,
+
+    #secEngenheiro.hide-processo .eng-table thead tr:nth-child(2) th:nth-child(n+1):nth-child(-n+6),
+
+    #secEngenheiro.hide-processo .eng-table tbody tr:not(.eng-group-row) td:nth-child(n+2):nth-child(-n+7) {
+
+      display: none;
+
+    }
+
+
+
+    #secEngenheiro.hide-ferramental .eng-table thead tr:first-child th.group-ferramental,
+
+    #secEngenheiro.hide-ferramental .eng-table thead tr:nth-child(2) th:nth-child(n+7):nth-child(-n+15),
+
+    #secEngenheiro.hide-ferramental .eng-table tbody tr:not(.eng-group-row) td:nth-child(n+8):nth-child(-n+16) {
+
+      display: none;
+
+    }
+
+
+
+    #secEngenheiro.hide-compras .eng-table thead tr:first-child th.group-compras,
+
+    #secEngenheiro.hide-compras .eng-table thead tr:nth-child(2) th:nth-child(n+16):nth-child(-n+23),
+
+    #secEngenheiro.hide-compras .eng-table tbody tr:not(.eng-group-row) td:nth-child(n+17):nth-child(-n+24) {
+
+      display: none;
+
+    }
+
+
+
+    #secEngenheiro.is-wide .eng-table {
+
+      min-width: 1450px;
+
+    }
+
+
+
+    #secEngenheiro.is-wide .eng-table th,
+
+    #secEngenheiro.is-wide .eng-table td {
+
+      font-size: 10px;
+
+      padding: 2px;
+
+    }
+
+
+
+    #secEngenheiro.is-wide .eng-table thead tr:nth-child(2) th {
+
+      top: 24px;
+
+    }
+
+
+
+    #secEngenheiro.is-wide .eng-cell-input {
+
+      min-width: 76px;
+
+      min-height: 22px;
+
+      font-size: 10px;
+
+      padding: 2px 4px;
+
+    }
+
+
+
+    .press-value {
+
+      font-size: 33px;
+
+      font-weight: 700;
+
+      letter-spacing: 0.01em;
+
+      max-width: 160px;
+
+    }
+
+
+
+
+
+    .grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      gap: 0;
+
+    }
+
+
+
+    .grid-1 {
+
+      grid-column: 1 / -1;
+
+    }
+
+
+
+    .field {
+
+      padding: 6px 7px;
+
+      border-right: 1px solid var(--line-soft);
+
+      border-bottom: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .grid > .field:nth-child(2n) {
+
+      border-right: none;
+
+    }
+
+
+
+    .field label {
+
+      display: block;
+
+      margin-bottom: 2px;
+
+      font-weight: 700;
+
+      font-size: 13px;
+
+    }
+
+
+
+    .req {
+
+      color: var(--danger);
+
+      font-weight: 800;
+
+    }
+
+
+
+    .field input,
+
+    .field select,
+
+    .field textarea {
+
+      width: 100%;
+
+      border: none;
+
+      border-bottom: 1px solid var(--line);
+
+      border-radius: 0;
+
+      font-size: 13px;
+
+      padding: 1px 2px;
+
+      background: transparent;
+
+      color: var(--ink);
+
+      outline: none;
+
+    }
+
+
+
+    .field textarea {
+
+      min-height: 64px;
+
+      resize: vertical;
+
+      border: 1px solid var(--line-soft);
+
+      padding: 4px;
+
+      background: rgba(255, 255, 255, 0.2);
+
+    }
+
+
+
+    .field input:focus,
+
+    .field select:focus,
+
+    .field textarea:focus {
+
+      border-color: var(--green-dark);
+
+      box-shadow: none;
+
+      background: #f7fffd;
+
+    }
+
+
+
+    .field-note {
+
+      display: block;
+
+      margin-top: 2px;
+
+      font-size: 10px;
+
+      color: #364a46;
+
+    }
+
+
+
+    .job-block {
+
+      border: 1px solid var(--line);
+
+      padding: 0;
+
+      background: rgba(255, 255, 255, 0.14);
+
+    }
+
+
+
+    .job-block h3 {
+
+      margin-bottom: 0;
+
+      font-size: 11px;
+
+      color: #fff;
+
+      text-transform: uppercase;
+
+      letter-spacing: 0.02em;
+
+      background: var(--green);
+
+      border-bottom: 1px solid var(--line);
+
+      padding: 4px 6px;
+
+    }
+
+
+
+    .golpes-grid {
+
+      display: grid;
+
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+
+      gap: 0;
+
+      margin-top: 0;
+
+      border-top: 1px solid var(--line-soft);
+
+    }
+
+
+
+    .golpes-grid .field label {
+
+      font-size: 10px;
+
+    }
+
+
+
+    input[type="number"] {
+
+      appearance: textfield;
+
+      -moz-appearance: textfield;
+
+    }
+
+
+
+    input[type="number"]::-webkit-outer-spin-button,
+
+    input[type="number"]::-webkit-inner-spin-button {
+
+      -webkit-appearance: none;
+
+      margin: 0;
+
+    }
+
+
+
+    .actions {
+
+      display: flex;
+
+      gap: 10px;
+
+      justify-content: flex-end;
+
+      margin: 10px;
+
+    }
+
+
+
+    .btn {
+
+      border: 1px solid var(--line);
+
+      border-radius: 2px;
+
+      padding: 10px 18px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+      text-decoration: none;
+
+      font-size: 14px;
+
+      text-transform: uppercase;
+
+    }
+
+
+
+    .btn-primary {
+
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+
+      color: var(--white);
+
+      border-color: rgba(7, 66, 56, 0.28);
+
+    }
+
+
+
+    .btn-secondary {
+
+      background: linear-gradient(135deg, #ffffff, #f2f5f4);
+
+      color: var(--green-dark);
+
+      border-color: rgba(11, 107, 87, 0.28);
+
+    }
+
+
+
+    .licoes-panel {
+
+      display: none;
+
+      background: rgba(247, 248, 249, 0.95);
+
+      border: 2px solid var(--line);
+
+      padding: 10px;
+
+      position: sticky;
+
+      top: 10px;
+
+      order: 2;
+
+    }
+
+
+
+    .licoes-panel.is-visible {
+
+      display: block;
+
+    }
+
+
+
+    .licoes-title {
+
+      background: var(--green-dark);
+
+      color: #fff;
+
+      font-weight: 700;
+
+      font-size: 14px;
+
+      text-transform: uppercase;
+
+      text-align: center;
+
+      padding: 6px 8px;
+
+      border: 1px solid var(--line);
+
+      margin-bottom: 8px;
+
+    }
+
+
+
+    .licoes-search {
+
+      width: 100%;
+
+      border: 1px solid #8fa3a8;
+
+      background: #fff;
+
+      min-height: 34px;
+
+      padding: 5px 8px;
+
+      margin-bottom: 8px;
+
+      outline: none;
+
+    }
+
+
+
+    .licoes-search:focus {
+
+      border-color: var(--green-dark);
+
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.16);
+
+    }
+
+
+
+    .licoes-list {
+
+      display: grid;
+
+      gap: 6px;
+
+      max-height: 76vh;
+
+      overflow-y: auto;
+
+      padding-right: 2px;
+
+    }
+
+
+
+    .licao-item {
+
+      border: 1px solid #9ea8ad;
+
+      background: #fff;
+
+      padding: 6px 7px;
+
+      font-size: 13px;
+
+      line-height: 1.3;
+
+    }
+
+
+
+    .licao-item strong {
+
+      display: block;
+
+      color: #0b6b57;
+
+      margin-bottom: 2px;
+
+    }
+
+
+
+    .licoes-empty {
+
+      border: 1px dashed #9ea8ad;
+
+      background: #fff;
+
+      color: #475569;
+
+      font-size: 13px;
+
+      padding: 8px;
+
+      text-align: center;
+
+    }
+
+
+
+    .aux-card {
+
+      border: 1px solid #9ea8ad;
+
+      background: #fff;
+
+      margin-bottom: 8px;
+
+      padding: 7px 8px;
+
+      font-size: 13px;
+
+      color: #0f172a;
+
+    }
+
+
+
+    .aux-card strong {
+
+      color: #0b6b57;
+
+      display: block;
+
+      margin-bottom: 3px;
+
+    }
+
+
+
+    @media (max-width: 1200px) {
+
+      .wrap {
+
+        width: calc(100vw - 8px);
+
+        max-width: none;
+
+      }
+
+
+
+      .form-layout.has-licoes {
+
+        grid-template-columns: minmax(0, 1fr) 220px;
+
+      }
+
+
+
+      .meta-row {
+
+        grid-template-columns: 120px 105px 100px minmax(180px, 1fr) 135px 145px;
+
+      }
+
+
+
+      .meta-item {
+
+        font-size: 12px;
+
+        padding: 4px 6px;
+
+      }
+
+    }
+
+
+
+    @media (max-width: 860px) {
+
+      .form-layout.has-licoes {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+
+      .licoes-panel {
+
+        position: static;
+
+      }
+
+      .eng-scroll-dock {
+        bottom: 4px;
+      }
+
+
+
+      .eng-common-fields {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+
+      .meta-row {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        grid-template-rows: auto;
+
+      }
+
+
+
+      .meta-item {
+
+        border-bottom: 1px solid var(--line);
+
+      }
+
+
+
+      .meta-item:nth-child(1),
+
+      .meta-item:nth-child(2),
+
+      .meta-item:nth-child(3),
+
+      .meta-item:nth-child(4) {
+
+        grid-row: auto;
+
+        border-bottom: 1px solid var(--line);
+
+      }
+
+
+
+      .grid {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+
+      .grid > .field:nth-child(2n) {
+
+        border-right: 1px solid var(--line-soft);
+
+      }
+
+
+
+      .field {
+
+        border-right: none;
+
+      }
+
+
+
+      .form-head {
+
+        grid-template-columns: 1fr;
+
+        text-align: center;
+
+      }
+
+
+
+      .golpes-grid {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      }
+
+
+
+      .sheet-line {
+
+        grid-template-columns: 1fr;
+
+        gap: 2px;
+
+      }
+
+
+
+      .sheet-line .value-strong {
+
+        font-size: 28px;
+
+      }
+
+
+
+      .prod-row {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+
+      .prod-cell {
+
+        border-right: none;
+
+      }
+
+
+
+      .prod-job-row {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+
+      .golpes-parts {
+
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      }
+
+
+
+      .golpes-label {
+
+        min-width: 0;
+
+      }
+
+
+
+      .actions {
+
+        justify-content: stretch;
+
+      }
+
+
+
+      .btn {
+
+        flex: 1;
+
+        text-align: center;
+
+      }
+
+
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <div class="form-layout">
+
+    <form class="form-card" id="formPerfil">
+
+      <div class="form-head">
+
+        <div class="logo-box">
+
+          <img src="assets/gevernova_logo.jpg" alt="Logo GE">
+
+        </div>
+
+        <div class="head-text">
+
+          <h1>FICHA DE MANUTEN&Ccedil;&Atilde;O DE ESTAMPOS</h1>
+          <p id="descricaoFerramentaCabecalho">ESTAMPO DE</p>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section" id="secBasicos">
+
+        <div class="section-title">Dados B&aacute;sicos</div>
+
+        <div class="grid">
+
+          <div class="field">
+
+            <label>Tipo do Evento <span class="req">*</span></label>
+
+            <select name="tipo_evento" required>
+
+              <option value="" selected>Selecione</option>
+
+              <option>AME Projeto = Acama&ccedil;&atilde;o de Polos</option>
+
+              <option>Manuten&ccedil;&atilde;o Corretiva</option>
+
+              <option>Manuten&ccedil;&atilde;o Preventiva</option>
+
+            </select>
+
+          </div>
+
+          <div class="field">
+
+            <label>Classifica&ccedil;&atilde;o <span class="req">*</span></label>
+
+            <select name="classificacao" required>
+
+              <option value="" selected>Selecione</option>
+
+              <option>NA</option>
+
+              <option>Prioridade 1</option>
+
+              <option>Prioridade 2</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="field">
+
+            <label>Data de In&iacute;cio do Proj. <span class="req">*</span></label>
+
+            <input type="text" name="data_inicio_proj" placeholder="mm/dd/yyyy" required>
+
+          </div>
+
+          <div class="field">
+
+            <label>Qtde. de horas do Proj. - Decimais <span class="req">*</span></label>
+
+            <input type="number" step="0.01" name="horas_proj" placeholder="0" required>
+
+            <span class="field-note">OBS: colocar sempre "." (ponto)</span>
+
+          </div>
+
+
+
+          <div class="field">
+
+            <label>JOB <span class="req">*</span></label>
+
+            <input type="text" name="job" required>
+
+            <span class="field-note">OBS: caso n&atilde;o tenha JOB, usar o padr&atilde;o 1234567</span>
+
+          </div>
+
+          <div class="field">
+
+            <label>N&ordm; da FRNR <span class="req">*</span></label>
+
+            <input type="text" name="frnr" required>
+
+          </div>
+
+
+
+          <div class="field">
+
+            <label>N&ordm; do Projeto <span class="req">*</span></label>
+
+            <input type="text" name="numero_projeto" required>
+
+            <span class="field-note">OBS: caso n&atilde;o tenha projeto, usar o padr&atilde;o 1234567</span>
+
+          </div>
+
+          <div class="field">
+
+            <label>SSO <span class="req">*</span></label>
+
+            <select name="sso" required>
+
+              <option value="" selected>Selecione</option>
+
+              <option>NA</option>
+
+              <option>SSO-01</option>
+
+              <option>SSO-02</option>
+
+            </select>
+
+          </div>
+
+
+
+          <div class="field grid-1">
+
+            <label>Observa&ccedil;&otilde;es</label>
+
+            <textarea name="observacoes_gerais" placeholder="Sem observa&ccedil;&otilde;es"></textarea>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section" id="secProducao">
+
+        <div class="sheet-block">
+
+          <div class="sheet-line">
+
+            <label>N&uacute;mero da Ficha:</label>
+
+            <input type="text" name="numero_ficha_producao" placeholder="000-44684-0010" inputmode="numeric" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>Data de Entrega do Evento (SAP):</label>
+
+            <input type="text" name="data_entrega_evento_sap_producao" placeholder="11-Feb-2026" pattern="^(0[1-9]|[12][0-9]|3[01])-[A-Za-z]{3}-[0-9]{4}$" title="Use o formato dd-MMM-yyyy (ex.: 11-Feb-2026)" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label><span class="label-accent">AME</span> Resp. pela abertura da ficha:</label>
+
+            <input type="text" name="ame_resp_abertura_producao" placeholder="Gustavo Nascimento" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>JOB:</label>
+
+            <input type="text" name="job_cabecalho_producao" required>
+
+          </div>
+
+          <div class="sheet-line sheet-line-strong">
+
+            <label>N&ordm; da Ferramenta:</label>
+
+            <input class="value-strong" type="text" name="numero_ferramenta_producao" placeholder="F2860791-0010" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>Descri&ccedil;&atilde;o da Ferramenta:</label>
+
+            <input type="text" name="descricao_ferramenta_producao" placeholder="RANHURADOR WuHu" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>N&ordm; do Desenho da Ferramenta:</label>
+
+            <input type="text" name="numero_desenho_ferramenta_producao" placeholder="F2860791-0010" required>
+
+          </div>
+
+        </div>
+
+        <div class="prod-block">
+
+          <div class="prod-title">Dados sobre o t&eacute;rmino da produ&ccedil;&atilde;o</div>
+
+          <div class="prod-row">
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Data de T&eacute;rmino da Produ&ccedil;&atilde;o: <span class="req">*</span></span>
+
+                <input class="line-input" type="date" name="data_termino_producao" required>
+
+              </div>
+
+            </div>
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">N&ordm; da RNC</span>
+
+                <input class="line-input" type="text" name="numero_rnc" inputmode="numeric" pattern="^[0-9-]*$" title="Digite apenas n&uacute;meros e h&iacute;fen">
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-job-row">
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">JOB:</span>
+
+              <input class="line-input" type="text" name="job_principal" required>
+
+            </div>
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">Qtde total de Golpes:</span>
+
+              <input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="qtde_total_golpes_principal" required>
+
+            </div>
+
+          </div>
+
+          <div class="prod-golpes-row">
+
+            <span class="golpes-label">Qtde de Golpes por afia&ccedil;&atilde;o:</span>
+
+            <div class="golpes-parts">
+
+              <div class="golpe-item"><span>1&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_principal_1" required></div>
+
+              <div class="golpe-item"><span>2&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_principal_2" required></div>
+
+              <div class="golpe-item"><span>3&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_principal_3" required></div>
+
+              <div class="golpe-item"><span>4&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_principal_4" required></div>
+
+              <div class="golpe-item"><span>5&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_principal_5" required></div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-job-row">
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">JOBs Irm&atilde;s:</span>
+
+              <input class="line-input" type="text" name="job_irma_1" required>
+
+            </div>
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">Qtde total de Golpes:</span>
+
+              <input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="qtde_total_golpes_irma_1" required>
+
+            </div>
+
+          </div>
+
+          <div class="prod-golpes-row">
+
+            <span class="golpes-label">Qtde de Golpes por afia&ccedil;&atilde;o:</span>
+
+            <div class="golpes-parts">
+
+              <div class="golpe-item"><span>1&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_1_1" required></div>
+
+              <div class="golpe-item"><span>2&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_1_2" required></div>
+
+              <div class="golpe-item"><span>3&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_1_3" required></div>
+
+              <div class="golpe-item"><span>4&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_1_4" required></div>
+
+              <div class="golpe-item"><span>5&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_1_5" required></div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-job-row">
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">JOBs Irm&atilde;s:</span>
+
+              <input class="line-input" type="text" name="job_irma_2" required>
+
+            </div>
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">Qtde total de Golpes:</span>
+
+              <input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="qtde_total_golpes_irma_2" required>
+
+            </div>
+
+          </div>
+
+          <div class="prod-golpes-row">
+
+            <span class="golpes-label">Qtde de Golpes por afia&ccedil;&atilde;o:</span>
+
+            <div class="golpes-parts">
+
+              <div class="golpe-item"><span>1&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_2_1" required></div>
+
+              <div class="golpe-item"><span>2&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_2_2" required></div>
+
+              <div class="golpe-item"><span>3&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_2_3" required></div>
+
+              <div class="golpe-item"><span>4&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_2_4" required></div>
+
+              <div class="golpe-item"><span>5&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_2_5" required></div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-job-row">
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">JOBs Irm&atilde;s:</span>
+
+              <input class="line-input" type="text" name="job_irma_3" required>
+
+            </div>
+
+            <div class="prod-job-line">
+
+              <span class="prod-job-name">Qtde total de Golpes:</span>
+
+              <input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="qtde_total_golpes_irma_3" required>
+
+            </div>
+
+          </div>
+
+          <div class="prod-golpes-row">
+
+            <span class="golpes-label">Qtde de Golpes por afia&ccedil;&atilde;o:</span>
+
+            <div class="golpes-parts">
+
+              <div class="golpe-item"><span>1&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_3_1" required></div>
+
+              <div class="golpe-item"><span>2&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_3_2" required></div>
+
+              <div class="golpe-item"><span>3&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_3_3" required></div>
+
+              <div class="golpe-item"><span>4&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_3_4" required></div>
+
+              <div class="golpe-item"><span>5&ordf;</span><input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="golpes_afiacao_irma_3_5" required></div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="obs-wrap">
+
+            <div class="obs-label">Observa&ccedil;&atilde;o da RNC:</div>
+
+            <textarea class="obs-lines" name="observacao_rnc"></textarea>
+
+          </div>
+
+
+
+          <div class="prod-footer">
+
+            <div class="prod-inline">
+
+              <span class="prod-label"><span class="label-accent-strong">Operador</span> Respons&aacute;vel:</span>
+
+              <input class="line-input" type="text" name="operador_responsavel" required>
+
+            </div>
+
+            <div class="prod-inline">
+
+              <span class="prod-label">Prensa:</span>
+
+              <input class="line-input press-value" type="text" name="prensa" required>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section" id="secFerramenteiro">
+
+        <div class="sheet-block">
+
+          <div class="sheet-line">
+
+            <label>N&uacute;mero da Ficha:</label>
+
+            <input type="text" name="numero_ficha_ferramenteiro" placeholder="000-44684-0010" inputmode="numeric" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>Data de Entrega do Evento (SAP):</label>
+
+            <input type="text" name="data_entrega_evento_sap_ferramenteiro" placeholder="11-Feb-2026" pattern="^(0[1-9]|[12][0-9]|3[01])-[A-Za-z]{3}-[0-9]{4}$" title="Use o formato dd-MMM-yyyy (ex.: 11-Feb-2026)" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label><span class="label-accent">AME</span> Resp. pela abertura da ficha:</label>
+
+            <input type="text" name="ame_resp_abertura_ferramenteiro" placeholder="Gustavo Nascimento" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>JOB:</label>
+
+            <input type="text" name="job_cabecalho_ferramenteiro" required>
+
+          </div>
+
+          <div class="sheet-line sheet-line-strong">
+
+            <label>N&ordm; da Ferramenta:</label>
+
+            <input class="value-strong" type="text" name="numero_ferramenta_ferramenteiro" placeholder="F2860791-0010" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>Descri&ccedil;&atilde;o da Ferramenta:</label>
+
+            <input type="text" name="descricao_ferramenta_ferramenteiro" placeholder="RANHURADOR WuHu" required>
+
+          </div>
+
+          <div class="sheet-line">
+
+            <label>N&ordm; do Desenho da Ferramenta:</label>
+
+            <input type="text" name="numero_desenho_ferramenta_ferramenteiro" placeholder="F2860791-0010" required>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="prod-block">
+
+          <div class="prod-title">&Uacute;ltimos servi&ccedil;os / checagens executadas</div>
+
+
+
+          <div class="obs-wrap">
+
+            <div class="obs-label">Observa&ccedil;&atilde;o da &uacute;ltima manuten&ccedil;&atilde;o da ferramenta <span class="req">*</span></div>
+
+            <textarea class="obs-lines" name="obs_ultima_manutencao" required></textarea>
+
+          </div>
+
+
+
+          <div class="prod-row">
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Qtde. Total de Afia&ccedil;&otilde;es <span class="req">*</span></span>
+
+                <input class="line-input" type="number" min="0" step="1" inputmode="numeric" name="qtde_total_afiacoes" required>
+
+              </div>
+
+            </div>
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label"><span class="label-accent-strong">Altura da vida &uacute;til atual "mm"</span>: <span class="req">*</span></span>
+
+                <input class="line-input" type="number" min="0" step="0.01" inputmode="decimal" name="altura_vida_util_mm" required>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-row">
+
+            <div class="prod-cell prod-cell-full">
+
+              <div class="prod-inline">
+
+                <span class="prod-label"><span class="label-accent-strong">Ferramenteiro</span> Respons&aacute;vel:</span>
+
+                <input class="line-input" type="text" name="ferramenteiro_responsavel">
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-row">
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Data Prevista de Envio para Ferramentaria <span class="req">*</span></span>
+
+                <input class="line-input" type="date" name="data_prevista_envio" required>
+
+              </div>
+
+            </div>
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Data da Entrega da Ferramenta <span class="req">*</span></span>
+
+                <input class="line-input" type="date" name="data_entrega_ferramenta" required>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="prod-row">
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Hora de In&iacute;cio da Manuten&ccedil;&atilde;o <span class="req">*</span></span>
+
+                <input class="line-input" type="time" name="hora_inicio_manutencao" required>
+
+              </div>
+
+            </div>
+
+            <div class="prod-cell">
+
+              <div class="prod-inline">
+
+                <span class="prod-label">Hora de T&eacute;rmino da Manuten&ccedil;&atilde;o <span class="req">*</span></span>
+
+                <input class="line-input" type="time" name="hora_termino_manutencao" required>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="section" id="secEngenheiro">
+
+        <div class="eng-common-fields">
+
+          <div class="eng-common-field">
+
+            <label>JOB</label>
+
+            <input class="eng-cell-input" type="text" name="job" data-field-label="JOB - Comum a todos os blocos">
+
+          </div>
+
+          <div class="eng-common-field">
+
+            <label>Jobs envolvidas</label>
+
+            <input class="eng-cell-input" type="text" name="job_envolvidas" data-field-label="Jobs envolvidas - Comum a todos os blocos">
+
+          </div>
+
+          <div class="eng-common-field">
+
+            <label>Elemento PEP</label>
+
+            <input class="eng-cell-input" type="text" name="elemento_pep" data-field-label="Elemento PEP - Comum a todos os blocos">
+
+          </div>
+
+        </div>
+
+        <div class="eng-controls" aria-label="Controles de visualizacao da tabela do engenheiro">
+
+          <button type="button" class="eng-control-btn" data-filter-block="all" aria-pressed="true">Tudo</button>
+
+          <button type="button" class="eng-control-btn is-off" data-filter-block="corte" aria-pressed="false">Corte de Tiras</button>
+
+          <button type="button" class="eng-control-btn is-off" data-filter-block="estator" aria-pressed="false">L&acirc;mina do Estator</button>
+
+          <button type="button" class="eng-control-btn is-off" data-filter-block="rotor" aria-pressed="false">L&acirc;mina do Rotor</button>
+
+        </div>
+
+        <div class="eng-table-shell at-start" id="engTableShell">
+
+        <div class="eng-table-wrap" id="engTableWrap">
+
+          <table class="eng-table" aria-label="Workflow em colunas">
+
+            <thead>
+
+              <tr>
+
+                <th rowspan="2">Workflow</th>
+
+                <th class="group-processo" colspan="5">Processo</th>
+
+                <th class="group-ferramental" colspan="9">Ferramental</th>
+
+                <th class="group-compras" colspan="8">Compras e Requisicao de Compra</th>
+
+              </tr>
+
+              <tr>
+
+                                <th>Tipo de L&acirc;mina/Processo</th>
+
+                <th>N&uacute;mero do Desenho da L&acirc;mina</th>
+
+                <th>PT</th>
+
+                <th>Status da Ficha de Processo</th>
+
+                <th>Status Roteiro</th>
+
+                <th>N&uacute;mero do Ferramental</th>
+
+                <th>Sufixo</th>
+
+                <th>Prensa</th>
+
+                <th>Descri&ccedil;&atilde;o Ferramenta</th>
+
+                <th>N&uacute;mero do Desenho da Ferramenta</th>
+
+                <th>N&uacute;mero da FRNR</th>
+
+                <th>Status da FRNR</th>
+
+                <th>Status Ferramenta LOB</th>
+
+                <th>Status de Entrega do Ferramental</th>
+
+                <th>Data Envio Ferramentaria</th>
+
+                <th>Data de Emiss&atilde;o da Requisi&ccedil;&atilde;o</th>
+
+                <th>Data de Entrega da Ferramenta</th>
+
+                <th>N&uacute;mero da Requisi&ccedil;&atilde;o</th>
+
+                <th>N&uacute;mero do Planejamento Interno</th>
+
+                <th>N&uacute;mero da PO</th>
+
+                <th>Ferramenta</th>
+
+                <th>Requisi&ccedil;&atilde;o emitida?</th>
+
+              </tr>
+
+            </thead>
+
+                                    <tbody>
+
+              <tr class="eng-group-row"><td class="eng-group-title">Corte de Tiras</td><td class="eng-group-fill" colspan="22"></td></tr>
+
+              <tr>
+
+                <td class="eng-row-title">Corte de Tiras</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_corte" data-field-label="Tipo de L&acirc;mina/Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_corte" data-field-label="N&ordm; Desenho L&acirc;mina - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_corte" data-field-label="PT - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_corte" data-field-label="Status da Ficha de Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_corte" data-field-label="Status Roteiro - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_corte" data-field-label="N&ordm; Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_corte" data-field-label="Sufixo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_corte" data-field-label="Prensa - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_corte" data-field-label="N&ordm; FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_corte" data-field-label="Status da FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_corte" data-field-label="Status Ferramenta LOB - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_corte" data-field-label="Status de Entrega do Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_corte" data-field-label="Data Envio Ferramentaria - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_corte" data-field-label="Data Emiss&atilde;o REQ - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_corte" data-field-label="Data de Entrega da Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_corte" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_corte" data-field-label="N&ordm; Plan Interno - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_corte" data-field-label="N&ordm; PO - Corte de Tiras"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_corte" data-field-label="Ferramenta - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_corte" data-field-label="REQ emitida? - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Corte de Tiras</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_corte_2" data-field-label="Tipo de L&acirc;mina/Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_corte_2" data-field-label="N&ordm; Desenho L&acirc;mina - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_corte_2" data-field-label="PT - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_corte_2" data-field-label="Status da Ficha de Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_corte_2" data-field-label="Status Roteiro - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_corte_2" data-field-label="N&ordm; Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_corte_2" data-field-label="Sufixo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_corte_2" data-field-label="Prensa - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte_2" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_corte_2" data-field-label="N&ordm; FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_corte_2" data-field-label="Status da FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_corte_2" data-field-label="Status Ferramenta LOB - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_corte_2" data-field-label="Status de Entrega do Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_corte_2" data-field-label="Data Envio Ferramentaria - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_corte_2" data-field-label="Data Emiss&atilde;o REQ - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_corte_2" data-field-label="Data de Entrega da Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_corte_2" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_corte_2" data-field-label="N&ordm; Plan Interno - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_corte_2" data-field-label="N&ordm; PO - Corte de Tiras"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_corte_2" data-field-label="Ferramenta - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_corte_2" data-field-label="REQ emitida? - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Corte de Tiras</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_corte_3" data-field-label="Tipo de L&acirc;mina/Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_corte_3" data-field-label="N&ordm; Desenho L&acirc;mina - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_corte_3" data-field-label="PT - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_corte_3" data-field-label="Status da Ficha de Processo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_corte_3" data-field-label="Status Roteiro - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_corte_3" data-field-label="N&ordm; Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_corte_3" data-field-label="Sufixo - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_corte_3" data-field-label="Prensa - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte_3" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_corte_3" data-field-label="N&ordm; FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_corte_3" data-field-label="Status da FRNR - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_corte_3" data-field-label="Status Ferramenta LOB - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_corte_3" data-field-label="Status de Entrega do Ferramental - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_corte_3" data-field-label="Data Envio Ferramentaria - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_corte_3" data-field-label="Data Emiss&atilde;o REQ - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_corte_3" data-field-label="Data de Entrega da Ferramenta - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_corte_3" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_corte_3" data-field-label="N&ordm; Plan Interno - Corte de Tiras"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_corte_3" data-field-label="N&ordm; PO - Corte de Tiras"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_corte_3" data-field-label="Ferramenta - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_corte_3" data-field-label="REQ emitida? - Corte de Tiras"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr class="eng-group-row"><td class="eng-group-title">L&acirc;mina do Estator</td><td class="eng-group-fill" colspan="22"></td></tr>
+
+              <tr>
+
+                <td class="eng-row-title">L&acirc;mina do Estator</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator" data-field-label="Tipo de L&acirc;mina/Processo - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator" data-field-label="N&ordm; Desenho L&acirc;mina - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator" data-field-label="PT - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator" data-field-label="Status da Ficha de Processo - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator" data-field-label="Status Roteiro - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator" data-field-label="N&ordm; Ferramental - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator" data-field-label="Sufixo - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator" data-field-label="Prensa - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator" data-field-label="N&ordm; FRNR - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator" data-field-label="Status da FRNR - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator" data-field-label="Status Ferramenta LOB - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator" data-field-label="Status de Entrega do Ferramental - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator" data-field-label="Data Envio Ferramentaria - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator" data-field-label="Data Emiss&atilde;o REQ - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator" data-field-label="Data de Entrega da Ferramenta - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator" data-field-label="N&ordm; Plan Interno - L&acirc;m. Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator" data-field-label="N&ordm; PO - L&acirc;m. Estator"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator" data-field-label="Ferramenta - L&acirc;m. Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator" data-field-label="REQ emitida? - L&acirc;m. Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Ranhurar Estator</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_ranhurar" data-field-label="Tipo de L&acirc;mina/Processo - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_ranhurar" data-field-label="N&ordm; Desenho L&acirc;mina - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_ranhurar" data-field-label="PT - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_ranhurar" data-field-label="Status da Ficha de Processo - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_ranhurar" data-field-label="Status Roteiro - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_ranhurar" data-field-label="N&ordm; Ferramental - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_ranhurar" data-field-label="Sufixo - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_ranhurar" data-field-label="Prensa - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_ranhurar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_ranhurar" data-field-label="N&ordm; Desenho Ferramenta - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_ranhurar" data-field-label="N&ordm; FRNR - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_ranhurar" data-field-label="Status da FRNR - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_ranhurar" data-field-label="Status Ferramenta LOB - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_ranhurar" data-field-label="Status de Entrega do Ferramental - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_ranhurar" data-field-label="Data Envio Ferramentaria - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_ranhurar" data-field-label="Data Emiss&atilde;o REQ - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_ranhurar" data-field-label="Data de Entrega da Ferramenta - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_ranhurar" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_ranhurar" data-field-label="N&ordm; Plan Interno - Ranhurar Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_ranhurar" data-field-label="N&ordm; PO - Ranhurar Estator"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_ranhurar" data-field-label="Ferramenta - Ranhurar Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_ranhurar" data-field-label="REQ emitida? - Ranhurar Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Arraste Estator</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_arraste" data-field-label="Tipo de L&acirc;mina/Processo - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_arraste" data-field-label="N&ordm; Desenho L&acirc;mina - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_arraste" data-field-label="PT - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_arraste" data-field-label="Status da Ficha de Processo - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_arraste" data-field-label="Status Roteiro - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_arraste" data-field-label="N&ordm; Ferramental - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_arraste" data-field-label="Sufixo - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_arraste" data-field-label="Prensa - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_arraste" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_arraste" data-field-label="N&ordm; Desenho Ferramenta - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_arraste" data-field-label="N&ordm; FRNR - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_arraste" data-field-label="Status da FRNR - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_arraste" data-field-label="Status Ferramenta LOB - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_arraste" data-field-label="Status de Entrega do Ferramental - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_arraste" data-field-label="Data Envio Ferramentaria - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_arraste" data-field-label="Data Emiss&atilde;o REQ - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_arraste" data-field-label="Data de Entrega da Ferramenta - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_arraste" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_arraste" data-field-label="N&ordm; Plan Interno - Arraste Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_arraste" data-field-label="N&ordm; PO - Arraste Estator"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_arraste" data-field-label="Ferramenta - Arraste Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_arraste" data-field-label="REQ emitida? - Arraste Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_fp1" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_fp1" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_fp1" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_fp1" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_fp1" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_fp1" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_fp1" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_fp1" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp1" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp1" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_fp1" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_fp1" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_fp1" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_fp1" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_fp1" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_fp1" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_fp1" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_fp1" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_fp1" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_fp1" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_fp1" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_fp1" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Lixar e Envernizar</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_lixar" data-field-label="Tipo de L&acirc;mina/Processo - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_lixar" data-field-label="N&ordm; Desenho L&acirc;mina - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_lixar" data-field-label="PT - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_lixar" data-field-label="Status da Ficha de Processo - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_lixar" data-field-label="Status Roteiro - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_lixar" data-field-label="N&ordm; Ferramental - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_lixar" data-field-label="Sufixo - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_lixar" data-field-label="Prensa - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_lixar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_lixar" data-field-label="N&ordm; Desenho Ferramenta - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_lixar" data-field-label="N&ordm; FRNR - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_lixar" data-field-label="Status da FRNR - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_lixar" data-field-label="Status Ferramenta LOB - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_lixar" data-field-label="Status de Entrega do Ferramental - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_lixar" data-field-label="Data Envio Ferramentaria - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_lixar" data-field-label="Data Emiss&atilde;o REQ - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_lixar" data-field-label="Data de Entrega da Ferramenta - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_lixar" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_lixar" data-field-label="N&ordm; Plan Interno - Lixar e Envernizar"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_lixar" data-field-label="N&ordm; PO - Lixar e Envernizar"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_lixar" data-field-label="Ferramenta - Lixar e Envernizar"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_lixar" data-field-label="REQ emitida? - Lixar e Envernizar"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">L&acirc;mina Separadora Externa</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_sep_ext" data-field-label="Tipo de L&acirc;mina/Processo - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_sep_ext" data-field-label="N&ordm; Desenho L&acirc;mina - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_sep_ext" data-field-label="PT - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_sep_ext" data-field-label="Status da Ficha de Processo - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_sep_ext" data-field-label="Status Roteiro - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_sep_ext" data-field-label="N&ordm; Ferramental - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_sep_ext" data-field-label="Sufixo - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_sep_ext" data-field-label="Prensa - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_ext" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_sep_ext" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_sep_ext" data-field-label="N&ordm; FRNR - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_sep_ext" data-field-label="Status da FRNR - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_sep_ext" data-field-label="Status Ferramenta LOB - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_sep_ext" data-field-label="Status de Entrega do Ferramental - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_sep_ext" data-field-label="Data Envio Ferramentaria - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_sep_ext" data-field-label="Data Emiss&atilde;o REQ - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_sep_ext" data-field-label="Data de Entrega da Ferramenta - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_sep_ext" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_sep_ext" data-field-label="N&ordm; Plan Interno - L&acirc;m. Sep Ext."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_sep_ext" data-field-label="N&ordm; PO - L&acirc;m. Sep Ext."></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_sep_ext" data-field-label="Ferramenta - L&acirc;m. Sep Ext."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_sep_ext" data-field-label="REQ emitida? - L&acirc;m. Sep Ext."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_fp2" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_fp2" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_fp2" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_fp2" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_fp2" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_fp2" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_fp2" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_fp2" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp2" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_fp2" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_fp2" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_fp2" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_fp2" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_fp2" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_fp2" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_fp2" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_fp2" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_fp2" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_fp2" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_fp2" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_fp2" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">L&acirc;mina Separadora Interna</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_sep_int" data-field-label="Tipo de L&acirc;mina/Processo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_sep_int" data-field-label="N&ordm; Desenho L&acirc;mina - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_sep_int" data-field-label="PT - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_sep_int" data-field-label="Status da Ficha de Processo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_sep_int" data-field-label="Status Roteiro - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_sep_int" data-field-label="N&ordm; Ferramental - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_sep_int" data-field-label="Sufixo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_sep_int" data-field-label="Prensa - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_int" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_sep_int" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_sep_int" data-field-label="N&ordm; FRNR - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_sep_int" data-field-label="Status da FRNR - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_sep_int" data-field-label="Status Ferramenta LOB - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_sep_int" data-field-label="Status de Entrega do Ferramental - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_sep_int" data-field-label="Data Envio Ferramentaria - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_sep_int" data-field-label="Data Emiss&atilde;o REQ - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_sep_int" data-field-label="Data de Entrega da Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_sep_int" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_sep_int" data-field-label="N&ordm; Plan Interno - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_sep_int" data-field-label="N&ordm; PO - L&acirc;m. Sep. Int."></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_sep_int" data-field-label="Ferramenta - L&acirc;m. Sep. Int."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_sep_int" data-field-label="REQ emitida? - L&acirc;m. Sep. Int."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_fp3" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_fp3" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_fp3" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_fp3" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_fp3" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_fp3" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_fp3" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_fp3" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp3" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_fp3" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_fp3" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_fp3" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_fp3" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_fp3" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_fp3" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_fp3" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_fp3" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_fp3" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_fp3" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_fp3" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_fp3" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Excitatriz Estator</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_estator_excitatriz" data-field-label="Tipo de L&acirc;mina/Processo - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_estator_excitatriz" data-field-label="N&ordm; Desenho L&acirc;mina - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_estator_excitatriz" data-field-label="PT - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_estator_excitatriz" data-field-label="Status da Ficha de Processo - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_estator_excitatriz" data-field-label="Status Roteiro - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_estator_excitatriz" data-field-label="N&ordm; Ferramental - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_estator_excitatriz" data-field-label="Sufixo - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_estator_excitatriz" data-field-label="Prensa - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_excitatriz" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_excitatriz" data-field-label="N&ordm; Desenho Ferramenta - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_estator_excitatriz" data-field-label="N&ordm; FRNR - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_estator_excitatriz" data-field-label="Status da FRNR - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_estator_excitatriz" data-field-label="Status Ferramenta LOB - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_estator_excitatriz" data-field-label="Status de Entrega do Ferramental - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_estator_excitatriz" data-field-label="Data Envio Ferramentaria - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_estator_excitatriz" data-field-label="Data Emiss&atilde;o REQ - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_estator_excitatriz" data-field-label="Data de Entrega da Ferramenta - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_estator_excitatriz" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_estator_excitatriz" data-field-label="N&ordm; Plan Interno - Excitatriz Estator"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_estator_excitatriz" data-field-label="N&ordm; PO - Excitatriz Estator"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_estator_excitatriz" data-field-label="Ferramenta - Excitatriz Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_estator_excitatriz" data-field-label="REQ emitida? - Excitatriz Estator"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr class="eng-group-row"><td class="eng-group-title">L&acirc;mina do Rotor</td><td class="eng-group-fill" colspan="22"></td></tr>
+
+              <tr>
+
+                <td class="eng-row-title">L&acirc;mina do Rotor</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor" data-field-label="Tipo de L&acirc;mina/Processo - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor" data-field-label="N&ordm; Desenho L&acirc;mina - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor" data-field-label="PT - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor" data-field-label="Status da Ficha de Processo - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor" data-field-label="Status Roteiro - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor" data-field-label="N&ordm; Ferramental - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor" data-field-label="Sufixo - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor" data-field-label="Prensa - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor" data-field-label="N&ordm; FRNR - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor" data-field-label="Status da FRNR - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor" data-field-label="Status Ferramenta LOB - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor" data-field-label="Status de Entrega do Ferramental - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor" data-field-label="Data Envio Ferramentaria - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor" data-field-label="Data Emiss&atilde;o REQ - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor" data-field-label="Data de Entrega da Ferramenta - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor" data-field-label="N&ordm; Plan Interno - L&acirc;m. Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor" data-field-label="N&ordm; PO - L&acirc;m. Rotor"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor" data-field-label="Ferramenta - L&acirc;m. Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor" data-field-label="REQ emitida? - L&acirc;m. Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Ranhurar Rotor</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_ranhurar" data-field-label="Tipo de L&acirc;mina/Processo - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_ranhurar" data-field-label="N&ordm; Desenho L&acirc;mina - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_ranhurar" data-field-label="PT - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_ranhurar" data-field-label="Status da Ficha de Processo - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_ranhurar" data-field-label="Status Roteiro - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_ranhurar" data-field-label="N&ordm; Ferramental - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_ranhurar" data-field-label="Sufixo - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_ranhurar" data-field-label="Prensa - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_ranhurar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_ranhurar" data-field-label="N&ordm; Desenho Ferramenta - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_ranhurar" data-field-label="N&ordm; FRNR - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_ranhurar" data-field-label="Status da FRNR - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_ranhurar" data-field-label="Status Ferramenta LOB - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_ranhurar" data-field-label="Status de Entrega do Ferramental - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_ranhurar" data-field-label="Data Envio Ferramentaria - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_ranhurar" data-field-label="Data Emiss&atilde;o REQ - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_ranhurar" data-field-label="Data de Entrega da Ferramenta - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_ranhurar" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_ranhurar" data-field-label="N&ordm; Plan Interno - Ranhurar Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_ranhurar" data-field-label="N&ordm; PO - Ranhurar Rotor"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_ranhurar" data-field-label="Ferramenta - Ranhurar Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_ranhurar" data-field-label="REQ emitida? - Ranhurar Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Arraste Rotor</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_arraste" data-field-label="Tipo de L&acirc;mina/Processo - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_arraste" data-field-label="N&ordm; Desenho L&acirc;mina - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_arraste" data-field-label="PT - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_arraste" data-field-label="Status da Ficha de Processo - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_arraste" data-field-label="Status Roteiro - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_arraste" data-field-label="N&ordm; Ferramental - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_arraste" data-field-label="Sufixo - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_arraste" data-field-label="Prensa - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_arraste" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_arraste" data-field-label="N&ordm; Desenho Ferramenta - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_arraste" data-field-label="N&ordm; FRNR - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_arraste" data-field-label="Status da FRNR - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_arraste" data-field-label="Status Ferramenta LOB - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_arraste" data-field-label="Status de Entrega do Ferramental - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_arraste" data-field-label="Data Envio Ferramentaria - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_arraste" data-field-label="Data Emiss&atilde;o REQ - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_arraste" data-field-label="Data de Entrega da Ferramenta - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_arraste" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_arraste" data-field-label="N&ordm; Plan Interno - Arraste Rotor"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_arraste" data-field-label="N&ordm; PO - Arraste Rotor"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_arraste" data-field-label="Ferramenta - Arraste Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_arraste" data-field-label="REQ emitida? - Arraste Rotor"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_fp1" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_fp1" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_fp1" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_fp1" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_fp1" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_fp1" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_fp1" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp1" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp1" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp1" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_fp1" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_fp1" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_fp1" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_fp1" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_fp1" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_fp1" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_fp1" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_fp1" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_fp1" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_fp1" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_fp1" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_fp1" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">L&acirc;mina Separadora Interna</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_sep_int" data-field-label="Tipo de L&acirc;mina/Processo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_sep_int" data-field-label="N&ordm; Desenho L&acirc;mina - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_sep_int" data-field-label="PT - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_sep_int" data-field-label="Status da Ficha de Processo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_sep_int" data-field-label="Status Roteiro - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_sep_int" data-field-label="N&ordm; Ferramental - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_sep_int" data-field-label="Sufixo - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_sep_int" data-field-label="Prensa - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_sep_int" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_sep_int" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_sep_int" data-field-label="N&ordm; FRNR - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_sep_int" data-field-label="Status da FRNR - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_sep_int" data-field-label="Status Ferramenta LOB - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_sep_int" data-field-label="Status de Entrega do Ferramental - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_sep_int" data-field-label="Data Envio Ferramentaria - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_sep_int" data-field-label="Data Emiss&atilde;o REQ - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_sep_int" data-field-label="Data de Entrega da Ferramenta - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_sep_int" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_sep_int" data-field-label="N&ordm; Plan Interno - L&acirc;m. Sep. Int."></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_sep_int" data-field-label="N&ordm; PO - L&acirc;m. Sep. Int."></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_sep_int" data-field-label="Ferramenta - L&acirc;m. Sep. Int."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_sep_int" data-field-label="REQ emitida? - L&acirc;m. Sep. Int."><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_fp2" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_fp2" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_fp2" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_fp2" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_fp2" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_fp2" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_fp2" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp2" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp2" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_fp2" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_fp2" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_fp2" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_fp2" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_fp2" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_fp2" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_fp2" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_fp2" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_fp2" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_fp2" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_fp2" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_fp2" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">Strip Coil &quot;Tira Bobina&quot;</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_strip_coil" data-field-label="Tipo de L&acirc;mina/Processo - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_strip_coil" data-field-label="N&ordm; Desenho L&acirc;mina - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_strip_coil" data-field-label="PT - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_strip_coil" data-field-label="Status da Ficha de Processo - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_strip_coil" data-field-label="Status Roteiro - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_strip_coil" data-field-label="N&ordm; Ferramental - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_strip_coil" data-field-label="Sufixo - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_strip_coil" data-field-label="Prensa - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_strip_coil" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_strip_coil" data-field-label="N&ordm; Desenho Ferramenta - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_strip_coil" data-field-label="N&ordm; FRNR - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_strip_coil" data-field-label="Status da FRNR - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_strip_coil" data-field-label="Status Ferramenta LOB - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_strip_coil" data-field-label="Status de Entrega do Ferramental - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_strip_coil" data-field-label="Data Envio Ferramentaria - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_strip_coil" data-field-label="Data Emiss&atilde;o REQ - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_strip_coil" data-field-label="Data de Entrega da Ferramenta - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_strip_coil" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_strip_coil" data-field-label="N&ordm; Plan Interno - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_strip_coil" data-field-label="N&ordm; PO - Strip Coil &quot;Tira Bobina&quot;"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_strip_coil" data-field-label="Ferramenta - Strip Coil &quot;Tira Bobina&quot;"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_strip_coil" data-field-label="REQ emitida? - Strip Coil &quot;Tira Bobina&quot;"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+              <tr>
+
+                <td class="eng-row-title">FP-ES-</td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_lamina_processo_rotor_fp3" data-field-label="Tipo de L&acirc;mina/Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="desenhos_rotor_fp3" data-field-label="N&ordm; Desenho L&acirc;mina - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="pt_rotor_fp3" data-field-label="PT - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="ficha_processo_rotor_fp3" data-field-label="Status da Ficha de Processo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_roteiro_rotor_fp3" data-field-label="Status Roteiro - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_ferramental_rotor_fp3" data-field-label="N&ordm; Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="sufixo_rotor_fp3" data-field-label="Sufixo - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp3" data-field-label="Prensa - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp3" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_frn_rotor_fp3" data-field-label="N&ordm; FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_frnr_rotor_fp3" data-field-label="Status da FRNR - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_ferramental_lob_rotor_fp3" data-field-label="Status Ferramenta LOB - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="status_entrega_ferramental_rotor_fp3" data-field-label="Status de Entrega do Ferramental - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_envio_ferramentaria_rotor_fp3" data-field-label="Data Envio Ferramentaria - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_emissao_requisicao_rotor_fp3" data-field-label="Data Emiss&atilde;o REQ - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="date" name="data_termino_avaliacao_kit_rotor_fp3" data-field-label="Data de Entrega da Ferramenta - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_requisicao_rotor_fp3" data-field-label="N&ordm; Requisi&ccedil;&atilde;o - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_plan_interno_rotor_fp3" data-field-label="N&ordm; Plan Interno - FP-ES-"></td>
+
+                <td><input class="eng-cell-input" type="text" name="numero_po_rotor_fp3" data-field-label="N&ordm; PO - FP-ES-"></td>
+
+                <td><select class="eng-cell-input" name="ferramenta_rotor_fp3" data-field-label="Ferramenta - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+                <td><select class="eng-cell-input" name="emitir_req_compra_rotor_fp3" data-field-label="REQ emitida? - FP-ES-"><option value="" selected>Selecione</option><option>Sim</option><option>N&atilde;o</option></select></td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        </div>
+
+      </div>
+
+
+
+
+
+      <div class="actions">
+
+        <button class="btn btn-primary" type="submit">Salvar</button>
+
+        <a class="btn btn-secondary" href="login.html">Sair</a>
+
+      </div>
+
+    </form>
+
+      <aside class="licoes-panel" id="licoesPanel" aria-label="Li&ccedil;&otilde;es aprendidas">
+
+        <div class="licoes-title">Li&ccedil;&otilde;es aprendidas</div>
+
+        <input type="text" id="licoesSearch" class="licoes-search" placeholder="Buscar por palavra-chave">
+
+        <div class="licoes-list" id="licoesList"></div>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+
+
+  <script>
+
+    const params = new URLSearchParams(window.location.search);
+
+    const perfil = params.get("perfil") || "producao";
+
+    const modo = params.get("modo") || "";
+
+    const isAdminPrint = perfil === "admin" && modo === "impressao";
+
+    if (perfil === "admin" && !isAdminPrint) {
+
+      window.location.replace("admin.html");
+
+    }
+
+
+
+    const secBasicos = document.getElementById("secBasicos");
+
+    const secProducao = document.getElementById("secProducao");
+
+    const secFerramenteiro = document.getElementById("secFerramenteiro");
+
+    const secEngenheiro = document.getElementById("secEngenheiro");
+
+    const linkSair = document.querySelector(".actions .btn-secondary");
+
+    const botaoSalvar = document.querySelector(".actions .btn-primary");
+
+    const ENGENHEIRO_PENDENCIA_KEY = "engenheiro_pendencia_ativa";
+
+    const PRODUCAO_PENDENCIA_KEY = "producao_pendencia_ativa";
+
+    const PRODUCAO_PENDENCIAS_KEY = "producao_pendencias";
+
+    const FERRAMENTEIRO_PENDENCIA_KEY = "ferramenteiro_pendencia_ativa";
+
+    const FERRAMENTEIRO_PENDENCIAS_KEY = "ferramenteiro_pendencias";
+
+    const ADMIN_IMPRESSAO_FICHA_KEY = "admin_impressao_ficha_ativa";
+
+
+
+    function parseRevValue(value) {
+
+      const raw = String(value == null ? "" : value).trim();
+
+      if (!/^\d+$/.test(raw)) {
+
+        return null;
+
+      }
+
+      return Number(raw);
+
+    }
+
+
+
+    function getMaxRevFromRevisionHtml(htmlText) {
+
+      const parser = new DOMParser();
+
+      const doc = parser.parseFromString(htmlText, "text/html");
+
+      const cells = doc.querySelectorAll(".revisao-table tbody tr td:first-child");
+
+      let maxRev = null;
+
+      cells.forEach((cell) => {
+
+        const parsed = parseRevValue(cell.textContent);
+
+        if (parsed == null) {
+
+          return;
+
+        }
+
+        if (maxRev == null || parsed > maxRev) {
+
+          maxRev = parsed;
+
+        }
+
+      });
+
+      return maxRev;
+
+    }
+
+
+
+    async function resolveRevFormularioValue() {
+
+      try {
+
+        const response = await fetch("impressao_modelo.html", { cache: "no-store" });
+
+        if (!response.ok) {
+
+          return 2;
+
+        }
+
+        const htmlText = await response.text();
+
+        const maxRev = getMaxRevFromRevisionHtml(htmlText);
+
+        if (maxRev != null) {
+
+          return maxRev;
+
+        }
+
+        return 2;
+
+      } catch (_error) {
+
+        return 2;
+
+      }
+
+    }
+
+
+
+    async function applyRevFormularioValue() {
+
+      const node = document.getElementById("revFormularioValor");
+
+      if (!node) {
+
+        return;
+
+      }
+
+      const revValue = await resolveRevFormularioValue();
+
+      node.textContent = String(revValue);
+
+    }
+
+
+
+    applyRevFormularioValue();
+
+
+
+    if (perfil !== "admin") {
+
+      secBasicos.style.display = "none";
+
+      secBasicos.querySelectorAll("[required]").forEach((input) => {
+
+        input.required = false;
+
+      });
+
+    }
+
+
+
+    if (perfil !== "producao" && !isAdminPrint) {
+
+      secProducao.style.display = "none";
+
+      secProducao.querySelectorAll("[required]").forEach((input) => {
+
+        input.required = false;
+
+      });
+
+    }
+
+
+
+    if (perfil !== "ferramenteiro" && !isAdminPrint) {
+
+      secFerramenteiro.style.display = "none";
+
+      secFerramenteiro.querySelectorAll("[required]").forEach((input) => {
+
+        input.required = false;
+
+      });
+
+    }
+
+
+
+    if (perfil !== "engenheiro" && !isAdminPrint) {
+
+      secEngenheiro.style.display = "none";
+
+      secEngenheiro.querySelectorAll("[required]").forEach((input) => {
+
+        input.required = false;
+
+      });
+
+    }
+
+
+
+    if (linkSair) {
+
+      if (perfil === "ferramenteiro") {
+
+        linkSair.setAttribute("href", "ferramenteiro.html");
+
+      } else if (perfil === "producao") {
+
+        linkSair.setAttribute("href", "producao.html");
+
+      } else if (isAdminPrint) {
+
+        const tipo = params.get("tipo") === "processo" ? "processo" : "manutencao";
+
+        linkSair.setAttribute("href", "impressao_fichas.html?tipo=" + encodeURIComponent(tipo));
+
+        linkSair.textContent = "Voltar";
+
+      }
+
+    }
+
+
+
+    const formPerfil = document.getElementById("formPerfil");
+
+    const estampoTitulo = document.getElementById("estampoTitulo");
+    const descricaoFerramentaCabecalho = document.getElementById("descricaoFerramentaCabecalho");
+
+    const formLayout = document.querySelector(".form-layout");
+
+    const licoesPanel = document.getElementById("licoesPanel");
+
+    const licoesSearch = document.getElementById("licoesSearch");
+
+    const licoesList = document.getElementById("licoesList");
+
+    let licoesFiltroContexto = "";
+    let ultimaDescricaoFerramentaEngenheiro = "";
+    let ultimaDescricaoCabecalho = "";
+
+
+
+    const licoesPadrao = [
+      {
+        tema: "Corte a laser do blank (1)",
+        descricao: "Se tiver corte a laser do blank, se nao tiver corte a laser deletar esta linha.",
+        contextos: ["corte de tiras"]
+      },
+      {
+        tema: "Corte a laser do blank (2)",
+        descricao: "Se tiver corte a laser do blank, se nao tiver corte a laser deletar esta linha.",
+        contextos: ["corte de tiras"]
+      },
+      {
+        tema: "Corte a laser do blank (3)",
+        descricao: "Se tiver corte a laser do blank, se nao tiver corte a laser deletar esta linha.",
+        contextos: ["corte de tiras"]
+      },
+      {
+        tema: "Corte a laser",
+        descricao: "Na coluna ao lado colocar uma das opcoes caso tenha: Corte a Laser ou Corte Laser completo. Nesta, colocar WBS.",
+        contextos: ["corte de tiras"]
+      },
+      {
+        tema: "Email de aceite",
+        descricao: "Email de aceite.",
+        contextos: ["lamina do estator"]
+      },
+      {
+        tema: "Licao aprendida - Ranhuradores na prensa pela 1a vez",
+        descricao: "Para todos ranhuradores existentes que entrarem na prensa pela 1a vez, abrir FRNR para projetista fazer estudo e analisar: baricentro, esforco de corte vs prensa direcionada pelo AME e se os acessorios estarao no aceitavel sem adaptacoes. Se necessario, alinhar com AME e registrar na FRNR as necessidades.",
+        contextos: ["ranhurar estator"]
+      },
+      {
+        tema: "Sem verniz",
+        descricao: "Sem verniz conforme novo conceito de ferramental; seguir IT-ES-032.",
+        contextos: ["lixar e envernizar"]
+      },
+      {
+        tema: "Ver prensa no plano de producao",
+        descricao: "Ver prensa no plano de producao.",
+        contextos: ["fp-es-"]
+      },
+      {
+        tema: "Licao aprendida - Excitatriz e ranhurador",
+        descricao: "Avaliar se teremos lamina da excitatriz e ranhurador existente e usar processo similar da 2280061.",
+        contextos: ["excitatriz estator"]
+      },
+      {
+        tema: "Licao aprendida - Planejamento e PCP",
+        descricao: "Alertar o time de planejamento e PCP quando a JOB sair do padrao de estampar. Exemplo: JOB na 283, padrao PX56, blank em corte a laser exigiu PX58; faltou roteiro e tempo do rotor.",
+        contextos: ["lamina do rotor"]
+      },
+      {
+        tema: "Licao aprendida - Ajuste de disco de arraste",
+        descricao: "Se tiver corte a laser do diametro interno da lamina, ajustar disco de arraste para calibrar as laminas conforme nominal. Nao fazer corte a laser nas ranhuras.",
+        contextos: ["arraste rotor"]
+      },
+      {
+        tema: "Rotor LAC",
+        descricao: "Rotor LAC.",
+        contextos: ["strip coil \"tira bobina\""]
+      }
+    ];
+
+
+
+    function getLicoesAprendidas() {
+
+      const raw = sessionStorage.getItem("engenheiro_licoes_aprendidas");
+
+      if (!raw) {
+
+        return licoesPadrao.slice();
+
+      }
+
+      try {
+
+        const parsed = JSON.parse(raw);
+
+        if (!Array.isArray(parsed)) {
+
+          return licoesPadrao.slice();
+
+        }
+
+        const sane = parsed
+
+          .map((item) => {
+
+            if (!item || typeof item !== "object") {
+
+              return null;
+
+            }
+
+            return {
+
+              tema: String(item.tema || "").trim(),
+
+              descricao: String(item.descricao || "").trim(),
+              contextos: Array.isArray(item.contextos)
+                ? item.contextos.map(function (ctx) { return normalizarTexto(ctx); }).filter(Boolean)
+                : []
+
+            };
+
+          })
+
+          .filter((item) => item && (item.tema || item.descricao));
+
+        return sane.length > 0 ? sane : licoesPadrao.slice();
+
+      } catch (_error) {
+
+        return licoesPadrao.slice();
+
+      }
+
+    }
+
+
+
+    function normalizarTexto(valor) {
+
+      return String(valor || "")
+
+        .toLowerCase()
+
+        .normalize("NFD")
+
+        .replace(/[\u0300-\u036f]/g, "");
+
+    }
+
+
+
+    function renderLicoesAprendidas(filtro) {
+
+      if (!licoesList) {
+
+        return;
+
+      }
+
+      const termoBusca = normalizarTexto(filtro);
+
+      const termoContexto = normalizarTexto(licoesFiltroContexto);
+
+      const licoes = getLicoesAprendidas();
+
+      const itens = licoes.filter((item) => {
+
+        const base = normalizarTexto(item.tema + " " + item.descricao);
+
+        const okBusca = !termoBusca || base.includes(termoBusca);
+
+        const contextosItem = Array.isArray(item.contextos) ? item.contextos : [];
+        const okContexto = !termoContexto || (contextosItem.length > 0 ? contextosItem.includes(termoContexto) : base.includes(termoContexto));
+
+        return okBusca && okContexto;
+
+      });
+
+
+
+      licoesList.innerHTML = "";
+
+      if (itens.length === 0) {
+
+        const empty = document.createElement("div");
+
+        empty.className = "licoes-empty";
+
+        empty.textContent = "Nenhuma licao encontrada para este filtro.";
+
+        licoesList.appendChild(empty);
+
+        return;
+
+      }
+
+
+
+      itens.forEach((item) => {
+
+        const card = document.createElement("article");
+
+        card.className = "licao-item";
+
+        const titulo = document.createElement("strong");
+
+        titulo.textContent = item.tema || "Licao aprendida";
+
+        const texto = document.createElement("p");
+
+        texto.textContent = item.descricao || "";
+
+        card.appendChild(titulo);
+
+        card.appendChild(texto);
+
+        licoesList.appendChild(card);
+
+      });
+
+    }
+
+
+
+    function getCampoLabel(input) {
+
+      if (!(input instanceof HTMLElement)) {
+
+        return "";
+
+      }
+
+      const labelDireto = String(input.getAttribute("data-field-label") || "").trim();
+
+      if (labelDireto) {
+
+        return labelDireto;
+
+      }
+
+      const row = input.closest(".prod-inline");
+
+      if (!row) {
+
+        return "";
+
+      }
+
+      const label = row.querySelector(".prod-label");
+
+      return label ? String(label.textContent || "").trim() : "";
+
+    }
+
+
+
+    function inferirEtapaPorCampo(name) {
+
+      const campo = String(name || "").toLowerCase();
+
+      if (!campo) {
+
+        return "ENGENHEIRO DE PROCESSO";
+
+      }
+
+      if (campo.includes("rotor")) {
+
+        return "WORKFLOW - LAMINA DO ROTOR";
+
+      }
+
+      if (campo.includes("estator")) {
+
+        return "WORKFLOW - LAMINA DO ESTATOR";
+
+      }
+
+      if (campo.includes("corte")) {
+
+        return "WORKFLOW - CORTE TIRAS";
+
+      }
+
+      const camposCorte = new Set([
+
+        "tipo_lamina_processo",
+
+        "desenhos",
+
+        "pt",
+
+        "ficha_processo",
+
+        "status_roteiro",
+
+        "sufixo",
+
+        "prensa",
+
+        "numero_frn",
+
+        "status_frnr",
+
+        "status_ferramental_lob",
+
+        "status_entrega_ferramental",
+
+        "data_envio_ferramentaria",
+
+        "data_emissao_requisicao",
+
+        "data_termino_avaliacao_kit",
+
+        "numero_requisicao",
+
+        "numero_plan_interno",
+
+        "numero_po"
+
+      ]);
+
+      if (camposCorte.has(campo)) {
+
+        return "WORKFLOW - CORTE TIRAS";
+
+      }
+
+      const camposBasicos = new Set([
+
+        "job",
+
+        "job_envolvidas",
+
+        "elemento_pep",
+
+        "numero_ferramental",
+
+        "tipo_ferramental",
+
+        "numero_desenho_ferramental",
+
+        "ferramenta",
+
+        "emitir_req_compra"
+
+      ]);
+
+      if (camposBasicos.has(campo)) {
+
+        return "WORKFLOW - DADOS GERAIS";
+
+      }
+
+      return "ENGENHEIRO DE PROCESSO";
+
+    }
+
+
+
+    function obterContextoLinhaWorkflow(campoEl, campoNome, campoLabel) {
+      if (campoEl && campoEl.closest) {
+        const linha = campoEl.closest("tr");
+        if (linha) {
+          const tituloLinha = linha.querySelector(".eng-row-title");
+          if (tituloLinha) {
+            return normalizarTexto(String(tituloLinha.textContent || "").trim());
+          }
+        }
+      }
+
+      const labelBase = normalizarTexto(campoLabel);
+      if (labelBase) {
+        const partesLabel = labelBase.split(" - ");
+        const ultimoTrecho = String(partesLabel[partesLabel.length - 1] || "").trim();
+        if (ultimoTrecho) {
+          return ultimoTrecho;
+        }
+      }
+
+      const campo = String(campoNome || "").toLowerCase();
+      if (campo.includes("rotor")) {
+        return "lamina do rotor";
+      }
+      if (campo.includes("estator")) {
+        return "lamina do estator";
+      }
+      if (campo.includes("corte")) {
+        return "corte de tiras";
+      }
+
+      return "__sem_bloco__";
+    }
+
+    function aplicarContextoLicoes(campoNome, campoLabel, campoEl) {
+
+      const contextoLinha = obterContextoLinhaWorkflow(campoEl, campoNome, campoLabel);
+      licoesFiltroContexto = contextoLinha || "__sem_bloco__";
+      const filtroBuscaAtual = licoesSearch ? licoesSearch.value : "";
+      renderLicoesAprendidas(filtroBuscaAtual);
+    }
+
+
+
+    function configurarPainelLicoes() {
+
+      if (!licoesPanel || perfil !== "engenheiro") {
+
+        return;
+
+      }
+
+      if (formLayout) {
+
+        formLayout.classList.add("has-licoes");
+
+      }
+
+      licoesPanel.classList.add("is-visible");
+
+      licoesFiltroContexto = "__sem_bloco__";
+
+      renderLicoesAprendidas("");
+
+      if (licoesSearch) {
+
+        licoesSearch.addEventListener("input", function () {
+
+          renderLicoesAprendidas(licoesSearch.value);
+
+        });
+
+      }
+
+
+
+      const camposEngenheiro = Array.from(secEngenheiro.querySelectorAll("input, select, textarea"));
+
+      camposEngenheiro.forEach((campo) => {
+
+        campo.addEventListener("focus", function () {
+
+          const nome = String(campo.getAttribute("name") || "").trim();
+
+          const label = getCampoLabel(campo);
+
+          aplicarContextoLicoes(nome, label, campo);
+
+        });
+
+      });
+
+    }
+
+
+
+    function configurarTabelaEngenheiro() {
+
+      if (!secEngenheiro) {
+
+        return;
+
+      }
+
+      const tableWrap = document.getElementById("engTableWrap");
+
+      const tableShell = document.getElementById("engTableShell");
+
+      if (!tableWrap || !tableShell) {
+
+        return;
+
+      }
+
+      let scrollDock = document.getElementById("engScrollDock");
+      let scrollDockInner = document.getElementById("engScrollDockInner");
+      if (!scrollDock) {
+        scrollDock = document.createElement("div");
+        scrollDock.id = "engScrollDock";
+        scrollDock.className = "eng-scroll-dock";
+        scrollDockInner = document.createElement("div");
+        scrollDockInner.id = "engScrollDockInner";
+        scrollDockInner.className = "eng-scroll-dock-inner";
+        scrollDock.appendChild(scrollDockInner);
+        document.body.appendChild(scrollDock);
+      } else if (!scrollDockInner) {
+        scrollDockInner = document.createElement("div");
+        scrollDockInner.id = "engScrollDockInner";
+        scrollDockInner.className = "eng-scroll-dock-inner";
+        scrollDock.appendChild(scrollDockInner);
+      }
+
+      let syncingHorizontalScroll = false;
+      let filtroSelecionado = "all";
+
+
+
+      function updateScrollIndicators() {
+
+        const maxScroll = Math.max(0, tableWrap.scrollWidth - tableWrap.clientWidth);
+
+        const left = tableWrap.scrollLeft;
+
+        tableShell.classList.toggle("at-start", left <= 2);
+
+        tableShell.classList.toggle("at-end", left >= maxScroll - 2);
+
+      }
+
+      function updateScrollDock() {
+        const rect = tableWrap.getBoundingClientRect();
+        const overflowHorizontal = tableWrap.scrollWidth > tableWrap.clientWidth + 2;
+        const shouldShow = filtroSelecionado === "all" && overflowHorizontal;
+        scrollDock.classList.toggle("is-visible", shouldShow);
+        tableWrap.classList.toggle("hide-native-scrollbar", shouldShow);
+        if (!shouldShow) {
+          return;
+        }
+        scrollDock.style.left = Math.max(0, Math.round(rect.left)) + "px";
+        scrollDock.style.width = Math.max(180, Math.round(rect.width)) + "px";
+        scrollDockInner.style.width = Math.max(1, tableWrap.scrollWidth) + "px";
+        if (Math.abs(scrollDock.scrollLeft - tableWrap.scrollLeft) > 1) {
+          scrollDock.scrollLeft = tableWrap.scrollLeft;
+        }
+      }
+
+
+
+      const filtrosBloco = Array.from(secEngenheiro.querySelectorAll("[data-filter-block]"));
+      const linhasTabela = Array.from(secEngenheiro.querySelectorAll(".eng-table tbody tr"));
+      let blocoAtual = "";
+      linhasTabela.forEach((linha) => {
+        if (linha.classList.contains("eng-group-row")) {
+          const titulo = String(linha.textContent || "").toLowerCase();
+          if (titulo.includes("corte")) {
+            blocoAtual = "corte";
+          } else if (titulo.includes("estator")) {
+            blocoAtual = "estator";
+          } else if (titulo.includes("rotor")) {
+            blocoAtual = "rotor";
+          } else {
+            blocoAtual = "";
+          }
+        }
+        if (blocoAtual) {
+          linha.setAttribute("data-block", blocoAtual);
+        }
+      });
+
+      function aplicarFiltroBloco(blocoSelecionado) {
+        const alvo = String(blocoSelecionado || "all").trim();
+        filtroSelecionado = alvo;
+        linhasTabela.forEach((linha) => {
+          const bloco = String(linha.getAttribute("data-block") || "").trim();
+          if (!bloco) {
+            linha.style.display = "";
+            return;
+          }
+          linha.style.display = (alvo === "all" || bloco === alvo) ? "" : "none";
+        });
+        updateScrollIndicators();
+        updateScrollDock();
+      }
+
+      filtrosBloco.forEach((btn) => {
+        const bloco = String(btn.getAttribute("data-filter-block") || "").trim();
+        if (!bloco) {
+          return;
+        }
+        btn.addEventListener("click", function () {
+          filtrosBloco.forEach((item) => {
+            const ativo = item === btn;
+            item.setAttribute("aria-pressed", ativo ? "true" : "false");
+            item.classList.toggle("is-off", !ativo);
+          });
+          aplicarFiltroBloco(bloco);
+        });
+      });
+
+
+
+      tableWrap.addEventListener("scroll", function () {
+        if (!syncingHorizontalScroll) {
+          syncingHorizontalScroll = true;
+          scrollDock.scrollLeft = tableWrap.scrollLeft;
+          syncingHorizontalScroll = false;
+        }
+        updateScrollIndicators();
+      });
+
+      scrollDock.addEventListener("scroll", function () {
+        if (!scrollDock.classList.contains("is-visible")) {
+          return;
+        }
+        if (!syncingHorizontalScroll) {
+          syncingHorizontalScroll = true;
+          tableWrap.scrollLeft = scrollDock.scrollLeft;
+          syncingHorizontalScroll = false;
+        }
+      });
+
+      window.addEventListener("resize", function () {
+        updateScrollIndicators();
+        updateScrollDock();
+      });
+      window.addEventListener("scroll", updateScrollDock, { passive: true });
+
+      updateScrollIndicators();
+      updateScrollDock();
+      aplicarFiltroBloco("all");
+
+    }
+
+
+
+    function preencherCampoPorNome(name, value) {
+
+      const input = formPerfil.querySelector('[name="' + name + '"]');
+
+      if (input) {
+
+        input.value = value == null ? "" : String(value);
+
+      }
+
+      atualizarTituloEstampo();
+
+    }
+
+
+
+    function normalizarDataParaInput(valor) {
+
+      const texto = String(valor || "").trim();
+
+      if (!texto) {
+
+        return "";
+
+      }
+
+      const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+      if (iso) {
+
+        return texto;
+
+      }
+
+      const match = texto.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+
+      if (!match) {
+
+        return "";
+
+      }
+
+      const meses = {
+
+        jan: "01",
+
+        feb: "02",
+
+        mar: "03",
+
+        apr: "04",
+
+        may: "05",
+
+        jun: "06",
+
+        jul: "07",
+
+        aug: "08",
+
+        sep: "09",
+
+        oct: "10",
+
+        nov: "11",
+
+        dec: "12"
+
+      };
+
+      const dia = match[1].padStart(2, "0");
+
+      const mes = meses[match[2].toLowerCase()];
+
+      const ano = match[3];
+
+      if (!mes) {
+
+        return "";
+
+      }
+
+      return ano + "-" + mes + "-" + dia;
+
+    }
+
+    function normalizarHoraParaInput(valor) {
+
+      const texto = String(valor || "").trim();
+
+      if (!texto) {
+
+        return "";
+
+      }
+
+      const hhmm = texto.match(/^(\d{2}):(\d{2})$/);
+      if (hhmm) {
+        return texto;
+      }
+
+      const hhmmss = texto.match(/^(\d{2}):(\d{2}):(\d{2})$/);
+      if (hhmmss) {
+        return hhmmss[1] + ":" + hhmmss[2];
+      }
+
+      return "";
+
+    }
+
+
+
+    function atualizarTituloEstampo() {
+
+      if (!formPerfil) {
+
+        return;
+
+      }
+
+      const descricaoProducao = formPerfil.querySelector('[name="descricao_ferramenta_producao"]');
+
+      const descricaoFerramenteiro = formPerfil.querySelector('[name="descricao_ferramenta_ferramenteiro"]');
+
+      const valorProducao = descricaoProducao
+        ? String(descricaoProducao.value || descricaoProducao.placeholder || "").trim()
+        : "";
+
+      const valorFerramenteiro = descricaoFerramenteiro
+        ? String(descricaoFerramenteiro.value || descricaoFerramenteiro.placeholder || "").trim()
+        : "";
+      const descricoesEngenheiro = Array.from(formPerfil.querySelectorAll('[name^="tipo_ferramental_"]'))
+        .map((input) => String(input.value || "").trim())
+        .filter(Boolean);
+      const valorEngenheiro = ultimaDescricaoFerramentaEngenheiro || (descricoesEngenheiro.length ? descricoesEngenheiro[0] : "");
+
+      let descricao = "";
+      if (perfil === "ferramenteiro") {
+        descricao = valorFerramenteiro;
+      } else if (perfil === "producao") {
+        descricao = valorProducao;
+      } else if (perfil === "engenheiro") {
+        descricao = valorEngenheiro;
+      } else {
+        descricao = valorProducao || valorFerramenteiro || valorEngenheiro;
+      }
+
+      aplicarTituloEstampo(descricao);
+
+    }
+
+    function aplicarTituloEstampo(descricaoRaw) {
+      const descricao = String(descricaoRaw || "").trim();
+      if (descricao) {
+        ultimaDescricaoCabecalho = descricao;
+      }
+      const descricaoFinal = descricao || ultimaDescricaoCabecalho;
+      const tituloEstampo = descricaoFinal ? "ESTAMPO DE " + descricaoFinal : "ESTAMPO DE";
+      if (estampoTitulo) {
+        estampoTitulo.textContent = tituloEstampo;
+      }
+      if (descricaoFerramentaCabecalho) {
+        descricaoFerramentaCabecalho.textContent = tituloEstampo;
+      }
+    }
+
+    function sincronizarTituloEstampoComCampoDescricao() {
+      if (!formPerfil) {
+        return;
+      }
+      const inputDescricaoProducaoLocal = formPerfil.querySelector('[name="descricao_ferramenta_producao"]');
+      const inputDescricaoFerramenteiroLocal = formPerfil.querySelector('[name="descricao_ferramenta_ferramenteiro"]');
+      const descricaoProducaoAtual = inputDescricaoProducaoLocal
+        ? String(inputDescricaoProducaoLocal.value || inputDescricaoProducaoLocal.placeholder || "").trim()
+        : "";
+      const descricaoFerramenteiroAtual = inputDescricaoFerramenteiroLocal
+        ? String(inputDescricaoFerramenteiroLocal.value || inputDescricaoFerramenteiroLocal.placeholder || "").trim()
+        : "";
+      const descricoesEngenheiro = Array.from(formPerfil.querySelectorAll('[name^="tipo_ferramental_"]'))
+        .map((input) => String(input.value || "").trim())
+        .filter(Boolean);
+      const descricaoEngenheiroAtual = ultimaDescricaoFerramentaEngenheiro || (descricoesEngenheiro.length ? descricoesEngenheiro[0] : "");
+
+      let descricao = "";
+      if (perfil === "ferramenteiro") {
+        descricao = descricaoFerramenteiroAtual;
+      } else if (perfil === "producao") {
+        descricao = descricaoProducaoAtual;
+      } else if (perfil === "engenheiro") {
+        descricao = descricaoEngenheiroAtual;
+      } else {
+        descricao = descricaoProducaoAtual || descricaoFerramenteiroAtual || descricaoEngenheiroAtual;
+      }
+
+      aplicarTituloEstampo(descricao);
+    }
+
+    function sincronizacaoContinuaTituloEstampo() {
+      if (perfil !== "producao") {
+        return;
+      }
+      setInterval(function () {
+        const inputDescricao = formPerfil
+          ? formPerfil.querySelector('[name="descricao_ferramenta_producao"]')
+          : null;
+        const descricao = inputDescricao ? String(inputDescricao.value || "").trim() : "";
+        aplicarTituloEstampo(descricao);
+      }, 250);
+    }
+
+
+
+    function aplicarModoImpressaoAdmin() {
+
+      if (!isAdminPrint) {
+
+        return;
+
+      }
+
+
+
+      const raw = sessionStorage.getItem(ADMIN_IMPRESSAO_FICHA_KEY);
+
+      if (!raw) {
+
+        return;
+
+      }
+
+
+
+      let fichaAtiva;
+
+      try {
+
+        fichaAtiva = JSON.parse(raw);
+
+      } catch (_error) {
+
+        return;
+
+      }
+
+
+
+      if (fichaAtiva && fichaAtiva.payload && typeof fichaAtiva.payload === "object") {
+
+        Object.keys(fichaAtiva.payload).forEach((campo) => {
+
+          preencherCampoPorNome(campo, fichaAtiva.payload[campo]);
+
+        });
+
+      }
+
+
+
+      formPerfil.querySelectorAll("input, textarea").forEach((element) => {
+
+        element.readOnly = true;
+
+        element.classList.add("readonly-field");
+
+      });
+
+      formPerfil.querySelectorAll("select").forEach((element) => {
+
+        element.disabled = true;
+
+      });
+
+
+
+      formPerfil.querySelectorAll("[required]").forEach((element) => {
+
+        element.required = false;
+
+      });
+
+
+
+      if (botaoSalvar) {
+
+        botaoSalvar.textContent = "Imprimir";
+
+      }
+
+    }
+
+
+
+    function aplicarPendenciaEngenheiro() {
+
+      if (perfil !== "engenheiro") {
+
+        return;
+
+      }
+
+
+
+      const raw = sessionStorage.getItem(ENGENHEIRO_PENDENCIA_KEY);
+
+      if (!raw) {
+
+        return;
+
+      }
+
+
+
+      let pendencia;
+
+      try {
+
+        pendencia = JSON.parse(raw);
+
+      } catch (_error) {
+
+        return;
+
+      }
+
+
+
+      preencherCampoPorNome("job", pendencia.job_cabecalho_engenheiro);
+
+
+      preencherCampoPorNome("numero_ferramental_corte", pendencia.numero_ferramenta_engenheiro);
+
+      preencherCampoPorNome("tipo_ferramental_corte", pendencia.descricao_ferramenta_engenheiro);
+
+      preencherCampoPorNome("numero_desenho_ferramental_corte", pendencia.numero_desenho_ferramenta_engenheiro);
+
+      preencherCampoPorNome("status_ferramental_lob_corte", pendencia.status);
+
+    }
+
+
+
+    function aplicarPendenciaProducao() {
+
+      if (perfil !== "producao" || params.get("modo") !== "pendencia") {
+
+        return;
+
+      }
+
+
+
+      const raw = sessionStorage.getItem(PRODUCAO_PENDENCIA_KEY);
+
+      if (!raw) {
+
+        return;
+
+      }
+
+
+
+      let pendencia;
+
+      try {
+
+        pendencia = JSON.parse(raw);
+
+      } catch (_error) {
+
+        return;
+
+      }
+
+
+
+      const camposCabecalho = [
+
+        "numero_ficha_producao",
+
+        "data_entrega_evento_sap_producao",
+
+        "ame_resp_abertura_producao",
+
+        "job_cabecalho_producao",
+
+        "numero_ferramenta_producao",
+
+        "descricao_ferramenta_producao",
+
+        "numero_desenho_ferramenta_producao"
+
+      ];
+
+
+
+      camposCabecalho.forEach((campo) => {
+
+        preencherCampoPorNome(campo, pendencia[campo]);
+
+      });
+      const normalizarStatus = (value) => String(value || "").trim().toLowerCase();
+      const statusFerramental = normalizarStatus(pendencia.status_ferramental_lob);
+      const statusRoteiro = normalizarStatus(pendencia.status);
+      const totalGolpes = Number(pendencia.total_golpes_final || 0);
+      const qtdeAfiacao = Number(pendencia.qtde_afiacao || 0);
+      const ehJaEstampada =
+        statusFerramental.includes("cancelada") ||
+        statusFerramental.includes("ferramenta aprovada") ||
+        statusFerramental.includes("já estampado") ||
+        statusFerramental.includes("ja estampado") ||
+        statusFerramental === "na" ||
+        statusFerramental === "n/a" ||
+        statusFerramental.includes("liberação prevista") ||
+        statusFerramental.includes("liberacao prevista") ||
+        statusFerramental.includes("liberado para cosinox") ||
+        statusFerramental.includes("liberado para produção") ||
+        statusFerramental.includes("liberado para producao") ||
+        statusRoteiro.includes("estamp") ||
+        statusRoteiro.includes("cancel") ||
+        totalGolpes > 0 ||
+        qtdeAfiacao > 0;
+      const inputDescricaoLocal = formPerfil.querySelector('[name="descricao_ferramenta_producao"]');
+      const descricaoCabecalho = String(
+        (inputDescricaoLocal && (inputDescricaoLocal.value || inputDescricaoLocal.placeholder)) ||
+        pendencia.descricao_ferramenta_producao ||
+        pendencia.descricao_ferramenta ||
+        pendencia.descricao ||
+        ""
+      ).trim();
+      aplicarTituloEstampo(descricaoCabecalho);
+      [0, 120, 400, 900].forEach((delay) => {
+        setTimeout(sincronizarTituloEstampoComCampoDescricao, delay);
+      });
+
+      // Preenche dados do termino da producao quando o item ja possui dados no banco.
+      preencherCampoPorNome("data_termino_producao", pendencia.data_termino_producao || "");
+      preencherCampoPorNome("numero_rnc", pendencia.numero_rnc || "");
+      preencherCampoPorNome("job_principal", pendencia.job_cabecalho_producao || "");
+      preencherCampoPorNome("qtde_total_golpes_principal", pendencia.total_golpes_final || "");
+      preencherCampoPorNome("golpes_afiacao_principal_1", pendencia.golpes_afiacao_1 || "");
+      preencherCampoPorNome("golpes_afiacao_principal_2", pendencia.golpes_afiacao_2 || "");
+      preencherCampoPorNome("golpes_afiacao_principal_3", pendencia.golpes_afiacao_3 || "");
+      preencherCampoPorNome("golpes_afiacao_principal_4", pendencia.golpes_afiacao_4 || "");
+      preencherCampoPorNome("golpes_afiacao_principal_5", pendencia.golpes_afiacao_5 || "");
+      preencherCampoPorNome("job_irma_1", pendencia.job_irmas || pendencia.job_envolvidas || "");
+      preencherCampoPorNome("qtde_total_golpes_irma_1", pendencia.total_golpes_sem_afiar || "");
+      preencherCampoPorNome("observacao_rnc", pendencia.observacao_rnc || "");
+
+
+
+      if (pendencia.operador_responsavel) {
+
+        preencherCampoPorNome("operador_responsavel", pendencia.operador_responsavel);
+
+      }
+
+      if (ehJaEstampada && pendencia.prensa) {
+
+        preencherCampoPorNome("prensa", pendencia.prensa);
+
+      }
+
+
+
+      const blocoCabecalho = secProducao.querySelector(".sheet-block");
+
+      if (blocoCabecalho) {
+
+        blocoCabecalho.querySelectorAll("input").forEach((input) => {
+
+          input.readOnly = true;
+
+          input.classList.add("readonly-field");
+
+        });
+
+      }
+
+    }
+
+
+
+    function preencherOperadorResponsavelPadrao() {
+
+      if (perfil !== "producao") {
+
+        return;
+
+      }
+
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+
+      const partesUsuario = usuarioAtivo.split(":");
+
+      const nomeUsuario = partesUsuario.length > 1 ? partesUsuario.slice(1).join(":").trim() : usuarioAtivo.trim();
+
+      const inputResponsavel = formPerfil.querySelector('[name="operador_responsavel"]');
+      const normalizar = (value) => String(value || "").trim().toLowerCase();
+      const isPendenciaJaEstampada = (pendencia) => {
+        if (!pendencia || typeof pendencia !== "object") {
+          return false;
+        }
+        const statusFerramental = normalizar(pendencia.status_ferramental_lob);
+        const statusRoteiro = normalizar(pendencia.status);
+        const totalGolpes = Number(pendencia.total_golpes_final || 0);
+        const qtdeAfiacao = Number(pendencia.qtde_afiacao || 0);
+
+        const statusFerramentalJaEstampados =
+          statusFerramental.includes("cancelada") ||
+          statusFerramental.includes("ferramenta aprovada") ||
+          statusFerramental.includes("já estampado") ||
+          statusFerramental.includes("ja estampado") ||
+          statusFerramental === "na" ||
+          statusFerramental === "n/a" ||
+          statusFerramental.includes("liberação prevista") ||
+          statusFerramental.includes("liberacao prevista") ||
+          statusFerramental.includes("liberado para cosinox") ||
+          statusFerramental.includes("liberado para produção") ||
+          statusFerramental.includes("liberado para producao");
+
+        return (
+          statusFerramentalJaEstampados ||
+          statusRoteiro.includes("estamp") ||
+          statusRoteiro.includes("cancel") ||
+          totalGolpes > 0 ||
+          qtdeAfiacao > 0
+        );
+      };
+
+      if (!inputResponsavel) {
+        return;
+      }
+
+      if (params.get("modo") === "pendencia") {
+        let pendencia = null;
+        const raw = sessionStorage.getItem(PRODUCAO_PENDENCIA_KEY);
+        if (raw) {
+          try {
+            pendencia = JSON.parse(raw);
+          } catch (_error) {
+            pendencia = null;
+          }
+        }
+
+        if (isPendenciaJaEstampada(pendencia)) {
+          const operadorBanco = String((pendencia && pendencia.operador_responsavel) || "").trim();
+          inputResponsavel.value = operadorBanco;
+          inputResponsavel.readOnly = false;
+          inputResponsavel.classList.remove("readonly-field");
+          return;
+        }
+      }
+
+      if (nomeUsuario) {
+
+        inputResponsavel.value = nomeUsuario;
+
+        inputResponsavel.readOnly = true;
+
+        inputResponsavel.classList.add("readonly-field");
+
+      }
+
+    }
+
+
+
+    function aplicarPendenciaFerramenteiro() {
+
+      if (perfil !== "ferramenteiro" || params.get("modo") !== "pendencia") {
+
+        return;
+
+      }
+
+
+
+      const raw = sessionStorage.getItem(FERRAMENTEIRO_PENDENCIA_KEY);
+
+      if (!raw) {
+
+        return;
+
+      }
+
+
+
+      let pendencia;
+
+      try {
+
+        pendencia = JSON.parse(raw);
+
+      } catch (_error) {
+
+        return;
+
+      }
+
+
+
+      const camposCabecalho = [
+
+        "numero_ficha_ferramenteiro",
+
+        "data_entrega_evento_sap_ferramenteiro",
+
+        "ame_resp_abertura_ferramenteiro",
+
+        "job_cabecalho_ferramenteiro",
+
+        "numero_ferramenta_ferramenteiro",
+
+        "descricao_ferramenta_ferramenteiro",
+
+        "numero_desenho_ferramenta_ferramenteiro"
+
+      ];
+
+
+
+      camposCabecalho.forEach((campo) => {
+
+        preencherCampoPorNome(campo, pendencia[campo]);
+
+      });
+
+      preencherCampoPorNome(
+        "obs_ultima_manutencao",
+        pendencia.observacao_ultima_manutencao_ferramenta || pendencia.obs_ultima_manutencao || ""
+      );
+      preencherCampoPorNome(
+        "qtde_total_afiacoes",
+        pendencia.qtde_afiacao != null ? pendencia.qtde_afiacao : (pendencia.qtde_total_afiacoes || "")
+      );
+      preencherCampoPorNome(
+        "altura_vida_util_mm",
+        pendencia.vida_util_ferramenta != null ? pendencia.vida_util_ferramenta : (pendencia.altura_vida_util_mm || "")
+      );
+      preencherCampoPorNome(
+        "data_prevista_envio",
+        normalizarDataParaInput(pendencia.data_envio_ferramentaria || pendencia.data_prevista_envio || "")
+      );
+      preencherCampoPorNome(
+        "data_entrega_ferramenta",
+        normalizarDataParaInput(
+          pendencia.data_entrega_ferramenta ||
+          pendencia.data_entrega_evento ||
+          pendencia.data_entrega_evento_sap_ferramenteiro ||
+          ""
+        )
+      );
+      preencherCampoPorNome(
+        "hora_inicio_manutencao",
+        normalizarHoraParaInput(pendencia.horario_inicio_ferramenteiro || pendencia.hora_inicio_manutencao || "")
+      );
+      preencherCampoPorNome(
+        "hora_termino_manutencao",
+        normalizarHoraParaInput(pendencia.horario_termino_ferramenteiro || pendencia.hora_termino_manutencao || "")
+      );
+
+
+
+      if (pendencia.ferramenteiro_responsavel) {
+
+        preencherCampoPorNome("ferramenteiro_responsavel", pendencia.ferramenteiro_responsavel);
+
+      }
+
+
+
+      const blocoCabecalho = secFerramenteiro.querySelector(".sheet-block");
+
+      if (blocoCabecalho) {
+
+        blocoCabecalho.querySelectorAll("input").forEach((input) => {
+
+          input.readOnly = true;
+
+          input.classList.add("readonly-field");
+
+        });
+
+      }
+
+    }
+
+
+
+    function preencherFerramenteiroResponsavelPadrao() {
+
+      if (perfil !== "ferramenteiro") {
+
+        return;
+
+      }
+
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+
+      const partesUsuario = usuarioAtivo.split(":");
+
+      const nomeUsuario = partesUsuario.length > 1 ? partesUsuario.slice(1).join(":").trim() : usuarioAtivo.trim();
+
+      const inputResponsavel = formPerfil.querySelector('[name="ferramenteiro_responsavel"]');
+
+      if (!inputResponsavel) {
+        return;
+      }
+
+      if (nomeUsuario) {
+
+        inputResponsavel.value = nomeUsuario;
+
+        inputResponsavel.readOnly = true;
+
+        inputResponsavel.classList.add("readonly-field");
+
+      }
+
+    }
+
+
+
+    const inputDescricaoProducao = formPerfil.querySelector('[name="descricao_ferramenta_producao"]');
+
+    const inputDescricaoFerramenteiro = formPerfil.querySelector('[name="descricao_ferramenta_ferramenteiro"]');
+
+    if (inputDescricaoProducao) {
+
+      inputDescricaoProducao.addEventListener("input", atualizarTituloEstampo);
+
+    }
+
+    if (inputDescricaoFerramenteiro) {
+
+      inputDescricaoFerramenteiro.addEventListener("input", atualizarTituloEstampo);
+
+    }
+    const inputsDescricaoEngenheiro = formPerfil.querySelectorAll('[name^="tipo_ferramental_"]');
+    inputsDescricaoEngenheiro.forEach((input) => {
+      input.addEventListener("input", function () {
+        ultimaDescricaoFerramentaEngenheiro = String(input.value || "").trim();
+        atualizarTituloEstampo();
+      });
+    });
+    window.addEventListener("pageshow", sincronizarTituloEstampoComCampoDescricao);
+    window.addEventListener("load", sincronizarTituloEstampoComCampoDescricao);
+    [0, 120, 400, 900].forEach((delay) => {
+      setTimeout(sincronizarTituloEstampoComCampoDescricao, delay);
+    });
+    sincronizacaoContinuaTituloEstampo();
+
+
+
+    function getFormValue(formData, fieldName) {
+
+      const value = formData.get(fieldName);
+
+      return value == null ? "" : String(value).trim();
+
+    }
+
+
+
+    function buildEngenheiroPayload(formData) {
+
+      const payload = {
+
+        job: getFormValue(formData, "job"),
+
+        job_irmas: getFormValue(formData, "job_envolvidas"),
+
+        job_envolvidas: getFormValue(formData, "job_envolvidas"),
+
+        elemento_pep: getFormValue(formData, "elemento_pep"),
+
+        tipo_lamina_processo: getFormValue(formData, "tipo_lamina_processo_corte"),
+
+        desenhos: getFormValue(formData, "desenhos_corte"),
+
+        pt: getFormValue(formData, "pt_corte"),
+
+        ficha_processo: getFormValue(formData, "ficha_processo_corte"),
+
+        status_roteiro: getFormValue(formData, "status_roteiro_corte"),
+
+        numero_ferramental: getFormValue(formData, "numero_ferramental_corte"),
+
+        sufixo: getFormValue(formData, "sufixo_corte"),
+
+        prensa: getFormValue(formData, "prensa_corte"),
+
+        tipo_ferramental: getFormValue(formData, "tipo_ferramental_corte"),
+
+        numero_desenho_ferramental: getFormValue(formData, "numero_desenho_ferramental_corte"),
+
+        numero_frn: getFormValue(formData, "numero_frn_corte"),
+
+        status_frnr: getFormValue(formData, "status_frnr_corte"),
+
+        status_entrega_ferramental: getFormValue(formData, "status_entrega_ferramental_corte"),
+
+        data_envio_ferramentaria: getFormValue(formData, "data_envio_ferramentaria_corte"),
+
+        data_emissao_requisicao: getFormValue(formData, "data_emissao_requisicao_corte"),
+
+        status_ferramental_lob: getFormValue(formData, "status_ferramental_lob_corte"),
+
+        data_termino_avaliacao_kit: getFormValue(formData, "data_termino_avaliacao_kit_corte"),
+
+        numero_requisicao: getFormValue(formData, "numero_requisicao_corte"),
+
+        numero_plan_interno: getFormValue(formData, "numero_plan_interno_corte"),
+
+        numero_po: getFormValue(formData, "numero_po_corte"),
+
+        ferramenta: getFormValue(formData, "ferramenta_corte"),
+
+        emitir_req_compra: getFormValue(formData, "emitir_req_compra_corte")
+
+      };
+
+
+
+      formData.forEach((value, key) => {
+
+        if (!(key in payload)) {
+
+          payload[key] = String(value).trim();
+
+        }
+
+      });
+
+
+
+      return payload;
+
+    }
+
+
+
+    function buildPayload(form, perfilAtual) {
+
+      const formData = new FormData(form);
+
+      if (perfilAtual === "engenheiro") {
+
+        return buildEngenheiroPayload(formData);
+
+      }
+
+
+
+      const payload = {};
+
+      formData.forEach((value, key) => {
+
+        payload[key] = String(value).trim();
+
+      });
+
+      return payload;
+
+    }
+
+
+
+    function atualizarStatusPendencia(storageKeyPendenciaAtiva, storageKeyPendencias, payload, novoStatus) {
+
+      const rawPendenciaAtiva = sessionStorage.getItem(storageKeyPendenciaAtiva);
+
+      if (!rawPendenciaAtiva) {
+
+        return;
+
+      }
+
+
+
+      let pendenciaAtiva;
+
+      try {
+
+        pendenciaAtiva = JSON.parse(rawPendenciaAtiva);
+
+      } catch (_error) {
+
+        return;
+
+      }
+
+
+
+      if (!pendenciaAtiva || !pendenciaAtiva.id) {
+
+        return;
+
+      }
+
+
+
+      let lista = [];
+
+      const rawLista = sessionStorage.getItem(storageKeyPendencias);
+
+      if (rawLista) {
+
+        try {
+
+          const parsed = JSON.parse(rawLista);
+
+          if (Array.isArray(parsed)) {
+
+            lista = parsed;
+
+          }
+
+        } catch (_error) {
+
+          lista = [];
+
+        }
+
+      }
+
+
+
+      const indice = lista.findIndex((item) => item && item.id === pendenciaAtiva.id);
+
+      if (indice >= 0) {
+
+        lista[indice] = {
+
+          ...lista[indice],
+
+          ...payload,
+
+          status: novoStatus
+
+        };
+
+      } else {
+
+        lista.push({
+
+          ...pendenciaAtiva,
+
+          ...payload,
+
+          status: novoStatus
+
+        });
+
+      }
+
+
+
+      sessionStorage.setItem(storageKeyPendencias, JSON.stringify(lista));
+
+    }
+
+
+
+    aplicarModoImpressaoAdmin();
+
+    aplicarPendenciaEngenheiro();
+
+    aplicarPendenciaProducao();
+
+    preencherOperadorResponsavelPadrao();
+
+    aplicarPendenciaFerramenteiro();
+
+    preencherFerramenteiroResponsavelPadrao();
+
+    configurarPainelLicoes();
+
+    configurarTabelaEngenheiro();
+
+    atualizarTituloEstampo();
+
+
+
+    formPerfil.addEventListener("submit", (event) => {
+
+      event.preventDefault();
+
+      if (isAdminPrint) {
+
+        window.print();
+
+        return;
+
+      }
+
+
+
+      const payload = buildPayload(formPerfil, perfil);
+
+
+
+      window.formPayload = payload;
+
+      console.log("Payload pronto para backend:", payload);
+
+
+
+      if (perfil === "producao" && params.get("modo") === "pendencia") {
+
+        atualizarStatusPendencia(PRODUCAO_PENDENCIA_KEY, PRODUCAO_PENDENCIAS_KEY, payload, "JÃ¡ estampado");
+
+        sessionStorage.removeItem(PRODUCAO_PENDENCIA_KEY);
+
+        alert("Item salvo com sucesso.");
+
+        window.location.replace("producao.html");
+
+        return;
+
+      }
+
+      if (perfil === "ferramenteiro" && params.get("modo") === "pendencia") {
+
+        atualizarStatusPendencia(FERRAMENTEIRO_PENDENCIA_KEY, FERRAMENTEIRO_PENDENCIAS_KEY, payload, "Preenchido");
+
+        sessionStorage.removeItem(FERRAMENTEIRO_PENDENCIA_KEY);
+
+        alert("Item salvo com sucesso.");
+
+        window.location.replace("ferramenteiro.html");
+
+        return;
+
+      }
+
+
+
+      alert("Dados mapeados para vari&aacute;veis padr&atilde;o. Pronto para enviar ao backend.");
+
+    });
+
+  </script>
+
+</body>
+
+</html>
+

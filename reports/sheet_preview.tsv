@@ -1,0 +1,166 @@
+sheet	row	values
+Ficha Padrão	2	|FICHA DE MANUTENÇÃO DE ESTAMPOS ||||||||||||||||||
+Ficha Padrão	4	|=Y4&E16||||||||||||||||||
+Ficha Padrão	5	|Documento:||FM-FE-001|Área:|FE - FERRAMENTARIA|||Rev. Formulário||0|||||||||
+Ficha Padrão	6	||||||||Data:||2022-05-05 00:00:00|||||||||
+Ficha Padrão	8	|Nº da Ficha:||=AF12&AC12&AH12&H14||||||||||||Calcula Nº da Ficha||||
+Ficha Padrão	10	|Data do Cadastro:||=TODAY()||||||||||||Caso emitir 2 Fichas no mesmo dia||||
+Ficha Padrão	12	|AME Resp. Pela abertura da ficha:||||Gustavo Nascimento||||||||||0|Digitar próximo Nº|||
+Ficha Padrão	14	|Código da Ferramenta:|||F2860829-0011|||=RIGHT(E14,4)||||||||||OBS: Planilha REPORTE fazer Backup semanal||
+Ficha Padrão	16	|Descrição da Ferramenta:|||=IF(D63=AU21,AF14,IF(D63=AV21,AF14,VLOOKUP(H14,Dados!D:E,2,0)))|||||||||||||||
+Ficha Padrão	18	|Nº do Desenho:|||=VLOOKUP(E14,REPORTE!B:C,2,0)|||||||||||Alertas:||||
+Ficha Padrão	21	|Últimos serviços / checagens executadas||||||||||||||Vida da Ferramenta||||
+Ficha Padrão	23	|Descrição dos Trabalhos:||||||||||||||Ultima anotação Ferramenteiro||||
+Ficha Padrão	25	|||||||||||||||Ultima Anotação Produção||||
+Ficha Padrão	27	|||||||||||||||Nº de Golpes por Afiação||||
+Ficha Padrão	28	|Qtde de Afiações:||||||||||||||||||
+Ficha Padrão	30	|Altura da vida útil Atual "mm":||||||||||||||Frequencia de Uso||||
+Ficha Padrão	32	|Ferramenteiro Responsável:||||||||||||||||||
+Ficha Padrão	34	|Data Prevista de Termino Do Serviço:|||||Data Executada:|||_____/____/____||||||||||
+Ficha Padrão	36	|Hora de Início:|||||Hora Término:|||||||||||||
+Ficha Padrão	38	|Dados sobre o término da produção ||||||||||||||||||
+Ficha Padrão	40	|Data:|/           /|||Nº NOTA QM:||||||||||||||
+REPORTE	1	JOB|Nº Ferramental|Nº do Desenho da Ferramenta:|Sufixo|Prensa|Ferramenteiro - Quantidade de Afiações nesta JOB|Vida Util Atual mm|Automático Total de Golpes Acumulados Reg. Prod.|Automático. Nº de Golpes por Afiação|Data Termino da  Avaliação - Entrega KIT|Ferramenteiro ----- Observações do Ultimo Serviço|Produção Observações / Solicitações de Melhorias:
+REPORTE	2	2833571|F2831006-0011|F2831006-0011|0011|PX58||2|||2021-08-23 00:00:00||
+REPORTE	3	2833571|F2830733-0010|F2830733-0010|0010|PX58||2.2|||2021-08-23 00:00:00||
+REPORTE	4	2852140|F290372-0004|F290372-0004|0004|PX44||8.6|||2021-10-04 00:00:00||
+REPORTE	5	2852140|F2852139-0011|F2852139-0011|0011|PX9||5|||2021-10-04 00:00:00||
+REPORTE	6	2852140|F2850004-0009|F2850004-0009|0009|PX21||8|||2021-10-16 00:00:00||
+REPORTE	7	2852140|F5182799-0010|F5182799-0010|0010|PX58||5|||2021-10-07 00:00:00||
+REPORTE	8	2270962|F2270961-0003|F2270961-0003|0003|||6|||||
+REPORTE	9	2852149|F290372-0004|F290372-0004|0004|.||8.6|||2021-08-23 00:00:00||
+REPORTE	10	2852149|F820118-0011|F820118-0011|0011|.||6|||2021-08-23 00:00:00||
+REPORTE	11	2852149|F2850287-0009|F2850287-0009|0009|PX21||8|||2021-08-23 00:00:00||
+REPORTE	12	2852149|F2870110-0010|F2870110-0010|0010|PX52||3.3|||2021-09-03 00:00:00||
+REPORTE	13	2852149|F2852149-0010|F2852149-0010|0010|WuHu||6|||||
+REPORTE	14	2842279|F290369-0004|F290369-0004|0004|.||7|||||
+REPORTE	15	2842279|F290401-0012|F290401-0012|0012|.||3.9|||2021-08-23 00:00:00||
+REPORTE	16	2842279|F840356-0009|F840356-0009|0009|PX21||8.7|||2021-08-20 00:00:00||
+REPORTE	17	2842279|F2850762-0010|F2850762-0010|0010|.||0|||2021-08-23 00:00:00||
+REPORTE	18	2842282|F290369-0004|F290369-0004|0004|.||7|||||
+REPORTE	19	2842282|F290401-0012|F290401-0012|0012|.||3.9|||2021-10-13 00:00:00||
+REPORTE	20	2842282|F840356-0009|F840356-0009|0009|PX21||8.7|||||
+REPORTE	21	2842282|F2850762-0010|F2850762-0010|0010|.||0|||2021-10-07 00:00:00||
+REPORTE	22	2833584|F2830591-0076|F2830591-0076|0076|PX21||5|||||
+REPORTE	23	2833584|F2830573-0011|6204175|0011|PX56||5.46|||2021-08-23 00:00:00||
+REPORTE	24	2833584|F2832530-0010|F2832530-0010|0010|.|||||2021-08-23 00:00:00||
+REPORTE	25	2842305|F290403-0004|F290403-0004|0004|PX44||7.5|||2021-08-23 00:00:00||
+REPORTE	26	2842305|F2841505-0011|F2841505-0011|0011|.||1|||2021-08-23 00:00:00||
+REPORTE	27	2842305|F840309-0009|F840309-0009|0009|PX21||4.5|||||
+REPORTE	28	2842305|F083834-0010|F083834-0010|0010|.||2|||2021-08-23 00:00:00||
+REPORTE	29	2833593|F2830547-0076|F2830547-0076|0076|PX21||6|||2021-10-14 00:00:00||
+REPORTE	30	2833593|F2830698-0011|6211116|0011|.||1.5|||2021-10-14 00:00:00||
+REPORTE	31	2833593|F2830758-0010|F2830758-0010|0010|.||4.6|||||
+REPORTE	32	2833598|F2830591-0076|F2830591-0076|0076|PX21||5|||2021-10-07 00:00:00||
+REPORTE	33	2833598|F2830573-0011|6204175|0011|PX56||5.46|||||
+REPORTE	34	2833598|F2830657-0010|6204543|0010|PX56||1.5|||2021-08-23 00:00:00||
+REPORTE	35	2371171|F2270321-0003|F2270321-0003|0003|.||5|||||Dimensional fora comnforme liberação feita por email anexo na JOB 5186284
+REPORTE	36	2270963|F2270953-1018|F2270953-1018|1018|.||6.2|||2021-10-19 00:00:00||
+REPORTE	37	2270963|F2270205-0004|F2270205-0004|0004|.|||||||
+REPORTE	38	2270963|F2270953-1011|F2270953-1011|1011|.||4.2|||||
+REPORTE	39	2270963|F2270953-1019|F2270953-1019|1019|.||6.2|||||
+REPORTE	40	2280030|F2280030-0003|F2280030-0003|0003|.|||||2021-12-28 00:00:00||
+Fluxo	4	||||FLUXO DA FICHA DE MANUTENÇÃO|||||
+Fluxo	5	||||Resp.|AME|CEVA|AME|Ferramenteiro|Ferramenteiro
+Fluxo	6	||||Etapa|Emitir REQ|Enviar ferramenta para ferramentaria|Imprimir Ficha de Manutenção|Juntar Ficha na ferramenta|Fazer manutenção
+Fluxo	7	||||OBS:|Site CEVA||Deixar na ferramentaria||Conforme Ficha
+Tabela de verificações	1	|procura|Sufixo|Item|Tipo da lâmina|Descrição do Item para Verificação|Meta N de Golpes
+Tabela de verificações	2	|=D2&E2|0004|1|BLANK SEGMENTADO PARA ESTATOR|Matrizes entalhes de solda - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	3	|=D3&E3|0004|=D2+1|BLANK SEGMENTADO PARA ESTATOR|Punções entalhes de solda - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	4	|=D4&E4|0004|=D3+1|BLANK SEGMENTADO PARA ESTATOR|Matriz corte externo - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	5	|=D5&E5|0004|=D4+1|BLANK SEGMENTADO PARA ESTATOR|Punção corte externo - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	6	|=D6&E6|0004|=D5+1|BLANK SEGMENTADO PARA ESTATOR|Matriz retalhadora - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	7	|=D7&E7|0004|=D6+1|BLANK SEGMENTADO PARA ESTATOR|Punção retalhador - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	8	|=D8&E8|0004|=D7+1|BLANK SEGMENTADO PARA ESTATOR|Colares de esferas - Verificar deformação esferas, sulcos e folgas|50000
+Tabela de verificações	9	|=D9&E9|0004|=D8+1|BLANK SEGMENTADO PARA ESTATOR|Colunas - Verificar estrias, alinhamento e folga|100000
+Tabela de verificações	10	|=D10&E10|0004|=D9+1|BLANK SEGMENTADO PARA ESTATOR|Buchas - Verificar estrias, alinhamento e folga|100000
+Tabela de verificações	11	|=D11&E11|0004|=D10+1|BLANK SEGMENTADO PARA ESTATOR|Folga de corte - Verificar com papel|25000
+Tabela de verificações	12	|=D12&E12|0004|=D11+1|BLANK SEGMENTADO PARA ESTATOR|Bases - Verificar paralelismo e condições das roscas e alojamentos, normalizar e retificar se necessário|500000
+Tabela de verificações	13	|=D13&E13|0004|=D12+1|BLANK SEGMENTADO PARA ESTATOR|Molas almofada (se aplicável) – Verificar / Substituir|50000
+Tabela de verificações	14	|=D14&E14|0004|=D13+1|BLANK SEGMENTADO PARA ESTATOR|Molas almofada (se aplicável) – Verificar / Substituir|500000
+Tabela de verificações	15	|=D15&E15|0004|=D14+1|BLANK SEGMENTADO PARA ESTATOR|Placa pisadora e extratora (se aplicável) - Verificar paralelismo e deformações - Retificar se necessário|500000
+Tabela de verificações	16	|=D16&E16|0004|=D15+1|BLANK SEGMENTADO PARA ESTATOR|Parafusos, verificar condições das roscas e substituir de necessário|200000
+Tabela de verificações	17	|=D17&E17|0004|=D16+1|BLANK SEGMENTADO PARA ESTATOR|Pinos - Verificar quanto a folga e deformações - Substituir se necessário|500000
+Tabela de verificações	18	|=D18&E18|0004|=D17+1|BLANK SEGMENTADO PARA ESTATOR|Saídas de cavaco / peça - Verificar obstruções e rebarbas|25000
+Tabela de verificações	19	|=D19&E19|0004|=D18+1|BLANK SEGMENTADO PARA ESTATOR|Molas - Placa pisadora – checar / Substituir|50000
+Tabela de verificações	20	|=D20&E20|0004|=D19+1|BLANK SEGMENTADO PARA ESTATOR|Molas - Placa pisadora – checar / Substituir|500000
+Tabela de verificações	21	|=D21&E21|0004|=D20+1|BLANK SEGMENTADO PARA ESTATOR|Sensores - Verificar ligações e funcionamento|25000
+Tabela de verificações	22	|=D22&E22|0003|1|ESTAMPO UNICO PARA ESTATOR|Matrizes entalhes de solda - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	23	|=D23&E23|0003|=D22+1|ESTAMPO UNICO PARA ESTATOR|Punções entalhes de solda - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	24	|=D24&E24|0004|=D23+1|ESTAMPO UNICO PARA ESTATOR|Matrizes ranhuras - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	25	|=D25&E25|0005|=D24+1|ESTAMPO UNICO PARA ESTATOR|Punções ranhuras - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	26	|=D26&E26|0006|=D25+1|ESTAMPO UNICO PARA ESTATOR|Matriz corte externo - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	27	|=D27&E27|0007|=D26+1|ESTAMPO UNICO PARA ESTATOR|Punção corte externo - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	28	|=D28&E28|0008|=D27+1|ESTAMPO UNICO PARA ESTATOR|Matriz retalhadora - trincas, fixação, altura útil e afiação|25000
+Tabela de verificações	29	|=D29&E29|0009|=D28+1|ESTAMPO UNICO PARA ESTATOR|Punção retalhador - trincas, fixação e altura útil e afiação|25000
+Tabela de verificações	30	|=D30&E30|0010|=D29+1|ESTAMPO UNICO PARA ESTATOR|Colares de esferas - Verificar deformação esferas, sulcos e folgas|50000
+Tabela de verificações	31	|=D31&E31|0011|=D30+1|ESTAMPO UNICO PARA ESTATOR|Colunas - Verificar estrias, alinhamento e folga|100000
+Tabela de verificações	32	|=D32&E32|0012|=D31+1|ESTAMPO UNICO PARA ESTATOR|Buchas - Verificar estrias, alinhamento e folga|100000
+Tabela de verificações	33	|=D33&E33|0013|=D32+1|ESTAMPO UNICO PARA ESTATOR|Folga de corte - Verificar com papel|25000
+Tabela de verificações	34	|=D34&E34|0014|=D33+1|ESTAMPO UNICO PARA ESTATOR|Bases - Verificar paralelismo e condições das roscas e alojamentos, normalizar e retificar se necessário|500000
+Tabela de verificações	35	|=D35&E35|0015|=D34+1|ESTAMPO UNICO PARA ESTATOR|Molas almofada – Verificar / Substituir |50000
+Tabela de verificações	36	|=D36&E36|0016|=D35+1|ESTAMPO UNICO PARA ESTATOR|Molas almofada – Verificar / Substituir |500000
+Tabela de verificações	37	|=D37&E37|0017|=D36+1|ESTAMPO UNICO PARA ESTATOR|Placa pisadora e extratora - Verificar paralelismo e deformações - Retificar se necessário|500000
+Tabela de verificações	38	|=D38&E38|0018|=D37+1|ESTAMPO UNICO PARA ESTATOR|Parafusos, verificar condições das roscas e substituir de necessário|200000
+Tabela de verificações	39	|=D39&E39|0019|=D38+1|ESTAMPO UNICO PARA ESTATOR|Pinos - Verificar quanto a folga e deformações - Substituir se necessário|500000
+Tabela de verificações	40	|=D40&E40|0020|=D39+1|ESTAMPO UNICO PARA ESTATOR|Saídas de cavaco - Verificar obstruções e rebarbas|25000
+combinação	1	||||||Item|Tipo da lâmina|Descrição do Item para Verificação|Meta N de Golpes|||||||
+combinação	2	||||||1|BLANK SEGMENTADO PARA ESTATOR|Matrizes entalhes de solda - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	3	||||||1|ESTAMPO UNICO PARA ESTATOR|Matrizes entalhes de solda - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	4	||||||1|BLANK QUADRADO + FURO PARA ROTOR|Matrizes furo do eixo - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	5	||||||1|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Matrizes furo do eixo - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	6	||||||1|RANHURADOR WUhU|Matrizes de ranhura - trincas, fixação, altura útil e afiação|100000|||||||
+combinação	7	||||||1|RANHURADOR PADRÃO CANECA|Matrizes de ranhura - trincas, fixação, altura útil e afiação|40000|||||||
+combinação	8	||||||1|FURO DE VENTILAÇÃO|Matrizes entalhes de solda - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	9	||||||2|BLANK SEGMENTADO PARA ESTATOR|Punções entalhes de solda - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	10	||||||2|ESTAMPO UNICO PARA ESTATOR|Punções entalhes de solda - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	11	||||||2|BLANK QUADRADO + FURO PARA ROTOR|Punções furo do eixo - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	12	||||||2|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Punções furo do eixo - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	13	||||||2|RANHURADOR WUhU|Punções de ranhuras - trincas, fixação e altura útil e afiação|100000|||||||
+combinação	14	||||||2|RANHURADOR PADRÃO CANECA|Punções de ranhuras - trincas, fixação e altura útil e afiação|40000|||||||
+combinação	15	||||||2|FURO DE VENTILAÇÃO|Punções entalhes de solda - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	16	||||||3|BLANK SEGMENTADO PARA ESTATOR|Matriz corte externo - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	17	||||||3|ESTAMPO UNICO PARA ESTATOR|Matrizes ranhuras - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	18	||||||3|BLANK QUADRADO + FURO PARA ROTOR|Matrizes aletas refrigeração - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	19	||||||3|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Matrizes aletas refrigeração - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	20	||||||3|RANHURADOR WUhU|Matrizes aparador- trincas, fixação, altura útil e afiação|100000|||||||
+combinação	21	||||||3|RANHURADOR PADRÃO CANECA|Matrizes aparador- trincas, fixação, altura útil e afiação|40000|||||||
+combinação	22	||||||3|FURO DE VENTILAÇÃO|Matriz corte externo - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	23	||||||4|BLANK SEGMENTADO PARA ESTATOR|Punção corte externo - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	24	||||||4|ESTAMPO UNICO PARA ESTATOR|Punções ranhuras - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	25	||||||4|BLANK QUADRADO + FURO PARA ROTOR|Punções aletas de refrigeração - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	26	||||||4|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Punções aletas de refrigeração - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	27	||||||4|RANHURADOR WUhU|Punções aparador - trincas, fixação e altura útil e afiação|100000|||||||
+combinação	28	||||||4|RANHURADOR PADRÃO CANECA|Punções aparador - trincas, fixação e altura útil e afiação|40000|||||||
+combinação	29	||||||4|FURO DE VENTILAÇÃO|Punção corte externo - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	30	||||||5|BLANK SEGMENTADO PARA ESTATOR|Matriz retalhadora - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	31	||||||5|ESTAMPO UNICO PARA ESTATOR|Matriz corte externo - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	32	||||||5|BLANK QUADRADO + FURO PARA ROTOR|Matriz chaveta e furos - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	33	||||||5|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Matriz chaveta e furos - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	34	||||||5|RANHURADOR WUhU|Colares de esferas - Verificar deformação esferas, sulcos e folgas|200000|||||||
+combinação	35	||||||5|RANHURADOR PADRÃO CANECA|Colares de esferas (quando aplicável) - Verificar deformação esferas, sulcos e folgas|80000|||||||
+combinação	36	||||||5|FURO DE VENTILAÇÃO|Matriz retalhadora - trincas, fixação, altura útil e afiação|25000|||||||
+combinação	37	||||||6|BLANK SEGMENTADO PARA ESTATOR|Punção retalhador - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	38	||||||6|ESTAMPO UNICO PARA ESTATOR|Punção corte externo - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	39	||||||6|BLANK QUADRADO + FURO PARA ROTOR|Punção chaveta e furos - trincas, fixação e altura útil e afiação|25000|||||||
+combinação	40	||||||6|BLANK PARA ESTATOR E ROTOR INTEIRIÇO|Punção chaveta e furos - trincas, fixação e altura útil e afiação|25000|||||||
+Dados	3	|AME Resp. Pela abertura da ficha:||Index|AME
+Descrição da Ferramenta:||Ferramenteiro
+Responsável:||Produção
+Operador Responsável:||Setor (Prensa):||Sufixo|Tipo da Ferramenta|||Emitido Ficha de Manutenção?
+Dados	4	|Sabrina Freitas||0076|BLANK PARA ESTATOR E ROTOR INTEIRIÇO||Alexandre||Fabio Teixeira||PX013||0006|APARADOR Ø EXT. ESTATOR|||
+Dados	5	|Bruno Almeida||0009|BLANK QUADRADO + FURO PARA ROTOR||Spontão||Zaqueu Aguiar Souza||PX021||0008||||
+Dados	6	|Fulana da Silva||0004|BLANK SEGMENTADO PARA ESTATOR||Lelis||Valdir de Barros Cecilio||PX044||0012||||
+Dados	7	|Patricia Gomes||0003|ESTAMPO UNICO PARA ESTATOR||||Jailson Cubines||PX009||||||
+Dados	8	|Gustavo Nascimento||0010|RANHURADOR PADRÃO CANECA||||Ricardo Gomes Ferreira||PX014||||||
+Dados	9	|Paulo Henrique||0011|RANHURADOR PADRÃO CANECA||||Ernandes Xavier||PX023||||||
+Dados	10	|||1011|RANHURADOR PADRÃO CANECA||||Vitor Postigo||PX059||||||
+Dados	11	||||RANHURADOR WuHu||||Alex José da Silva||PX060||||||
+Dados	12	|||0012|RANHURADOR PADRÃO CANECA||||Rodrigo José da Silva||PX022||||||
+Dados	13	|||0045|BLANK QUADRADO + FURO PARA ROTOR||||Joao Cardoso||PX034||||||
+Dados	14	|||0018|RANHURADOR PADRÃO CANECA||||Gislaine Pereira Dias Nague||PX035||||||
+Dados	15	|||1019|RANHURADOR PADRÃO CANECA||||Odair Mangueira Cruz||PX052||||||
+Dados	16	|||1018|RANHURADOR PADRÃO CANECA||||||PX056||||||
+Dados	17	|||2010|RANHURADOR PADRÃO CANECA||||||PX057||||||
+Dados	18	|||0002|FURO DE VENTILAÇÃO||||||PX058||||||
+Dados	19	||||||||||PX029||||||

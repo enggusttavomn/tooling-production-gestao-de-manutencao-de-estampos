@@ -1,0 +1,31 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Local database/runtime data
+.mariadb_local/
+
+# Temporary and generated local artifacts
+_tmp/
+_tmp_pdf/
+_pdf_renders/
+*.log
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
