@@ -1,6 +1,6 @@
-﻿# Fichas de Manutencao
+# Tooling_Production
 
-Aplicacao Flask + frontend estatico para consulta e operacao de fichas de manutencao.
+Automated production tooling management system.
 
 ## Estrutura do projeto
 
