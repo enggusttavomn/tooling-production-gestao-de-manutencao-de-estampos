@@ -41,6 +41,33 @@ Centralizar consulta e operacao de fichas de manutencao em uma interface web loc
 
 ## Setup local
 
+### Do zero (primeiro acesso)
+
+1. Clonar o projeto:
+```powershell
+cd C:\Users\SEU_USUARIO\Documents
+git clone https://github.apps.gevernova.net/212806893/Tooling_Production.git
+cd Tooling_Production
+```
+
+2. Abrir no VS Code:
+```powershell
+code .
+```
+
+3. Atualizar `main`:
+```powershell
+git checkout main
+git pull origin main
+```
+
+4. Criar branch da feature:
+```powershell
+git checkout -b feature/nome-da-feature
+```
+
+### Preparar ambiente
+
 1. Criar/ativar virtualenv:
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -63,6 +90,11 @@ Iniciar servidor:
 Acessar:
 - `http://localhost:5000/frontend/login.html`
 - `http://localhost:5000/health`
+
+Login:
+- Abrir `http://localhost:5000/frontend/login.html`
+- Informar usuario/senha cadastrados no ambiente
+- Se nao autenticar, validar conexao com banco no `.env`
 
 ## Fluxo Git diario (importante)
 
@@ -96,6 +128,22 @@ git push -u origin feature/nome-da-feature
 ```
 
 Depois abrir Pull Request no GitHub da GE de `feature/...` para `main`.
+
+### Resumo rapido (ordem correta)
+
+```powershell
+# inicio
+git checkout main
+git pull origin main
+git checkout -b feature/nome-da-feature
+
+# desenvolvimento
+git add .
+git commit -m "feat: descricao"
+
+# publicar
+git push -u origin feature/nome-da-feature
+```
 
 ## Fluxo rapido (se voce trabalhar direto na main)
 
