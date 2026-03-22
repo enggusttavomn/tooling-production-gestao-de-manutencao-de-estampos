@@ -1,0 +1,406 @@
+﻿<!doctype html>
+<!-- Arquivo: frontend/dashboard.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Dashboard de KPIs e graficos do sistema AME Estamparia. Consome /api/fichas e exibe indicadores por bloco. -->
+<!-- Observacao: Acessivel por todos os perfis autenticados; o botao 'Voltar' redireciona para o menu do perfil ativo. -->
+<html lang="pt-BR">
+
+<!-- ===== HEAD: configuracoes basicas e estilos exclusivos do dashboard ===== -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard AME Estamparia</title>
+  <!-- Estilos globais do painel (admin.css) -->
+  <link rel="stylesheet" href="admin.css">
+  <!-- Estilos exclusivos do dashboard: controles, KPIs, graficos e responsividade -->
+  <style>
+    .dashboard-page { max-width: 1220px; }
+    .dash-controls {
+      margin: 0 0 12px;
+      padding: 10px;
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.85);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .dash-mode-btn, .dash-block-btn {
+      min-height: 36px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(7, 66, 56, 0.24);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .dash-mode-btn.is-active, .dash-block-btn.is-active {
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #f6fffc;
+      border-color: rgba(7, 66, 56, 0.32);
+    }
+    .dash-status {
+      margin: 0 0 12px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(7, 66, 56, 0.18);
+      background: rgba(255, 255, 255, 0.82);
+      color: #1f2937;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .dash-status.is-error {
+      border-color: rgba(185, 28, 28, 0.25);
+      background: rgba(254, 242, 242, 0.95);
+      color: #991b1b;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .kpi-card {
+      border: 1px solid rgba(7, 66, 56, 0.18);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+    }
+    .kpi-label {
+      margin: 0;
+      font-size: 11px;
+      color: #0b6b57;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .kpi-value {
+      margin: 6px 0 0;
+      font-family: "Space Grotesk", "Manrope", sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .chart-card {
+      border: 1px solid rgba(7, 66, 56, 0.18);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+    }
+    .chart-card h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: #0b6b57;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .bar-list { display: grid; gap: 8px; }
+    .bar-row { display: grid; gap: 3px; }
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1f2937;
+      gap: 8px;
+    }
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e5ece9;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 999px; }
+    .dash-hidden { display: none !important; }
+    /* Responsividade: ajusta colunas dos KPIs em telas menores */
+    @media (max-width: 980px) { .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 860px) { .charts-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .kpi-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<!-- ===== BODY: layout do dashboard ===== -->
+<body>
+  <main class="page dashboard-page">
+    <section class="panel">
+
+      <!-- ===== Cabecalho: logo, titulo e info do perfil ===== -->
+      <header class="panel-header">
+        <div class="head-main">
+          <!-- Logo GE Vernova -->
+          <div class="logo-box"><img src="assets/gevernova_logo.jpg" alt="GE Vernova"></div>
+          <!-- Titulo e descricao do perfil ativo -->
+          <div class="head-text">
+            <h1>Dashboard - AME Estamparia</h1>
+            <p id="perfilInfo">KPI e graficos por bloco</p>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== Barra de controles: alterna entre modo KPI/Grafico e filtro por bloco ===== -->
+      <div class="dash-controls">
+        <button type="button" class="dash-mode-btn is-active" id="btnModeKpi">KPIS</button>
+        <button type="button" class="dash-mode-btn" id="btnModeGraf">GRAFICOS</button>
+        <button type="button" class="dash-block-btn is-active" data-block="all">TODOS</button>
+        <button type="button" class="dash-block-btn" data-block="job">JOB</button>
+        <button type="button" class="dash-block-btn" data-block="plano">PLANO</button>
+        <button type="button" class="dash-block-btn" data-block="consulta">CONSULTA</button>
+        <button type="button" class="dash-block-btn" data-block="ferramenteiro">FERRAMENTEIRO</button>
+        <button type="button" class="dash-block-btn" data-block="producao">PRODUCAO</button>
+      </div>
+
+      <!-- Barra de status: exibe mensagem de carregamento, erros ou totais filtrados -->
+      <div class="dash-status" id="dashStatus">Carregando dados...</div>
+
+      <!-- ===== Secao de KPIs: cards com indicadores numericos principais ===== -->
+      <!-- Visivel no modo KPI; oculto no modo Graficos -->
+      <section class="kpi-grid" id="kpiSection">
+        <article class="kpi-card"><p class="kpi-label">Registros</p><p class="kpi-value" id="kpiTotal">0</p></article>
+        <article class="kpi-card"><p class="kpi-label">JOBs</p><p class="kpi-value" id="kpiJobs">0</p></article>
+        <article class="kpi-card"><p class="kpi-label">Ferramentais</p><p class="kpi-value" id="kpiFerr">0</p></article>
+        <article class="kpi-card"><p class="kpi-label">Vida media mm</p><p class="kpi-value" id="kpiVida">0,00</p></article>
+        <article class="kpi-card"><p class="kpi-label">Vida <= 2 mm</p><p class="kpi-value" id="kpiCrit">0</p></article>
+        <article class="kpi-card"><p class="kpi-label">Ficha processo</p><p class="kpi-value" id="kpiProc">0</p></article>
+      </section>
+
+      <!-- ===== Secao de graficos: barras de distribuicao por status/prensa ===== -->
+      <!-- Visivel no modo Graficos; oculto no modo KPI -->
+      <section class="charts-grid dash-hidden" id="grafSection">
+        <article class="chart-card"><h2>Status Roteiro</h2><div class="bar-list" id="chartRoteiro"></div></article>
+        <article class="chart-card"><h2>Prensas</h2><div class="bar-list" id="chartPrensa"></div></article>
+        <article class="chart-card"><h2>Status FRNR</h2><div class="bar-list" id="chartFrnr"></div></article>
+        <article class="chart-card"><h2>Status Entrega</h2><div class="bar-list" id="chartEntrega"></div></article>
+      </section>
+
+      <!-- Botoes de navegacao: voltar ao menu e logout -->
+      <div class="actions">
+        <a class="btn btn-outline" id="btnVoltarMenu" href="engenheiro.html">Voltar ao menu</a>
+        <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SCRIPT: autenticacao, navegacao e logica do dashboard ===== -->
+  <!--
+    Fluxo: verifica perfil -> define botao Voltar -> carrega /api/fichas ->
+    renderiza KPIs ou graficos -> filtra por bloco conforme botao ativo.
+  -->
+  <script>
+    (function () {
+      const perfil = String(sessionStorage.getItem("perfil_ativo") || "").trim().toLowerCase();
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+      const permitidos = ["engenheiro", "admin", "planejamento", "ferramenteiro", "producao"];
+      if (permitidos.indexOf(perfil) === -1) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const menuPorPerfil = {
+        admin: "admin.html",
+        engenheiro: "engenheiro.html",
+        planejamento: "planejamento_estampos.html",
+        ferramenteiro: "ferramenteiro.html",
+        producao: "producao.html"
+      };
+      const btnVoltar = document.getElementById("btnVoltarMenu");
+      if (btnVoltar) { btnVoltar.href = menuPorPerfil[perfil] || "engenheiro.html"; }
+
+      const perfilInfo = document.getElementById("perfilInfo");
+      if (perfilInfo) {
+        const p = usuarioAtivo.split(":");
+        const nome = p.slice(1).join(":").trim();
+        perfilInfo.textContent = nome ? ("Perfil " + perfil + ": " + nome) : ("Perfil " + perfil);
+      }
+
+      const btnSair = document.getElementById("btnSair");
+      if (btnSair) {
+        btnSair.addEventListener("click", function () {
+          sessionStorage.removeItem("perfil_ativo");
+          sessionStorage.removeItem("usuario_ativo");
+          window.location.replace("login.html");
+        });
+      }
+
+      const btnModeKpi = document.getElementById("btnModeKpi");
+      const btnModeGraf = document.getElementById("btnModeGraf");
+      const kpiSection = document.getElementById("kpiSection");
+      const grafSection = document.getElementById("grafSection");
+      const blockButtons = Array.prototype.slice.call(document.querySelectorAll(".dash-block-btn"));
+      const statusEl = document.getElementById("dashStatus");
+      const brInt = new Intl.NumberFormat("pt-BR");
+      const brDec = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const API_URL = "/api/fichas";
+      let allRows = [];
+      let activeBlock = "all";
+
+      function setStatus(text, isError) {
+        statusEl.textContent = text;
+        statusEl.classList.toggle("is-error", Boolean(isError));
+      }
+
+      function toNum(v) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function hasText(v) {
+        return String(v || "").trim() !== "";
+      }
+
+      function filled(v) {
+        const t = String(v || "").trim().toLowerCase();
+        return Boolean(t && t !== "na" && t !== "n/a" && t !== "-");
+      }
+
+      function normalizeRoteiro(v) {
+        const t = String(v || "").trim().toLowerCase();
+        if (!t || t === "na") { return "Pendente"; }
+        if (t.indexOf("aprovado") >= 0 || t.indexOf("conclu") >= 0) { return "Concluida"; }
+        if (t.indexOf("roteiro") >= 0) { return "Pendente"; }
+        return "Em andamento";
+      }
+
+      function normalizeText(v) {
+        const t = String(v || "").trim();
+        return t || "Nao informado";
+      }
+
+      function filterRows(rows, block) {
+        return rows.filter(function (r) {
+          if (block === "job") { return hasText(r.job); }
+          if (block === "plano") { return hasText(r.status_entrega_ferramental) || hasText(r.status_ferramental_lob || r.status_ferramental); }
+          if (block === "consulta") { const vida = toNum(r.vida_util_ferramenta); return vida !== null && vida <= 2; }
+          if (block === "ferramenteiro") { return hasText(r.ferramenteiro_responsavel) || hasText(r.horario_inicio_ferramenteiro); }
+          if (block === "producao") { return hasText(r.operador_responsavel) || hasText(r.data_termino_producao); }
+          return true;
+        });
+      }
+
+      function countBy(rows, fn) {
+        const map = new Map();
+        rows.forEach(function (r) {
+          const key = fn(r);
+          map.set(key, (map.get(key) || 0) + 1);
+        });
+        return Array.from(map.entries()).map(function (e) { return { label: e[0], value: e[1] }; }).sort(function (a, b) { return b.value - a.value; });
+      }
+
+      function renderBars(containerId, items, total, color) {
+        const el = document.getElementById(containerId);
+        el.innerHTML = "";
+        if (!items.length) {
+          el.innerHTML = '<p class="chart-empty">Sem dados</p>';
+          return;
+        }
+        const top = items.slice(0, 8);
+        const max = top[0].value || 1;
+        top.forEach(function (i) {
+          const row = document.createElement("div");
+          row.className = "bar-row";
+          const head = document.createElement("div");
+          head.className = "bar-head";
+          const pct = total > 0 ? (i.value / total) * 100 : 0;
+          head.innerHTML = "<span>" + i.label + "</span><span>" + brInt.format(i.value) + " (" + brDec.format(pct) + "%)</span>";
+          const track = document.createElement("div");
+          track.className = "bar-track";
+          const fill = document.createElement("div");
+          fill.className = "bar-fill";
+          fill.style.width = String((i.value / max) * 100) + "%";
+          fill.style.background = color;
+          track.appendChild(fill);
+          row.appendChild(head);
+          row.appendChild(track);
+          el.appendChild(row);
+        });
+      }
+
+      function render(rows) {
+        const total = rows.length;
+        const jobs = new Set();
+        const ferr = new Set();
+        const vidas = [];
+        let crit = 0;
+        let proc = 0;
+
+        rows.forEach(function (r) {
+          if (hasText(r.job)) { jobs.add(String(r.job).trim()); }
+          if (hasText(r.numero_ferramental)) { ferr.add(String(r.numero_ferramental).trim()); }
+          const vida = toNum(r.vida_util_ferramenta);
+          if (vida !== null) {
+            vidas.push(vida);
+            if (vida <= 2) { crit += 1; }
+          }
+          if (filled(r.ficha_processo)) { proc += 1; }
+        });
+
+        const mediaVida = vidas.length ? (vidas.reduce(function (a, b) { return a + b; }, 0) / vidas.length) : 0;
+        document.getElementById("kpiTotal").textContent = brInt.format(total);
+        document.getElementById("kpiJobs").textContent = brInt.format(jobs.size);
+        document.getElementById("kpiFerr").textContent = brInt.format(ferr.size);
+        document.getElementById("kpiVida").textContent = brDec.format(mediaVida);
+        document.getElementById("kpiCrit").textContent = brInt.format(crit);
+        document.getElementById("kpiProc").textContent = brInt.format(proc);
+
+        renderBars("chartRoteiro", countBy(rows, function (r) { return normalizeRoteiro(r.status_roteiro); }), total, "#0b6b57");
+        renderBars("chartPrensa", countBy(rows, function (r) { return normalizeText(r.prensa); }), total, "#1f8f75");
+        renderBars("chartFrnr", countBy(rows, function (r) { return normalizeText(r.status_frnr); }), total, "#2fa584");
+        renderBars("chartEntrega", countBy(rows, function (r) { return normalizeText(r.status_entrega_ferramental); }), total, "#3eb18e");
+      }
+
+      function applyBlock(block) {
+        activeBlock = block;
+        blockButtons.forEach(function (b) {
+          b.classList.toggle("is-active", b.getAttribute("data-block") === block);
+        });
+        const rows = filterRows(allRows, block);
+        render(rows);
+        setStatus("Bloco: " + block.toUpperCase() + " | " + brInt.format(rows.length) + " registros.", false);
+      }
+
+      function setView(mode) {
+        const isGraf = mode === "graf";
+        btnModeKpi.classList.toggle("is-active", !isGraf);
+        btnModeGraf.classList.toggle("is-active", isGraf);
+        kpiSection.classList.toggle("dash-hidden", isGraf);
+        grafSection.classList.toggle("dash-hidden", !isGraf);
+      }
+
+      btnModeKpi.addEventListener("click", function () { setView("kpi"); });
+      btnModeGraf.addEventListener("click", function () { setView("graf"); });
+      blockButtons.forEach(function (b) {
+        b.addEventListener("click", function () { applyBlock(b.getAttribute("data-block") || "all"); });
+      });
+
+      (async function load() {
+        try {
+          const res = await fetch(API_URL, { cache: "no-store" });
+          if (!res.ok) { throw new Error("Falha na API"); }
+          const data = await res.json();
+          allRows = Array.isArray(data) ? data : [];
+          applyBlock("all");
+          setStatus("Painel carregado com " + brInt.format(allRows.length) + " registros.", false);
+        } catch (_e) {
+          allRows = [];
+          applyBlock("all");
+          setStatus("Nao foi possivel carregar os dados do dashboard.", true);
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>
+

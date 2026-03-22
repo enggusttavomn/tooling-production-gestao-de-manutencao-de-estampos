@@ -1,9 +1,22 @@
-﻿/* Reset basico */
+﻿/*
+ * Arquivo: frontend/style.css
+ * Descricao: folha de estilos do projeto Fichas de Manutencao.
+ * Observacao: cabecalho de documentacao para padronizacao e organizacao.
+ */
+
+/* Reset basico */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+/*
+ * Notas de manutencao:
+ * - Objetivo: manter consistencia visual entre telas.
+ * - Cuidado: evitar impacto global em seletores reutilizados.
+ * - Ao alterar: revisar responsividade e estados de componentes.
+ */
+
 
 /* Variaveis globais de cores */
 :root {
@@ -398,3 +411,4 @@ body.page {
         grid-template-columns: repeat(2, auto 1fr);
     }
 }
+

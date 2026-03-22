@@ -1,4 +1,8 @@
-﻿<!doctype html>
+﻿<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Arquivo: frontend/impressao_modelo.html -->
+<!-- Descricao: Modelo de impressao da ficha individual de manutencao de estampos. Exibe dados de 2 paginas: cabecalho/dados e checklist de manutencao. -->
+<!-- Observacao: Requer perfil 'admin' ou 'engenheiro'. Ficha e carregada via ?ficha=ID ou sessionStorage. -->
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -11,6 +15,8 @@
       --line: #2b2b2b;
       --paper: #ffffff;
       --ink: #111827;
+      --screen-sheet-width: 208mm;
+      --print-scale: 1.04;
     }
 
     * {
@@ -29,7 +35,7 @@
     }
 
     .print-bar {
-      width: min(210mm, 100%);
+      width: min(var(--screen-sheet-width), 100%);
       margin: 10px auto 0;
       display: flex;
       gap: 10px;
@@ -58,7 +64,7 @@
     }
 
     .sheet {
-      width: min(210mm, 100%);
+      width: min(var(--screen-sheet-width), 100%);
       min-height: auto;
       margin: 0 auto 14px;
       background: var(--paper);
@@ -457,8 +463,18 @@
     }
 
     @page {
-      size: A4 portrait;
-      margin: 0;
+      size: portrait;
+      margin: 11mm 4mm 8mm 4mm;
+    }
+
+    @page :left {
+      margin-left: 6mm;
+      margin-right: 4mm;
+    }
+
+    @page :right {
+      margin-left: 4mm;
+      margin-right: 6mm;
     }
 
     @media print {
@@ -478,34 +494,63 @@
       }
 
       .sheet {
-        width: 210mm;
+        width: calc(100% / var(--print-scale));
         min-height: 0;
         height: auto;
-        margin: 0;
-        border: 2px solid var(--line);
+        margin: 0 auto;
+        border: 1.5px solid var(--line);
         box-shadow: none;
         page-break-after: always;
         break-after: page;
-        overflow: visible;
+        break-inside: avoid-page;
+        transform: scale(var(--print-scale));
+        transform-origin: top left;
+        overflow: hidden;
+      }
+
+      .obs {
+        min-height: 86px;
+      }
+
+      .end-rnc-lines {
+        min-height: 76px;
+      }
+
+      .sheet-2 {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sheet-2 .table-wrap {
+        display: flex;
+        flex: 1 1 auto;
+      }
+
+      .sheet-2 .manut-table {
+        height: 100%;
       }
 
       .sheet-2 .manut-table td {
-        padding-top: 6px;
-        padding-bottom: 6px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+
+      .sheet-2 .manut-table tbody tr {
+        height: 3.25%;
       }
 
       .sheet-2 .manut-table tbody tr:nth-last-child(-n+3) td {
-        height: 44px;
+        height: 30px;
       }
 
       .sheet-2 .nao-conf-table td {
-        padding-top: 7px;
-        padding-bottom: 7px;
+        padding-top: 4px;
+        padding-bottom: 4px;
       }
 
       .sheet-2 .revisao-table td {
-        padding-top: 6px;
-        padding-bottom: 6px;
+        padding-top: 4px;
+        padding-bottom: 4px;
       }
 
       .sheet:last-of-type {
@@ -515,7 +560,9 @@
     }
   </style>
 </head>
+<!-- ===== BODY: layout de impressao da ficha individual ===== -->
 <body>
+  <!-- ===== Folha 1: cabecalho da ficha, dados da ferramenta e termino de producao ===== -->
   <section class="sheet">
     <div class="top-head">
       <div class="logo"><img src="assets/gevernova_logo.jpg" alt="GE Vernova"></div>
@@ -574,6 +621,7 @@
     </div>
 
     <div class="block-head">Dados sobre o t&eacute;rmino da produ&ccedil;&atilde;o</div>
+    <!-- ===== Tabela: dados finais de termino de producao e controle de golpes ===== -->
     <table class="end-table">
       <tr>
         <td class="end-label" style="width:250px;">Data de T&eacute;rmino da Produ&ccedil;&atilde;o:</td>
@@ -692,6 +740,7 @@
     </table>
   </section>
 
+  <!-- ===== Folha 2: itens de manutencao programada, nao conformidades e historico de revisoes ===== -->
   <section class="sheet sheet-2">
     <div class="block-head">Manuten&ccedil;&atilde;o programada - Itens para verifica&ccedil;&atilde;o</div>
     <div class="table-wrap">
@@ -745,11 +794,17 @@
     </table>
   </section>
 
+  <!-- Barra de impressao: dica de duplex e botao para acionar window.print() -->
   <div class="print-bar">
-    <span class="print-tip">Dica: selecione frente e verso na impressora para sair em 1 folha.</span>
+    <span class="print-tip">Dica: selecione frente e verso (duplex) para imprimir as 2 p&aacute;ginas em 1 folha.</span>
     <button type="button" class="btn-print" id="btnPrint">Imprimir</button>
   </div>
 
+  <!-- ===== SCRIPT: carrega ficha por ID, popula campos data-field e renderiza linhas de manutencao ===== -->
+  <!--
+    Fluxo: verifica perfil -> le ?ficha= ou sessionStorage -> busca /api/fichas/{id}
+    -> preenche spans/divs com data-field -> gera linhas manut-table.
+  -->
     <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
@@ -1007,4 +1062,5 @@
   </script>
 </body>
 </html>
+
 

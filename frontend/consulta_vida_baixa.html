@@ -1,0 +1,698 @@
+﻿<!doctype html>
+<!-- Arquivo: frontend/consulta_vida_baixa.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Tela de consulta de ferramentas com vida util abaixo de 2 mm. Filtra e exibe dados criticos de /api/fichas. -->
+<!-- Observacao: Acessivel por todos os perfis autenticados. Usa cache em sessionStorage (TTL=120s) para reducao de chamadas. -->
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consulta - Ferramentas com Vida Baixa</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .page {
+      max-width: 1420px;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(2, 6, 23, 0.1);
+      background: linear-gradient(135deg, rgba(248, 252, 251, 0.95), rgba(241, 247, 245, 0.95));
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      font-weight: 800;
+      color: #0b6b57;
+    }
+
+    .section-note {
+      margin: 2px 0 0;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .panel-header-tools {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-filter {
+      border-color: rgba(7, 66, 56, 0.28);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e63946;
+      color: #fff;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .filter-panel {
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px 10px;
+      margin: 8px 0 10px;
+    }
+
+    .filter-panel.filter-panel-hidden {
+      display: none;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 6px 12px;
+      align-items: end;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .filter-field label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0b6b57;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-field input,
+    .filter-field select {
+      border: 1px solid rgba(7, 66, 56, 0.25);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      height: 30px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .filter-field input:focus,
+    .filter-field select:focus {
+      border-color: #0b6b57;
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.12);
+    }
+
+    .filter-field-range .range-inputs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .filter-field-range .range-inputs input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .filter-field-range .range-inputs span {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .filter-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-sm {
+      padding: 4px 14px;
+      font-size: 12px;
+    }
+
+    .consult-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(2, 6, 23, 0.12);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(2, 6, 23, 0.08);
+    }
+
+    .consult-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+      min-width: 900px;
+    }
+
+    .consult-table thead th {
+      background: #0b6b57;
+      color: #fff;
+      font-weight: 700;
+      text-align: left;
+      padding: 11px 10px;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .consult-table thead th:last-child {
+      border-right: none;
+    }
+
+    .consult-table tbody td {
+      border-top: 1px solid rgba(2, 6, 23, 0.12);
+      padding: 10px 10px;
+      vertical-align: middle;
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.92);
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .consult-table tbody tr:nth-child(even) td {
+      background: rgba(238, 246, 243, 0.9);
+    }
+
+    .consult-table tbody tr:hover td {
+      background: rgba(227, 241, 236, 0.95);
+    }
+
+    .consult-table th:nth-child(1),
+    .consult-table td:nth-child(1) { width: 28%; }
+    .consult-table th:nth-child(2),
+    .consult-table td:nth-child(2) { width: 12%; text-align: center; }
+    .consult-table th:nth-child(3),
+    .consult-table td:nth-child(3) { width: 44%; }
+    .consult-table th:nth-child(4),
+    .consult-table td:nth-child(4) { width: 16%; text-align: center; }
+
+    .low-life-mm {
+      display: inline-block;
+      min-width: 62px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #fee2e2;
+      color: #991b1b;
+      font-weight: 800;
+    }
+
+    .empty {
+      padding: 16px;
+      text-align: center;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .left-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      border-color: rgba(7, 66, 56, 0.3);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .btn-outline {
+      border-color: rgba(2, 6, 23, 0.18);
+      background: #ffffff;
+      color: #334155;
+    }
+
+    @media (max-width: 780px) {
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<!-- ===== BODY: layout da consulta de vida util critica ===== -->
+<body>
+  <main class="page">
+    <section class="panel">
+
+      <!-- ===== Cabecalho: logo, titulo e botao de filtro ===== -->
+      <header class="panel-header">
+        <div class="head-main">
+          <!-- Logo GE Vernova -->
+          <div class="logo-box">
+            <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
+          </div>
+          <!-- Titulo e info do perfil ativo -->
+          <div class="head-text">
+            <h1>Consulta Ferramentas com Vida Baixa &lt; 2 mm</h1>
+            <p id="perfilInfo">Painel de acompanhamento de ferramentas cr&iacute;ticas</p>
+          </div>
+        </div>
+        <!-- Botao que exibe/oculta o painel de filtros -->
+        <div class="panel-header-tools">
+          <button type="button" class="btn btn-filter" id="btnFiltro">Filtro <span class="filter-badge" id="filterBadge" style="display:none">0</span></button>
+        </div>
+      </header>
+
+      <!-- ===== Painel de filtros (colapsavel): ferramental, prensa, descricao, vida min/max ===== -->
+      <div class="filter-panel filter-panel-hidden" id="filterPanel">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <label for="fFerramental">N&ordm; Ferramental</label>
+            <input type="text" id="fFerramental" placeholder="Filtrar ferramental...">
+          </div>
+          <div class="filter-field">
+            <label for="fPrensa">Prensa</label>
+            <select id="fPrensa"><option value="">Todas</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fDescricao">Descri&ccedil;&atilde;o da ferramenta</label>
+            <input type="text" id="fDescricao" placeholder="Filtrar descri&ccedil;&atilde;o...">
+          </div>
+          <div class="filter-field filter-field-range">
+            <label>Vida Util Atual (mm)</label>
+            <div class="range-inputs">
+              <input type="number" id="fVidaMin" placeholder="M&iacute;n" step="0.01" min="0">
+              <span>&ndash;</span>
+              <input type="number" id="fVidaMax" placeholder="M&aacute;x" step="0.01" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="filter-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnAplicarFiltro">Aplicar filtros</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnLimparFiltro">Limpar</button>
+        </div>
+      </div>
+
+      <!-- ===== Tabela de consulta: ferramentais com vida util < 2 mm ===== -->
+      <!-- Colunas: Nr Ferramental, Prensa, Descricao da Ferramenta, Vida Util Atual mm -->
+      <div class="consult-wrap">
+        <table class="consult-table" aria-label="Tabela de consulta de ferramentas com vida baixa">
+          <thead>
+            <tr>
+              <th>N&ordm; Ferramental</th>
+              <th>Prensa</th>
+              <th>Descri&ccedil;&atilde;o da ferramenta</th>
+              <th>Vida Util Atual mm</th>
+            </tr>
+          </thead>
+          <tbody id="consultaBody">
+            <tr>
+              <td colspan="4" class="empty">Carregando dados...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Botoes de navegacao: voltar ao menu (preenchido pelo JS) e logout -->
+      <div class="actions">
+        <div class="left-actions" id="leftActions"></div>
+        <div class="left-actions">
+          <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SCRIPT: autenticacao, carga de dados e logica de filtros ===== -->
+  <!--
+    Fluxo: verifica perfil -> le cache do sessionStorage (TTL 120s) ->
+    chama /api/fichas -> filtra vida < 2mm -> renderiza consult-table ->
+    filtros de prensa/ferramental atualizam a view via applyFilters().
+  -->
+  <script>
+    (function () {
+      const perfilAtivo = String(sessionStorage.getItem("perfil_ativo") || "").trim().toLowerCase();
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+      const perfisPermitidos = ["engenheiro", "admin", "planejamento", "ferramenteiro", "producao"];
+      if (perfisPermitidos.indexOf(perfilAtivo) === -1) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const perfilInfo = document.getElementById("perfilInfo");
+      if (perfilInfo) {
+        const perfilNomes = {
+          admin: "Administrador",
+          engenheiro: "Engenheiro de Processo",
+          planejamento: "Planejamento",
+          ferramenteiro: "Ferramenteiro",
+          producao: "Producao"
+        };
+        const partesUsuario = usuarioAtivo.split(":");
+        const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
+        const nomeUsuario = partesUsuario.slice(1).join(":").trim();
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuario";
+        perfilInfo.textContent = nomeUsuario ? ("Perfil " + perfilLabel + ": " + nomeUsuario) : ("Perfil " + perfilLabel);
+      }
+
+      const leftActions = document.getElementById("leftActions");
+      if (leftActions) {
+        if (perfilAtivo === "admin") {
+          leftActions.innerHTML = '<a class="btn btn-secondary" href="admin.html">Voltar para menu Admin</a>';
+        } else {
+          leftActions.innerHTML = '<a class="btn btn-secondary" href="engenheiro.html">Voltar para menu Engenheiro</a>';
+        }
+      }
+
+      const consultaBody = document.getElementById("consultaBody");
+      const btnSair = document.getElementById("btnSair");
+      const btnFiltro = document.getElementById("btnFiltro");
+      const filterPanel = document.getElementById("filterPanel");
+      const filterBadge = document.getElementById("filterBadge");
+      const fFerramental = document.getElementById("fFerramental");
+      const fPrensa = document.getElementById("fPrensa");
+      const fDescricao = document.getElementById("fDescricao");
+      const fVidaMin = document.getElementById("fVidaMin");
+      const fVidaMax = document.getElementById("fVidaMax");
+      const btnAplicarFiltro = document.getElementById("btnAplicarFiltro");
+      const btnLimparFiltro = document.getElementById("btnLimparFiltro");
+      const FICHAS_CACHE_KEY = "cache_fichas_rows_v1";
+      const FICHAS_CACHE_TTL_MS = 120000;
+      let consultaRows = [];
+      let filteredConsultaRows = [];
+
+      function formatDecimal(value) {
+        if (value === null || value === undefined || value === "") {
+          return "-";
+        }
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return String(value);
+        }
+        return numeric.toFixed(2);
+      }
+
+      function createCell(text, className) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        if (className) {
+          td.className = className;
+        }
+        return td;
+      }
+
+      function normalizeText(value) {
+        return String(value || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim();
+      }
+
+      function fillSelectOptions(selectEl, values, defaultLabel) {
+        if (!selectEl) {
+          return;
+        }
+        const current = selectEl.value;
+        const uniqueValues = Array.from(new Set((values || [])
+          .map((value) => String(value || "").trim())
+          .filter(Boolean)))
+          .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" }));
+        selectEl.innerHTML = "";
+        const optionAll = document.createElement("option");
+        optionAll.value = "";
+        optionAll.textContent = defaultLabel;
+        selectEl.appendChild(optionAll);
+        uniqueValues.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          selectEl.appendChild(option);
+        });
+        if (current && uniqueValues.includes(current)) {
+          selectEl.value = current;
+        } else {
+          selectEl.value = "";
+        }
+      }
+
+      function populateFilterSelects() {
+        fillSelectOptions(fPrensa, consultaRows.map((item) => item.prensa), "Todas");
+      }
+
+      function countActiveFilters() {
+        let count = 0;
+        const values = [
+          fFerramental && fFerramental.value,
+          fPrensa && fPrensa.value,
+          fDescricao && fDescricao.value,
+          fVidaMin && fVidaMin.value,
+          fVidaMax && fVidaMax.value
+        ];
+        values.forEach((value) => {
+          if (String(value || "").trim() !== "") {
+            count += 1;
+          }
+        });
+        return count;
+      }
+
+      function applyFilters() {
+        const ferramentalFilter = normalizeText(fFerramental && fFerramental.value);
+        const prensaFilter = normalizeText(fPrensa && fPrensa.value);
+        const descricaoFilter = normalizeText(fDescricao && fDescricao.value);
+        const vidaMin = Number(fVidaMin && fVidaMin.value);
+        const vidaMax = Number(fVidaMax && fVidaMax.value);
+        const hasVidaMin = Number.isFinite(vidaMin);
+        const hasVidaMax = Number.isFinite(vidaMax);
+
+        filteredConsultaRows = consultaRows.filter((row) => {
+          if (ferramentalFilter && !normalizeText(row.numeroFerramental).includes(ferramentalFilter)) {
+            return false;
+          }
+          if (prensaFilter && normalizeText(row.prensa) !== prensaFilter) {
+            return false;
+          }
+          if (descricaoFilter && !normalizeText(row.descricaoFerramenta).includes(descricaoFilter)) {
+            return false;
+          }
+          if (hasVidaMin && row.mm < vidaMin) {
+            return false;
+          }
+          if (hasVidaMax && row.mm > vidaMax) {
+            return false;
+          }
+          return true;
+        });
+
+        const activeFilterCount = countActiveFilters();
+        if (filterBadge) {
+          if (activeFilterCount > 0) {
+            filterBadge.textContent = String(activeFilterCount);
+            filterBadge.style.display = "";
+          } else {
+            filterBadge.style.display = "none";
+          }
+        }
+
+        renderConsultaTable(filteredConsultaRows);
+      }
+
+      let applyFiltersTimer = null;
+      function scheduleApplyFilters() {
+        if (applyFiltersTimer) {
+          clearTimeout(applyFiltersTimer);
+        }
+        applyFiltersTimer = setTimeout(function () {
+          applyFilters();
+          applyFiltersTimer = null;
+        }, 140);
+      }
+
+      function readFichasCache() {
+        try {
+          const raw = sessionStorage.getItem(FICHAS_CACHE_KEY);
+          if (!raw) {
+            return null;
+          }
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.rows)) {
+            return null;
+          }
+          const ts = Number(parsed.ts || 0);
+          if (!ts || Date.now() - ts > FICHAS_CACHE_TTL_MS) {
+            return null;
+          }
+          return parsed.rows;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      function writeFichasCache(rowsValue) {
+        try {
+          sessionStorage.setItem(
+            FICHAS_CACHE_KEY,
+            JSON.stringify({ ts: Date.now(), rows: Array.isArray(rowsValue) ? rowsValue : [] })
+          );
+        } catch (_error) {
+          // ignore cache errors
+        }
+      }
+
+      function toConsultaRows(rows) {
+        return rows
+          .map(function (item) {
+            return {
+              numeroFerramental: String(item.numero_ferramental || "").trim(),
+              prensa: String(item.prensa || "").trim(),
+              descricaoFerramenta: String(item.descricao_ferramenta || item.descricao || "").trim(),
+              mm: Number(item.vida_util_ferramenta)
+            };
+          })
+          .filter(function (row) {
+            return row.numeroFerramental && Number.isFinite(row.mm) && row.mm < 2;
+          })
+          .sort(function (a, b) {
+            return a.mm - b.mm;
+          });
+      }
+
+      function renderConsultaTable(rows) {
+        consultaBody.innerHTML = "";
+        if (!rows.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 4;
+          td.className = "empty";
+          td.textContent = "Nenhuma ferramenta com vida util abaixo de 2.00 mm.";
+          tr.appendChild(td);
+          consultaBody.appendChild(tr);
+          return;
+        }
+
+        rows.forEach(function (row) {
+          const tr = document.createElement("tr");
+          tr.appendChild(createCell(row.numeroFerramental || "-"));
+          tr.appendChild(createCell(row.prensa || "-", "is-center"));
+          tr.appendChild(createCell(row.descricaoFerramenta || "-"));
+
+          const tdVida = document.createElement("td");
+          tdVida.style.textAlign = "center";
+          const tag = document.createElement("span");
+          tag.className = "low-life-mm";
+          tag.textContent = formatDecimal(row.mm);
+          tdVida.appendChild(tag);
+          tr.appendChild(tdVida);
+
+          consultaBody.appendChild(tr);
+        });
+      }
+
+      async function loadConsulta() {
+        consultaBody.innerHTML = '<tr><td colspan="4" class="empty">Carregando dados...</td></tr>';
+        let renderedFromCache = false;
+        const cachedRows = readFichasCache();
+        if (cachedRows) {
+          consultaRows = toConsultaRows(cachedRows);
+          filteredConsultaRows = consultaRows.slice();
+          populateFilterSelects();
+          applyFilters();
+          renderedFromCache = true;
+        }
+
+        try {
+          const response = await fetch("/api/fichas");
+          if (!response.ok) {
+            throw new Error("Falha ao buscar dados");
+          }
+          const result = await response.json();
+          writeFichasCache(result);
+          consultaRows = Array.isArray(result) ? toConsultaRows(result) : [];
+          filteredConsultaRows = consultaRows.slice();
+          populateFilterSelects();
+          applyFilters();
+        } catch (_error) {
+          if (renderedFromCache) {
+            return;
+          }
+          consultaRows = [];
+          filteredConsultaRows = [];
+          populateFilterSelects();
+          consultaBody.innerHTML = '<tr><td colspan="4" class="empty">N&atilde;o foi poss&iacute;vel carregar os dados da consulta.</td></tr>';
+        }
+      }
+
+      if (btnFiltro && filterPanel) {
+        btnFiltro.addEventListener("click", function () {
+          filterPanel.classList.toggle("filter-panel-hidden");
+        });
+      }
+
+      if (btnAplicarFiltro) {
+        btnAplicarFiltro.addEventListener("click", applyFilters);
+      }
+
+      const liveFilterInputs = [fFerramental, fPrensa, fDescricao, fVidaMin, fVidaMax];
+      liveFilterInputs.forEach((inputEl) => {
+        if (!inputEl) {
+          return;
+        }
+        inputEl.addEventListener("input", scheduleApplyFilters);
+        inputEl.addEventListener("change", applyFilters);
+      });
+
+      if (btnLimparFiltro) {
+        btnLimparFiltro.addEventListener("click", function () {
+          liveFilterInputs.forEach((inputEl) => {
+            if (!inputEl) {
+              return;
+            }
+            inputEl.value = "";
+          });
+          filteredConsultaRows = consultaRows.slice();
+          if (filterBadge) {
+            filterBadge.style.display = "none";
+          }
+          renderConsultaTable(filteredConsultaRows);
+        });
+      }
+
+      btnSair.addEventListener("click", function () {
+        sessionStorage.removeItem("perfil_ativo");
+        sessionStorage.removeItem("usuario_ativo");
+        window.location.replace("login.html");
+      });
+
+      loadConsulta();
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,1 +1,0 @@
-PS C:\Users\260012599\Documents\FICHAS_DE_MANUTENCAO> .\start_server.bat

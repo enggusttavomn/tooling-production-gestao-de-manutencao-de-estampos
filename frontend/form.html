@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Arquivo: frontend/form.html -->
+<!-- Descricao: Formulario principal da ficha de manutencao de estampos. Contem 4 secoes: Basicos, Producao, Ferramenteiro e Engenheiro. -->
+<!-- Observacao: Comportamento varia por perfil (?perfil=producao|ferramenteiro|engenheiro|admin) e modo (?modo=visualizar|impressao). -->
+<!DOCTYPE html>
 
 <html lang="pt-BR">
 
@@ -19,6 +23,12 @@
       const perfil = params.get("perfil");
 
       const modo = params.get("modo");
+
+      if (perfil === "engenheiro" && (modo === "visualizar" || modo === "editar")) {
+
+        document.documentElement.classList.add("pre-visualizacao-engenheiro");
+
+      }
 
       if (perfil === "admin" && modo === "impressao") {
 
@@ -83,6 +93,14 @@
       margin: 0;
 
       padding: 0;
+
+    }
+
+
+
+    html.pre-visualizacao-engenheiro body {
+
+      visibility: hidden;
 
     }
 
@@ -1016,6 +1034,56 @@
 
 
 
+    .eng-view-header {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .eng-view-switch {
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      border: 1px solid #8fb6a9;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #eef7f3, #e6f0ec);
+    }
+
+    .eng-view-btn {
+      border: 1px solid #6d9f90;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #0b6b57;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .eng-view-btn.is-off {
+      color: #64748b;
+      border-color: #9ca3af;
+      background: #f3f4f6;
+    }
+
+    .eng-view-btn[aria-pressed="true"] {
+      background: #0b6b57;
+      border-color: #085345;
+      color: #ffffff;
+    }
+
+    .eng-view-panel {
+      display: none;
+    }
+
+    .eng-view-panel.is-active {
+      display: block;
+    }
+
+
     .eng-controls {
 
       display: flex;
@@ -1227,6 +1295,153 @@
       font-size: 13px;
       padding: 4px 8px;
     }
+
+    .eng-analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .eng-analytics-card {
+      border: 1px solid #9cb7ad;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f7fbf9 0%, #edf5f1 100%);
+      padding: 12px;
+    }
+
+    .eng-analytics-card h3 {
+      margin: 0 0 10px 0;
+      color: #0b6b57;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .eng-analytics-card-wide {
+      grid-column: 1 / -1;
+    }
+
+    .eng-donut-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .eng-donut {
+      --eng-completion: 0;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: conic-gradient(#0b6b57 calc(var(--eng-completion) * 1%), #d8e5df 0);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .eng-donut::before {
+      content: "";
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #d2ded8;
+      position: absolute;
+    }
+
+    .eng-donut span {
+      position: relative;
+      z-index: 1;
+      font-size: 22px;
+      font-weight: 900;
+      color: #0b6b57;
+    }
+
+    .eng-donut-caption {
+      margin: 0;
+      color: #334155;
+      font-size: 13px;
+    }
+
+    .eng-metric-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .eng-metric-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 52px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eng-metric-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    .eng-metric-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #dbe5df;
+      overflow: hidden;
+    }
+
+    .eng-metric-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0b6b57, #14b8a6);
+      transition: width 0.2s ease;
+    }
+
+    .eng-metric-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      text-align: right;
+    }
+
+    .eng-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .eng-kpi-card {
+      border: 1px solid #9cb7ad;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f7fbf9 0%, #edf5f1 100%);
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .eng-kpi-card span {
+      color: #475569;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 700;
+    }
+
+    .eng-kpi-card strong {
+      color: #0b6b57;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .eng-kpi-note {
+      margin: 8px 0 0 0;
+      font-size: 12px;
+      color: #475569;
+    }
+
 
 
 
@@ -2028,6 +2243,43 @@
 
       }
 
+      .eng-view-header {
+        justify-content: flex-start;
+      }
+
+      .eng-view-switch {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .eng-view-btn {
+        flex: 1 1 110px;
+        text-align: center;
+      }
+
+      .eng-analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .eng-analytics-card-wide {
+        grid-column: auto;
+      }
+
+      .eng-metric-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+      }
+
+      .eng-metric-value {
+        text-align: left;
+      }
+
+      .eng-kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+
 
 
       .meta-row {
@@ -2187,15 +2439,18 @@
   </style>
 
 </head>
-
+<!-- ===== BODY: formulario principal da ficha de manutencao ===== -->
 <body>
 
   <div class="wrap">
 
+    <!-- Layout em duas colunas: formulario (esquerda) + painel de licoes aprendidas (direita) -->
     <div class="form-layout">
 
+    <!-- ===== Formulario principal: id=formPerfil controla tudo via JS ===== -->
     <form class="form-card" id="formPerfil">
 
+      <!-- Cabecalho: logo GE + titulo FICHA DE MANUTENCAO DE ESTAMPOS -->
       <div class="form-head">
 
         <div class="logo-box">
@@ -2215,6 +2470,7 @@
 
 
 
+      <!-- ===== Secao 1: Dados Basicos (tipo de evento, ferramenta, JOB, prensa, datas) ===== -->
       <div class="section" id="secBasicos">
 
         <div class="section-title">Dados B&aacute;sicos</div>
@@ -2343,6 +2599,7 @@
 
 
 
+      <!-- ===== Secao 2: Dados de Producao (operador, turno, golpes, afiacao) ===== -->
       <div class="section" id="secProducao">
 
         <div class="sheet-block">
@@ -2643,6 +2900,7 @@
 
 
 
+      <!-- ===== Secao 3: Dados do Ferramenteiro (manutencao, itens verificados, nao-conformidades) ===== -->
       <div class="section" id="secFerramenteiro">
 
         <div class="sheet-block">
@@ -2835,6 +3093,7 @@
 
 
 
+      <!-- ===== Secao 4: Dados do Engenheiro (aprovacao, analytics, vida util) ===== -->
       <div class="section" id="secEngenheiro">
 
         <div class="eng-common-fields">
@@ -2864,6 +3123,8 @@
           </div>
 
         </div>
+
+        <div class="eng-view-panel is-active" data-eng-panel="tabela">
 
         <div class="eng-controls" aria-label="Controles de visualizacao da tabela do engenheiro">
 
@@ -2915,7 +3176,7 @@
 
                 <th>Prensa</th>
 
-                <th>Descri&ccedil;&atilde;o Ferramenta</th>
+                <th>Descri&ccedil;&atilde;o da Ferramenta/th>
 
                 <th>N&uacute;mero do Desenho da Ferramenta</th>
 
@@ -2971,7 +3232,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_corte" data-field-label="Prensa - Corte de Tiras"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Corte de Tiras"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
 
@@ -3021,7 +3282,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_corte_2" data-field-label="Prensa - Corte de Tiras"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_2" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Corte de Tiras"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte_2" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
 
@@ -3071,7 +3332,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_corte_3" data-field-label="Prensa - Corte de Tiras"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Corte de Tiras"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_corte_3" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Corte de Tiras"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_corte_3" data-field-label="N&ordm; Desenho Ferramenta - Corte de Tiras"></td>
 
@@ -3123,7 +3384,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator" data-field-label="Prensa - L&acirc;m. Estator"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Estator"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- L&acirc;m. Estator"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Estator"></td>
 
@@ -3173,7 +3434,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_ranhurar" data-field-label="Prensa - Ranhurar Estator"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_ranhurar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Ranhurar Estator"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_ranhurar" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Ranhurar Estator"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_ranhurar" data-field-label="N&ordm; Desenho Ferramenta - Ranhurar Estator"></td>
 
@@ -3223,7 +3484,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_arraste" data-field-label="Prensa - Arraste Estator"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_arraste" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Arraste Estator"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_arraste" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Arraste Estator"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_arraste" data-field-label="N&ordm; Desenho Ferramenta - Arraste Estator"></td>
 
@@ -3273,7 +3534,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_fp1" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp1" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp1" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp1" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -3323,7 +3584,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_lixar" data-field-label="Prensa - Lixar e Envernizar"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_lixar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Lixar e Envernizar"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_lixar" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Lixar e Envernizar"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_lixar" data-field-label="N&ordm; Desenho Ferramenta - Lixar e Envernizar"></td>
 
@@ -3373,7 +3634,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_sep_ext" data-field-label="Prensa - L&acirc;m. Sep Ext."></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_ext" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep Ext."></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_ext" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- L&acirc;m. Sep Ext."></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_sep_ext" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep Ext."></td>
 
@@ -3423,7 +3684,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_fp2" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp2" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp2" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -3473,7 +3734,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_sep_int" data-field-label="Prensa - L&acirc;m. Sep. Int."></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_int" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep. Int."></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_sep_int" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- L&acirc;m. Sep. Int."></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_sep_int" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep. Int."></td>
 
@@ -3523,7 +3784,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_fp3" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_fp3" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_fp3" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -3573,7 +3834,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_estator_excitatriz" data-field-label="Prensa - Excitatriz Estator"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_excitatriz" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Excitatriz Estator"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_estator_excitatriz" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Excitatriz Estator"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_estator_excitatriz" data-field-label="N&ordm; Desenho Ferramenta - Excitatriz Estator"></td>
 
@@ -3625,7 +3886,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor" data-field-label="Prensa - L&acirc;m. Rotor"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Rotor"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- L&acirc;m. Rotor"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Rotor"></td>
 
@@ -3675,7 +3936,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_ranhurar" data-field-label="Prensa - Ranhurar Rotor"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_ranhurar" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Ranhurar Rotor"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_ranhurar" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Ranhurar Rotor"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_ranhurar" data-field-label="N&ordm; Desenho Ferramenta - Ranhurar Rotor"></td>
 
@@ -3725,7 +3986,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_arraste" data-field-label="Prensa - Arraste Rotor"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_arraste" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Arraste Rotor"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_arraste" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Arraste Rotor"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_arraste" data-field-label="N&ordm; Desenho Ferramenta - Arraste Rotor"></td>
 
@@ -3775,7 +4036,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp1" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp1" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp1" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp1" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -3825,7 +4086,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_sep_int" data-field-label="Prensa - L&acirc;m. Sep. Int."></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_sep_int" data-field-label="Descri&ccedil;&atilde;o Ferramenta - L&acirc;m. Sep. Int."></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_sep_int" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- L&acirc;m. Sep. Int."></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_sep_int" data-field-label="N&ordm; Desenho Ferramenta - L&acirc;m. Sep. Int."></td>
 
@@ -3875,7 +4136,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp2" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp2" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp2" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp2" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -3925,7 +4186,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_strip_coil" data-field-label="Prensa - Strip Coil &quot;Tira Bobina&quot;"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_strip_coil" data-field-label="Descri&ccedil;&atilde;o Ferramenta - Strip Coil &quot;Tira Bobina&quot;"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_strip_coil" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- Strip Coil &quot;Tira Bobina&quot;"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_strip_coil" data-field-label="N&ordm; Desenho Ferramenta - Strip Coil &quot;Tira Bobina&quot;"></td>
 
@@ -3975,7 +4236,7 @@
 
                 <td><input class="eng-cell-input" type="text" name="prensa_rotor_fp3" data-field-label="Prensa - FP-ES-"></td>
 
-                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp3" data-field-label="Descri&ccedil;&atilde;o Ferramenta - FP-ES-"></td>
+                <td><input class="eng-cell-input" type="text" name="tipo_ferramental_rotor_fp3" data-field-label="Descri&ccedil;&atilde;o da Ferramenta- FP-ES-"></td>
 
                 <td><input class="eng-cell-input" type="text" name="numero_desenho_ferramental_rotor_fp3" data-field-label="N&ordm; Desenho Ferramenta - FP-ES-"></td>
 
@@ -4013,12 +4274,175 @@
 
         </div>
 
+        </div>
+
+        <div class="eng-view-panel" data-eng-panel="graficos">
+
+          <div class="eng-analytics-grid">
+
+            <section class="eng-analytics-card">
+
+              <h3>Conclusao Geral</h3>
+
+              <div class="eng-donut-wrap">
+
+                <div class="eng-donut" id="engConclusaoDonut"><span id="engConclusaoDonutLabel">0%</span></div>
+
+                <p class="eng-donut-caption" id="engConclusaoResumo">0 de 0 campos preenchidos</p>
+
+              </div>
+
+            </section>
+
+            <section class="eng-analytics-card">
+
+              <h3>Preenchimento por Bloco</h3>
+
+              <div class="eng-metric-list">
+
+                <div class="eng-metric-row" data-eng-block-metric="corte">
+
+                  <div class="eng-metric-label">Corte de Tiras</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+                <div class="eng-metric-row" data-eng-block-metric="estator">
+
+                  <div class="eng-metric-label">Lamina do Estator</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+                <div class="eng-metric-row" data-eng-block-metric="rotor">
+
+                  <div class="eng-metric-label">Lamina do Rotor</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+              </div>
+
+            </section>
+
+            <section class="eng-analytics-card eng-analytics-card-wide">
+
+              <h3>Preenchimento por Area</h3>
+
+              <div class="eng-metric-list">
+
+                <div class="eng-metric-row" data-eng-area-metric="processo">
+
+                  <div class="eng-metric-label">Processo</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+                <div class="eng-metric-row" data-eng-area-metric="ferramental">
+
+                  <div class="eng-metric-label">Ferramental</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+                <div class="eng-metric-row" data-eng-area-metric="compras">
+
+                  <div class="eng-metric-label">Compras e Requisicao</div>
+
+                  <div class="eng-metric-track"><div class="eng-metric-fill"></div></div>
+
+                  <div class="eng-metric-value">0%</div>
+
+                </div>
+
+              </div>
+
+            </section>
+
+          </div>
+
+        </div>
+
+        <div class="eng-view-panel" data-eng-panel="kpis">
+
+          <div class="eng-kpi-grid">
+
+            <article class="eng-kpi-card">
+
+              <span>Campos preenchidos</span>
+
+              <strong id="engKpiCampos">0 / 0</strong>
+
+            </article>
+
+            <article class="eng-kpi-card">
+
+              <span>Conclusao geral</span>
+
+              <strong id="engKpiConclusao">0%</strong>
+
+            </article>
+
+            <article class="eng-kpi-card">
+
+              <span>Pendencias</span>
+
+              <strong id="engKpiPendencias">0</strong>
+
+            </article>
+
+            <article class="eng-kpi-card">
+
+              <span>Blocos com dados</span>
+
+              <strong id="engKpiBlocosComDados">0 / 3</strong>
+
+            </article>
+
+            <article class="eng-kpi-card">
+
+              <span>Linhas ativas</span>
+
+              <strong id="engKpiLinhasAtivas">0</strong>
+
+            </article>
+
+            <article class="eng-kpi-card">
+
+              <span>Bloco mais completo</span>
+
+              <strong id="engKpiBlocoMaisCompleto">--</strong>
+
+            </article>
+
+          </div>
+
+          <p class="eng-kpi-note">KPIs calculados automaticamente com base no preenchimento da tabela.</p>
+
+        </div>
+
+
       </div>
 
 
 
 
-
+      <!-- Botoes de formulario: Salvar e Sair -->
       <div class="actions">
 
         <button class="btn btn-primary" type="submit">Salvar</button>
@@ -4029,6 +4453,7 @@
 
     </form>
 
+      <!-- Painel lateral: licoes aprendidas com busca por palavra-chave (visivel apenas para engenheiro) -->
       <aside class="licoes-panel" id="licoesPanel" aria-label="Li&ccedil;&otilde;es aprendidas">
 
         <div class="licoes-title">Li&ccedil;&otilde;es aprendidas</div>
@@ -4043,8 +4468,11 @@
 
   </div>
 
-
-
+  <!-- ===== SCRIPT: controla exibicao de secoes por perfil, carregamento de dados e submit da ficha ===== -->
+  <!--
+    Fluxo: le ?perfil e ?modo -> decide secoes visiveis -> busca /api/fichas/{id} se modo=editar/visualizar
+    -> preenche campos -> submit envia para /api/fichas (POST/PUT) -> redireciona ao menu.
+  -->
   <script>
 
     const params = new URLSearchParams(window.location.search);
@@ -4052,6 +4480,8 @@
     const perfil = params.get("perfil") || "producao";
 
     const modo = params.get("modo") || "";
+
+    const isEngenheiroVisualizacao = perfil === "engenheiro" && modo === "visualizar";
 
     const isAdminPrint = perfil === "admin" && modo === "impressao";
 
@@ -4070,6 +4500,8 @@
     const secFerramenteiro = document.getElementById("secFerramenteiro");
 
     const secEngenheiro = document.getElementById("secEngenheiro");
+
+    const blocoAcoes = document.querySelector(".actions");
 
     const linkSair = document.querySelector(".actions .btn-secondary");
 
@@ -4143,7 +4575,7 @@
 
       try {
 
-        const response = await fetch("impressao_modelo.html", { cache: "no-store" });
+        const response = await fetch("impressao_modelo.html");
 
         if (!response.ok) {
 
@@ -4685,8 +5117,14 @@
 
     function configurarPainelLicoes() {
 
-      if (!licoesPanel || perfil !== "engenheiro") {
+      if (!licoesPanel || perfil !== "engenheiro" || isEngenheiroVisualizacao) {
 
+        if (licoesPanel && isEngenheiroVisualizacao) {
+          licoesPanel.style.display = "none";
+        }
+        if (formLayout && isEngenheiroVisualizacao) {
+          formLayout.classList.remove("has-licoes");
+        }
         return;
 
       }
@@ -4773,8 +5211,67 @@
 
       let syncingHorizontalScroll = false;
       let filtroSelecionado = "all";
+      let visualizacaoSelecionada = "tabela";
+      const isModoVisualizacaoEngenheiro = isEngenheiroVisualizacao && perfil === "engenheiro";
+      const blocosVazios = new Set();
+      const nomesBloco = {
+        corte: "Corte de Tiras",
+        estator: "Lamina do Estator",
+        rotor: "Lamina do Rotor"
+      };
+
+      const botoesVisualizacao = Array.from(secEngenheiro.querySelectorAll("[data-eng-view]"));
+      const paineisVisualizacao = Array.from(secEngenheiro.querySelectorAll("[data-eng-panel]"));
+      const filtrosBloco = Array.from(secEngenheiro.querySelectorAll("[data-filter-block]"));
+      const linhasTabela = Array.from(secEngenheiro.querySelectorAll(".eng-table tbody tr"));
+      const linhasFluxo = linhasTabela.filter((linha) => !linha.classList.contains("eng-group-row"));
+      const camposFluxo = Array.from(secEngenheiro.querySelectorAll(".eng-table tbody tr:not(.eng-group-row) input, .eng-table tbody tr:not(.eng-group-row) select, .eng-table tbody tr:not(.eng-group-row) textarea"));
+      const blocoMetricas = Array.from(secEngenheiro.querySelectorAll("[data-eng-block-metric]"));
+      const areaMetricas = Array.from(secEngenheiro.querySelectorAll("[data-eng-area-metric]"));
+      const donutConclusao = document.getElementById("engConclusaoDonut");
+      const donutConclusaoLabel = document.getElementById("engConclusaoDonutLabel");
+      const donutConclusaoResumo = document.getElementById("engConclusaoResumo");
+      const kpiCampos = document.getElementById("engKpiCampos");
+      const kpiConclusao = document.getElementById("engKpiConclusao");
+      const kpiPendencias = document.getElementById("engKpiPendencias");
+      const kpiBlocosComDados = document.getElementById("engKpiBlocosComDados");
+      const kpiLinhasAtivas = document.getElementById("engKpiLinhasAtivas");
+      const kpiBlocoMaisCompleto = document.getElementById("engKpiBlocoMaisCompleto");
 
 
+      function percentual(preenchidos, total) {
+        if (!total) {
+          return 0;
+        }
+        return Math.round((preenchidos / total) * 100);
+      }
+
+      function atualizarVisualizacao(nomeVisualizacao) {
+        const permitido = ["tabela", "graficos", "kpis"];
+        let destino = String(nomeVisualizacao || "tabela").trim().toLowerCase();
+        if (permitido.indexOf(destino) === -1) {
+          destino = "tabela";
+        }
+
+        visualizacaoSelecionada = destino;
+
+        botoesVisualizacao.forEach((botao) => {
+          const visao = String(botao.getAttribute("data-eng-view") || "").trim().toLowerCase();
+          const ativo = visao === destino;
+          botao.setAttribute("aria-pressed", ativo ? "true" : "false");
+          botao.classList.toggle("is-off", !ativo);
+        });
+
+        paineisVisualizacao.forEach((painel) => {
+          const painelNome = String(painel.getAttribute("data-eng-panel") || "").trim().toLowerCase();
+          painel.classList.toggle("is-active", painelNome === destino);
+        });
+
+        if (destino === "tabela") {
+          updateScrollIndicators();
+        }
+        updateScrollDock();
+      }
 
       function updateScrollIndicators() {
 
@@ -4791,7 +5288,7 @@
       function updateScrollDock() {
         const rect = tableWrap.getBoundingClientRect();
         const overflowHorizontal = tableWrap.scrollWidth > tableWrap.clientWidth + 2;
-        const shouldShow = filtroSelecionado === "all" && overflowHorizontal;
+        const shouldShow = visualizacaoSelecionada === "tabela" && filtroSelecionado === "all" && overflowHorizontal;
         scrollDock.classList.toggle("is-visible", shouldShow);
         tableWrap.classList.toggle("hide-native-scrollbar", shouldShow);
         if (!shouldShow) {
@@ -4806,9 +5303,6 @@
       }
 
 
-
-      const filtrosBloco = Array.from(secEngenheiro.querySelectorAll("[data-filter-block]"));
-      const linhasTabela = Array.from(secEngenheiro.querySelectorAll(".eng-table tbody tr"));
       let blocoAtual = "";
       linhasTabela.forEach((linha) => {
         if (linha.classList.contains("eng-group-row")) {
@@ -4828,8 +5322,205 @@
         }
       });
 
+      function coletarMetricasWorkflow() {
+        const metricas = {
+          totalCampos: 0,
+          preenchidos: 0,
+          pendentes: 0,
+          percentualGeral: 0,
+          linhasComDados: 0,
+          blocos: {
+            corte: { total: 0, preenchidos: 0, linhasComDados: 0, percentual: 0 },
+            estator: { total: 0, preenchidos: 0, linhasComDados: 0, percentual: 0 },
+            rotor: { total: 0, preenchidos: 0, linhasComDados: 0, percentual: 0 }
+          },
+          areas: {
+            processo: { total: 0, preenchidos: 0, percentual: 0 },
+            ferramental: { total: 0, preenchidos: 0, percentual: 0 },
+            compras: { total: 0, preenchidos: 0, percentual: 0 }
+          }
+        };
+
+        linhasFluxo.forEach((linha) => {
+          const bloco = String(linha.getAttribute("data-block") || "").trim();
+          if (!metricas.blocos[bloco]) {
+            return;
+          }
+
+          const campos = Array.from(linha.querySelectorAll("input, select, textarea"));
+          let linhaTemDado = false;
+
+          campos.forEach((campo, indice) => {
+            const valor = String(campo.value || "").trim();
+            const preenchido = valor !== "";
+
+            metricas.totalCampos += 1;
+            metricas.blocos[bloco].total += 1;
+
+            let area = "compras";
+            if (indice < 5) {
+              area = "processo";
+            } else if (indice < 14) {
+              area = "ferramental";
+            }
+            metricas.areas[area].total += 1;
+
+            if (preenchido) {
+              linhaTemDado = true;
+              metricas.preenchidos += 1;
+              metricas.blocos[bloco].preenchidos += 1;
+              metricas.areas[area].preenchidos += 1;
+            }
+          });
+
+          if (linhaTemDado) {
+            metricas.linhasComDados += 1;
+            metricas.blocos[bloco].linhasComDados += 1;
+          }
+        });
+
+        metricas.pendentes = Math.max(0, metricas.totalCampos - metricas.preenchidos);
+        metricas.percentualGeral = percentual(metricas.preenchidos, metricas.totalCampos);
+
+        Object.keys(metricas.blocos).forEach((bloco) => {
+          const item = metricas.blocos[bloco];
+          item.percentual = percentual(item.preenchidos, item.total);
+        });
+        Object.keys(metricas.areas).forEach((area) => {
+          const item = metricas.areas[area];
+          item.percentual = percentual(item.preenchidos, item.total);
+        });
+
+        return metricas;
+      }
+
+      function atualizarPainelAnalitico() {
+        const metricas = coletarMetricasWorkflow();
+
+        if (donutConclusao) {
+          donutConclusao.style.setProperty("--eng-completion", String(metricas.percentualGeral));
+        }
+        if (donutConclusaoLabel) {
+          donutConclusaoLabel.textContent = metricas.percentualGeral + "%";
+        }
+        if (donutConclusaoResumo) {
+          donutConclusaoResumo.textContent = metricas.preenchidos + " de " + metricas.totalCampos + " campos preenchidos";
+        }
+
+        blocoMetricas.forEach((row) => {
+          const bloco = String(row.getAttribute("data-eng-block-metric") || "").trim();
+          const dados = metricas.blocos[bloco];
+          if (!dados) {
+            return;
+          }
+          const fill = row.querySelector(".eng-metric-fill");
+          const value = row.querySelector(".eng-metric-value");
+          if (fill) {
+            fill.style.width = dados.percentual + "%";
+          }
+          if (value) {
+            value.textContent = dados.percentual + "%";
+          }
+        });
+
+        areaMetricas.forEach((row) => {
+          const area = String(row.getAttribute("data-eng-area-metric") || "").trim();
+          const dados = metricas.areas[area];
+          if (!dados) {
+            return;
+          }
+          const fill = row.querySelector(".eng-metric-fill");
+          const value = row.querySelector(".eng-metric-value");
+          if (fill) {
+            fill.style.width = dados.percentual + "%";
+          }
+          if (value) {
+            value.textContent = dados.percentual + "%";
+          }
+        });
+
+        const blocosComDados = Object.keys(metricas.blocos).filter((bloco) => metricas.blocos[bloco].preenchidos > 0).length;
+
+        let melhorBlocoNome = "--";
+        let melhorBlocoPct = -1;
+        Object.keys(metricas.blocos).forEach((bloco) => {
+          const dados = metricas.blocos[bloco];
+          if (dados.total === 0) {
+            return;
+          }
+          if (dados.percentual > melhorBlocoPct) {
+            melhorBlocoPct = dados.percentual;
+            melhorBlocoNome = nomesBloco[bloco] || bloco;
+          }
+        });
+
+        if (kpiCampos) {
+          kpiCampos.textContent = metricas.preenchidos + " / " + metricas.totalCampos;
+        }
+        if (kpiConclusao) {
+          kpiConclusao.textContent = metricas.percentualGeral + "%";
+        }
+        if (kpiPendencias) {
+          kpiPendencias.textContent = String(metricas.pendentes);
+        }
+        if (kpiBlocosComDados) {
+          kpiBlocosComDados.textContent = blocosComDados + " / 3";
+        }
+        if (kpiLinhasAtivas) {
+          kpiLinhasAtivas.textContent = String(metricas.linhasComDados);
+        }
+        if (kpiBlocoMaisCompleto) {
+          kpiBlocoMaisCompleto.textContent = melhorBlocoNome;
+        }
+      }
+
+      function blocoTemDados(bloco) {
+        const linhasDoBloco = linhasTabela.filter((linha) =>
+          String(linha.getAttribute("data-block") || "").trim() === bloco &&
+          !linha.classList.contains("eng-group-row")
+        );
+        if (linhasDoBloco.length === 0) {
+          return false;
+        }
+        return linhasDoBloco.some((linha) => {
+          const campos = Array.from(linha.querySelectorAll("input, select, textarea"));
+          return campos.some((campo) => String(campo.value || "").trim() !== "");
+        });
+      }
+
+      function atualizarVisibilidadeFiltrosPorBloco() {
+        if (!isModoVisualizacaoEngenheiro) {
+          return;
+        }
+        filtrosBloco.forEach((btn) => {
+          const bloco = String(btn.getAttribute("data-filter-block") || "").trim();
+          if (!bloco || bloco === "all") {
+            btn.hidden = false;
+            return;
+          }
+          btn.hidden = blocosVazios.has(bloco);
+        });
+      }
+
+      function atualizarBlocosVazios() {
+        if (!isModoVisualizacaoEngenheiro) {
+          blocosVazios.clear();
+          return;
+        }
+        blocosVazios.clear();
+        ["corte", "estator", "rotor"].forEach((bloco) => {
+          if (!blocoTemDados(bloco)) {
+            blocosVazios.add(bloco);
+          }
+        });
+        atualizarVisibilidadeFiltrosPorBloco();
+      }
+
       function aplicarFiltroBloco(blocoSelecionado) {
-        const alvo = String(blocoSelecionado || "all").trim();
+        let alvo = String(blocoSelecionado || "all").trim();
+        if (isModoVisualizacaoEngenheiro && alvo !== "all" && blocosVazios.has(alvo)) {
+          alvo = "all";
+        }
         filtroSelecionado = alvo;
         linhasTabela.forEach((linha) => {
           const bloco = String(linha.getAttribute("data-block") || "").trim();
@@ -4837,7 +5528,17 @@
             linha.style.display = "";
             return;
           }
+          if (isModoVisualizacaoEngenheiro && blocosVazios.has(bloco)) {
+            linha.style.display = "none";
+            return;
+          }
           linha.style.display = (alvo === "all" || bloco === alvo) ? "" : "none";
+        });
+        filtrosBloco.forEach((item) => {
+          const blocoBtn = String(item.getAttribute("data-filter-block") || "").trim();
+          const ativo = blocoBtn === alvo;
+          item.setAttribute("aria-pressed", ativo ? "true" : "false");
+          item.classList.toggle("is-off", !ativo);
         });
         updateScrollIndicators();
         updateScrollDock();
@@ -4858,7 +5559,20 @@
         });
       });
 
+      botoesVisualizacao.forEach((botao) => {
+        const visao = String(botao.getAttribute("data-eng-view") || "").trim();
+        if (!visao) {
+          return;
+        }
+        botao.addEventListener("click", function () {
+          atualizarVisualizacao(visao);
+        });
+      });
 
+      camposFluxo.forEach((campo) => {
+        campo.addEventListener("input", atualizarPainelAnalitico);
+        campo.addEventListener("change", atualizarPainelAnalitico);
+      });
 
       tableWrap.addEventListener("scroll", function () {
         if (!syncingHorizontalScroll) {
@@ -4885,10 +5599,18 @@
         updateScrollDock();
       });
       window.addEventListener("scroll", updateScrollDock, { passive: true });
+      window.addEventListener("engenheiro:workflow-updated", function () {
+        atualizarBlocosVazios();
+        aplicarFiltroBloco("all");
+        atualizarPainelAnalitico();
+      });
 
       updateScrollIndicators();
-      updateScrollDock();
+      atualizarBlocosVazios();
       aplicarFiltroBloco("all");
+      atualizarPainelAnalitico();
+      atualizarVisualizacao("tabela");
+      updateScrollDock();
 
     }
 
@@ -4896,11 +5618,15 @@
 
     function preencherCampoPorNome(name, value) {
 
-      const input = formPerfil.querySelector('[name="' + name + '"]');
 
-      if (input) {
+      const normalizedValue = value == null ? "" : String(value);
+      const inputs = Array.from(formPerfil.querySelectorAll('[name="' + name + '"]'));
 
-        input.value = value == null ? "" : String(value);
+      if (inputs.length > 0) {
+
+        inputs.forEach((input) => {
+          input.value = normalizedValue;
+        });
 
       }
 
@@ -5184,9 +5910,296 @@
 
     }
 
+    function aplicarModoVisualizacaoEngenheiro() {
+
+      if (!isEngenheiroVisualizacao) {
+
+        return;
+
+      }
+
+      formPerfil.querySelectorAll("input, textarea").forEach((element) => {
+
+        element.readOnly = true;
+
+        element.classList.add("readonly-field");
+
+      });
+
+      formPerfil.querySelectorAll("select").forEach((element) => {
+
+        element.disabled = true;
+
+      });
+
+      formPerfil.querySelectorAll("[required]").forEach((element) => {
+
+        element.required = false;
+
+      });
+
+      if (botaoSalvar) {
+
+        botaoSalvar.disabled = true;
+
+      }
+
+      if (blocoAcoes) {
+
+        blocoAcoes.style.display = "none";
+
+      }
+
+      if (licoesPanel) {
+
+        licoesPanel.style.display = "none";
+
+      }
+
+      if (formLayout) {
+
+        formLayout.classList.remove("has-licoes");
+
+      }
+
+    }
 
 
-    function aplicarPendenciaEngenheiro() {
+
+    const ENGENHEIRO_WORKFLOW_CAMPOS = [
+      "tipo_lamina_processo",
+      "desenhos",
+      "pt",
+      "ficha_processo",
+      "status_roteiro",
+      "numero_ferramental",
+      "sufixo",
+      "prensa",
+      "tipo_ferramental",
+      "numero_desenho_ferramental",
+      "numero_frn",
+      "status_frnr",
+      "status_ferramental_lob",
+      "status_entrega_ferramental",
+      "data_envio_ferramentaria",
+      "data_emissao_requisicao",
+      "data_termino_avaliacao_kit",
+      "numero_requisicao",
+      "numero_plan_interno",
+      "numero_po",
+      "ferramenta",
+      "emitir_req_compra"
+    ];
+    const ENGENHEIRO_WORKFLOW_SLOTS = [
+      "corte", "corte_2", "corte_3",
+      "estator", "estator_ranhurar", "estator_arraste", "estator_fp1", "estator_lixar", "estator_sep_ext", "estator_fp2", "estator_sep_int", "estator_fp3", "estator_excitatriz",
+      "rotor", "rotor_ranhurar", "rotor_arraste", "rotor_fp1", "rotor_sep_int", "rotor_fp2", "rotor_strip_coil", "rotor_fp3"
+    ];
+    const ENGENHEIRO_SLOTS_ORDEM_FALLBACK = ENGENHEIRO_WORKFLOW_SLOTS.slice();
+
+    function normalizarJobBusca(valor) {
+      return String(valor || "").replace(/\s+/g, "").trim().toLowerCase();
+    }
+
+    function quebrarLinhas(valor) {
+      return String(valor || "")
+        .split(/(?:\|\||\r?
+)/)
+        .map((item) => String(item || "").trim())
+        .filter(Boolean);
+    }
+
+    function unirValoresUnicos(valores) {
+      const vistos = new Set();
+      const lista = [];
+      valores.forEach((valor) => {
+        quebrarLinhas(valor).forEach((item) => {
+          if (vistos.has(item)) {
+            return;
+          }
+          vistos.add(item);
+          lista.push(item);
+        });
+      });
+      return lista.join("
+");
+    }
+
+    function limparWorkflowEngenheiro() {
+      ENGENHEIRO_WORKFLOW_SLOTS.forEach((slot) => {
+        ENGENHEIRO_WORKFLOW_CAMPOS.forEach((campo) => {
+          preencherCampoPorNome(campo + "_" + slot, "");
+        });
+      });
+    }
+
+    function primeiroSlotDisponivel(slots, usados) {
+      for (let index = 0; index < slots.length; index += 1) {
+        const slot = slots[index];
+        if (!usados.has(slot)) {
+          usados.add(slot);
+          return slot;
+        }
+      }
+      return "";
+    }
+
+    function classificarTipoLamina(tipoLaminaRaw) {
+      const tipo = normalizarTexto(tipoLaminaRaw).replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+      if (!tipo) {
+        return "fallback";
+      }
+
+      if (tipo.includes("corte")) {
+        return "corte";
+      }
+      if (tipo.includes("ranhurar") && tipo.includes("estator")) {
+        return "estator_ranhurar";
+      }
+      if (tipo.includes("ranhurar") && tipo.includes("rotor")) {
+        return "rotor_ranhurar";
+      }
+      if (tipo.includes("arraste") && tipo.includes("estator")) {
+        return "estator_arraste";
+      }
+      if (tipo.includes("arraste") && tipo.includes("rotor")) {
+        return "rotor_arraste";
+      }
+      if (tipo.includes("strip") || tipo.includes("tira bobina")) {
+        return "rotor_strip_coil";
+      }
+      if ((tipo.includes("sep") || tipo.includes("separadora")) && (tipo.includes("ext") || tipo.includes("extern"))) {
+        return "estator_sep_ext";
+      }
+      if ((tipo.includes("sep") || tipo.includes("separadora")) && tipo.includes("rotor")) {
+        return "rotor_sep_int";
+      }
+      if ((tipo.includes("sep") || tipo.includes("separadora")) && tipo.includes("estator")) {
+        return "estator_sep_int";
+      }
+      if ((tipo.includes("sep") || tipo.includes("separadora")) && (tipo.includes("int") || tipo.includes("intern"))) {
+        return "sep_int_geral";
+      }
+      if (tipo.includes("excitatriz")) {
+        return "estator_excitatriz";
+      }
+      if (tipo.includes("lixar") || tipo.includes("envernizar")) {
+        return "estator_lixar";
+      }
+      if (tipo.includes("fp")) {
+        if (tipo.includes("rotor")) {
+          return "rotor_fp";
+        }
+        if (tipo.includes("estator")) {
+          return "estator_fp";
+        }
+        return "fp_geral";
+      }
+      if (tipo.includes("extremidade") || tipo.includes("facetada")) {
+        return "fp_geral";
+      }
+      if (tipo.includes("rotor")) {
+        return "rotor";
+      }
+      if (tipo.includes("estator")) {
+        return "estator";
+      }
+      return "fallback";
+    }
+
+    function escolherSlotWorkflow(tipoLamina, usados) {
+      const classe = classificarTipoLamina(tipoLamina);
+      switch (classe) {
+        case "corte":
+          return primeiroSlotDisponivel(["corte", "corte_2", "corte_3"], usados);
+        case "estator_ranhurar":
+          return primeiroSlotDisponivel(["estator_ranhurar"], usados);
+        case "rotor_ranhurar":
+          return primeiroSlotDisponivel(["rotor_ranhurar"], usados);
+        case "estator_arraste":
+          return primeiroSlotDisponivel(["estator_arraste"], usados);
+        case "rotor_arraste":
+          return primeiroSlotDisponivel(["rotor_arraste"], usados);
+        case "estator_sep_ext":
+          return primeiroSlotDisponivel(["estator_sep_ext"], usados);
+        case "estator_sep_int":
+          return primeiroSlotDisponivel(["estator_sep_int"], usados);
+        case "rotor_sep_int":
+          return primeiroSlotDisponivel(["rotor_sep_int"], usados);
+        case "sep_int_geral":
+          return primeiroSlotDisponivel(["estator_sep_int", "rotor_sep_int"], usados);
+        case "estator_excitatriz":
+          return primeiroSlotDisponivel(["estator_excitatriz"], usados);
+        case "estator_lixar":
+          return primeiroSlotDisponivel(["estator_lixar"], usados);
+        case "rotor_strip_coil":
+          return primeiroSlotDisponivel(["rotor_strip_coil"], usados);
+        case "estator_fp":
+          return primeiroSlotDisponivel(["estator_fp1", "estator_fp2", "estator_fp3"], usados);
+        case "rotor_fp":
+          return primeiroSlotDisponivel(["rotor_fp1", "rotor_fp2", "rotor_fp3"], usados);
+        case "fp_geral":
+          return primeiroSlotDisponivel(["estator_fp1", "estator_fp2", "estator_fp3", "rotor_fp1", "rotor_fp2", "rotor_fp3"], usados);
+        case "rotor":
+          return primeiroSlotDisponivel(["rotor"], usados);
+        case "estator":
+          return primeiroSlotDisponivel(["estator"], usados);
+        default:
+          return primeiroSlotDisponivel(ENGENHEIRO_SLOTS_ORDEM_FALLBACK, usados);
+      }
+    }
+
+    function preencherLinhaWorkflowEngenheiro(slot, row) {
+      if (!slot || !row) {
+        return;
+      }
+      const valorDataEmissao = normalizarDataParaInput(
+        row.data_emissao_requisicao || row.data_cadastro || row.data_criacao || ""
+      );
+      const valorDataEntrega = normalizarDataParaInput(row.data_entrega_evento || "");
+      const valorDataEnvio = normalizarDataParaInput(row.data_envio_ferramentaria || "");
+      const mapeamento = {
+        tipo_lamina_processo: row.tipo_lamina_processo || row.tipo_manutencao || row.descricao_trabalhos || "",
+        desenhos: row.desenhos || "",
+        pt: row.pt || row.area || "",
+        ficha_processo: row.ficha_processo || "",
+        status_roteiro: row.status_roteiro || row.status || "",
+        numero_ferramental: row.numero_ferramental || row.codigo_ferramenta || "",
+        sufixo: row.sufixo || "",
+        prensa: row.prensa || "",
+        tipo_ferramental: row.descricao_ferramenta || row.descricao || "",
+        numero_desenho_ferramental: row.numero_desenho_ferramental || "",
+        numero_frn: row.numero_frn || row.frnr || "",
+        status_frnr: row.status_frnr || "",
+        status_ferramental_lob: row.status_ferramental || row.status_ferramental_lob || "",
+        status_entrega_ferramental: row.status_entrega_ferramental || "",
+        data_envio_ferramentaria: valorDataEnvio,
+        data_emissao_requisicao: valorDataEmissao,
+        data_termino_avaliacao_kit: valorDataEntrega,
+        numero_requisicao: row.numero_requisicao || "",
+        numero_plan_interno: row.numero_plan_interno || "",
+        numero_po: row.numero_po || "",
+        ferramenta: row.ferramenta || "",
+        emitir_req_compra: row.emitir_req_compra || ""
+      };
+      Object.keys(mapeamento).forEach((campoBase) => {
+        preencherCampoPorNome(campoBase + "_" + slot, mapeamento[campoBase]);
+      });
+    }
+
+    async function buscarJson(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          return null;
+        }
+        return await response.json();
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    async function aplicarPendenciaEngenheiro() {
 
       if (perfil !== "engenheiro") {
 
@@ -5218,18 +6231,67 @@
 
       }
 
+      const fichaId = String(
+        pendencia.id ||
+        pendencia.numero_ficha_engenheiro ||
+        pendencia.numero_ficha ||
+        ""
+      ).trim();
+      const fichaDetalhada = /^\d+$/.test(fichaId) ? await buscarJson("/api/ficha/" + encodeURIComponent(fichaId)) : null;
 
+      const jobReferencia = String(
+        (fichaDetalhada && fichaDetalhada.job) ||
+        pendencia.job_cabecalho_engenheiro ||
+        ""
+      ).trim();
 
-      preencherCampoPorNome("job", pendencia.job_cabecalho_engenheiro);
+      let linhasBanco = [];
+      if (jobReferencia) {
+        const lista = await buscarJson("/api/fichas?search=" + encodeURIComponent(jobReferencia));
+        if (Array.isArray(lista)) {
+          const jobNormalizado = normalizarJobBusca(jobReferencia);
+          linhasBanco = lista.filter((item) => normalizarJobBusca(item && item.job) === jobNormalizado);
+        }
+      }
+      if (linhasBanco.length === 0 && fichaDetalhada && typeof fichaDetalhada === "object") {
+        linhasBanco = [fichaDetalhada];
+      }
 
+      limparWorkflowEngenheiro();
 
-      preencherCampoPorNome("numero_ferramental_corte", pendencia.numero_ferramenta_engenheiro);
+      const jobCabecalho = (fichaDetalhada && fichaDetalhada.job) || pendencia.job_cabecalho_engenheiro || "";
+      const jobsIrmas = unirValoresUnicos(
+        linhasBanco.length > 0
+          ? linhasBanco.map((item) => item.job_envolvidas || "")
+          : [pendencia.job_irma_engenheiro || ""]
+      );
+      const elementosPep = unirValoresUnicos(
+        linhasBanco.length > 0
+          ? linhasBanco.map((item) => item.elemento_pep || "")
+          : [pendencia.elemento_pep_linhas_engenheiro || ""]
+      );
 
-      preencherCampoPorNome("tipo_ferramental_corte", pendencia.descricao_ferramenta_engenheiro);
+      preencherCampoPorNome("job", jobCabecalho);
+      preencherCampoPorNome("job_envolvidas", jobsIrmas);
+      preencherCampoPorNome("elemento_pep", elementosPep);
 
-      preencherCampoPorNome("numero_desenho_ferramental_corte", pendencia.numero_desenho_ferramenta_engenheiro);
+      const usados = new Set();
+      linhasBanco.forEach((row) => {
+        const tipoLamina = String(
+          (row && (row.tipo_lamina_processo || row.tipo_manutencao || row.descricao_trabalhos)) || ""
+        ).trim();
+        const slot = escolherSlotWorkflow(tipoLamina, usados);
+        preencherLinhaWorkflowEngenheiro(slot, row);
+      });
 
-      preencherCampoPorNome("status_ferramental_lob_corte", pendencia.status);
+      if (linhasBanco.length === 0) {
+        preencherCampoPorNome("numero_ferramental_corte", pendencia.numero_ferramenta_engenheiro || "");
+        preencherCampoPorNome("tipo_ferramental_corte", pendencia.descricao_ferramenta_engenheiro || "");
+        preencherCampoPorNome("numero_desenho_ferramental_corte", pendencia.numero_desenho_ferramenta_engenheiro || "");
+        preencherCampoPorNome("status_ferramental_lob_corte", pendencia.status || "");
+      }
+
+      window.dispatchEvent(new Event("engenheiro:workflow-updated"));
 
     }
 
@@ -5302,14 +6364,14 @@
       const ehJaEstampada =
         statusFerramental.includes("cancelada") ||
         statusFerramental.includes("ferramenta aprovada") ||
-        statusFerramental.includes("já estampado") ||
+        statusFerramental.includes("jï¿½ estampado") ||
         statusFerramental.includes("ja estampado") ||
         statusFerramental === "na" ||
         statusFerramental === "n/a" ||
-        statusFerramental.includes("liberação prevista") ||
+        statusFerramental.includes("liberaï¿½ï¿½o prevista") ||
         statusFerramental.includes("liberacao prevista") ||
         statusFerramental.includes("liberado para cosinox") ||
-        statusFerramental.includes("liberado para produção") ||
+        statusFerramental.includes("liberado para produï¿½ï¿½o") ||
         statusFerramental.includes("liberado para producao") ||
         statusRoteiro.includes("estamp") ||
         statusRoteiro.includes("cancel") ||
@@ -5404,14 +6466,14 @@
         const statusFerramentalJaEstampados =
           statusFerramental.includes("cancelada") ||
           statusFerramental.includes("ferramenta aprovada") ||
-          statusFerramental.includes("já estampado") ||
+          statusFerramental.includes("jï¿½ estampado") ||
           statusFerramental.includes("ja estampado") ||
           statusFerramental === "na" ||
           statusFerramental === "n/a" ||
-          statusFerramental.includes("liberação prevista") ||
+          statusFerramental.includes("liberaï¿½ï¿½o prevista") ||
           statusFerramental.includes("liberacao prevista") ||
           statusFerramental.includes("liberado para cosinox") ||
-          statusFerramental.includes("liberado para produção") ||
+          statusFerramental.includes("liberado para produï¿½ï¿½o") ||
           statusFerramental.includes("liberado para producao");
 
         return (
@@ -5862,6 +6924,8 @@
 
     aplicarPendenciaEngenheiro();
 
+    aplicarModoVisualizacaoEngenheiro();
+
     aplicarPendenciaProducao();
 
     preencherOperadorResponsavelPadrao();
@@ -5876,6 +6940,8 @@
 
     atualizarTituloEstampo();
 
+    document.documentElement.classList.remove("pre-visualizacao-engenheiro");
+
 
 
     formPerfil.addEventListener("submit", (event) => {
@@ -5885,6 +6951,14 @@
       if (isAdminPrint) {
 
         window.print();
+
+        return;
+
+      }
+
+      if (isEngenheiroVisualizacao) {
+
+        alert("Modo somente visualizacao.");
 
         return;
 
@@ -5941,4 +7015,5 @@
 </body>
 
 </html>
+
 

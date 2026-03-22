@@ -1,15 +1,27 @@
-﻿// URL base da API
+﻿/*
+ * Arquivo: frontend/script.js
+ * Descricao: handlers globais de UI — submit de formularios, filtros e stats do dashboard.
+ */
+
+// URL base da API
 const API_URL = 'http://localhost:5000/api';
 
 // Gerenciamento de tabs (se existirem na tela)
 document.querySelectorAll('.tab-btn').forEach(button => {
     button.addEventListener('click', () => {
-        const tabName = button.getAttribute('data-tab');
+        const nomeAba = button.getAttribute('data-tab');
+/*
+ * Notas de manutencao:
+ * - Objetivo: preservar interacoes de UI e chamadas de API.
+ * - Cuidado: validar elementos por id/classe antes de alterar seletores.
+ * - Ao alterar: testar filtros, listagens e mensagens de erro.
+ */
+
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         button.classList.add('active');
-        document.getElementById(tabName).classList.add('active');
-        if (tabName === 'relatorio') carregarEstatisticas();
+        document.getElementById(nomeAba).classList.add('active');
+        if (nomeAba === 'relatorio') carregarEstatisticas();
     });
 });
 
@@ -25,72 +37,73 @@ document.addEventListener('DOMContentLoaded', () => {
 // Submit do formulário (cria ficha)
 document.getElementById('formNovaFicha').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const dadosFormulario = new FormData(e.target);
 
     try {
-        const response = await fetch(`${API_URL}/fichas`, {
+        const resposta = await fetch(`${API_URL}/fichas`, {
             method: 'POST',
-            body: formData
+            body: dadosFormulario
         });
-        const result = await response.json();
-        if (result.success) {
-            showMessage('Ficha salva com sucesso!', 'success');
+        const resultado = await resposta.json();
+        if (resultado.success) {
+            mostrarMensagem('Ficha salva com sucesso!', 'success');
             e.target.reset();
             preencherDatasFormulario();
         } else {
-            showMessage('Erro ao salvar: ' + result.message, 'error');
+            mostrarMensagem('Erro ao salvar: ' + resultado.message, 'error');
         }
     } catch (error) {
-        showMessage('Erro ao comunicar com servidor', 'error');
+        mostrarMensagem('Erro ao comunicar com servidor', 'error');
     }
 });
 
 // Buscar fichas com filtros
 async function buscarFichas() {
-    const searchTerm = document.getElementById('searchInput')?.value || '';
+    const termoBusca = document.getElementById('searchInput')?.value || '';
     const status = document.getElementById('filtroStatus')?.value || '';
     const dataInicio = document.getElementById('filtroDataInicio')?.value || '';
     const dataFim = document.getElementById('filtroDataFim')?.value || '';
 
-    const params = new URLSearchParams({search: searchTerm, status, data_inicio: dataInicio, data_fim: dataFim});
+    const parametros = new URLSearchParams({search: termoBusca, status, data_inicio: dataInicio, data_fim: dataFim});
 
     try {
-        const response = await fetch(`${API_URL}/fichas?${params}`);
-        const fichas = await response.json();
+        const resposta = await fetch(`${API_URL}/fichas?${parametros}`);
+        const fichas = await resposta.json();
         exibirFichas(fichas);
     } catch (error) {
-        showMessage('Erro ao buscar fichas', 'error');
+        mostrarMensagem('Erro ao buscar fichas', 'error');
     }
 }
 
 // Exibir fichas na tela
 function exibirFichas(fichas) {
-    const container = document.getElementById('resultadosFichas');
-    if (!container) return;
+    const containerResultados = document.getElementById('resultadosFichas');
+    if (!containerResultados) return;
 
     if (fichas.length === 0) {
-        container.innerHTML = '<p class="info-message">Nenhuma ficha encontrada</p>';
+        containerResultados.innerHTML = '<p class="info-message">Nenhuma ficha encontrada</p>';
         return;
     }
 
-    container.innerHTML = fichas.map(ficha => `
+    // Renderiza os cards de fichas com campos principais da manutencao
+    containerResultados.innerHTML = fichas.map(ficha => `
         <div class="ficha-card">
             <div class="ficha-header">
                 <div>
                     <h3>${ficha.descricao_ferramenta || 'Sem descrição'}</h3>
                     <small>Código: ${ficha.codigo_ferramenta}</small>
                 </div>
-                <span class="status-badge status-${ficha.status}">${formatStatus(ficha.status)}</span>
+                <span class="status-badge status-${ficha.status}">${formatarStatus(ficha.status)}</span>
             </div>
             <div class="ficha-info">
                 <div class="info-item"><span class="info-label">Nº Ficha:</span><span class="info-value">${ficha.id}</span></div>
                 <div class="info-item"><span class="info-label">Documento:</span><span class="info-value">${ficha.documento}</span></div>
                 <div class="info-item"><span class="info-label">Área:</span><span class="info-value">${ficha.area}</span></div>
-                <div class="info-item"><span class="info-label">Data Cadastro:</span><span class="info-value">${formatDate(ficha.data_cadastro)}</span></div>
+                <div class="info-item"><span class="info-label">Data Cadastro:</span><span class="info-value">${formatarData(ficha.data_cadastro)}</span></div>
                 <div class="info-item"><span class="info-label">Responsável:</span><span class="info-value">${ficha.responsavel_abertura}</span></div>
                 <div class="info-item"><span class="info-label">Ferramenteiro:</span><span class="info-value">${ficha.ferramenteiro}</span></div>
                 <div class="info-item"><span class="info-label">Afiações:</span><span class="info-value">${ficha.qtde_afiacao || 0}</span></div>
-                <div class="info-item"><span class="info-label">Data Término:</span><span class="info-value">${formatDate(ficha.data_termino)}</span></div>
+                <div class="info-item"><span class="info-label">Data Término:</span><span class="info-value">${formatarData(ficha.data_termino)}</span></div>
             </div>
             <div style="margin-top: 15px;"><strong>Trabalhos:</strong> ${ficha.descricao_trabalhos}</div>
             ${ficha.observacoes ? `<div style="margin-top: 10px;"><strong>Observações:</strong> ${ficha.observacoes}</div>` : ''}
@@ -102,12 +115,12 @@ function exibirFichas(fichas) {
 // Estatísticas do painel
 async function carregarEstatisticas() {
     try {
-        const response = await fetch(`${API_URL}/estatisticas`);
-        const stats = await response.json();
-        document.getElementById('totalFichas').textContent = stats.total || 0;
-        document.getElementById('totalAndamento').textContent = stats.em_andamento || 0;
-        document.getElementById('totalPendentes').textContent = stats.pendentes || 0;
-        document.getElementById('totalConcluidas').textContent = stats.concluidas || 0;
+        const resposta = await fetch(`${API_URL}/estatisticas`);
+        const estatisticas = await resposta.json();
+        document.getElementById('totalFichas').textContent = estatisticas.total || 0;
+        document.getElementById('totalAndamento').textContent = estatisticas.em_andamento || 0;
+        document.getElementById('totalPendentes').textContent = estatisticas.pendentes || 0;
+        document.getElementById('totalConcluidas').textContent = estatisticas.concluidas || 0;
     } catch (error) {
         console.error('Erro ao carregar estatísticas:', error);
     }
@@ -117,9 +130,9 @@ async function carregarEstatisticas() {
 async function gerarRelatorioExcel() {
     try {
         window.location.href = `${API_URL}/exportar-excel`;
-        showMessage('Gerando Excel...', 'success');
+        mostrarMensagem('Gerando Excel...', 'success');
     } catch (error) {
-        showMessage('Erro ao gerar relatório', 'error');
+        mostrarMensagem('Erro ao gerar relatório', 'error');
     }
 }
 
@@ -127,50 +140,52 @@ async function gerarRelatorioExcel() {
 async function deletarFicha(fichaId) {
     if (!confirm('Deletar esta ficha?')) return;
     try {
-        const response = await fetch(`${API_URL}/ficha/${fichaId}`, {method: 'DELETE'});
-        const result = await response.json();
-        if (result.success) {
-            showMessage('Ficha deletada!', 'success');
+        const resposta = await fetch(`${API_URL}/ficha/${fichaId}`, {method: 'DELETE'});
+        const resultado = await resposta.json();
+        if (resultado.success) {
+            mostrarMensagem('Ficha deletada!', 'success');
             buscarFichas();
         } else {
-            showMessage('Erro: ' + result.message, 'error');
+            mostrarMensagem('Erro: ' + resultado.message, 'error');
         }
     } catch (error) {
-        showMessage('Erro ao comunicar', 'error');
+        mostrarMensagem('Erro ao comunicar', 'error');
     }
 }
 
 // Funções auxiliares
-function showMessage(message, type) {
-    const messageBox = document.getElementById('messageBox');
-    if (!messageBox) return;
-    messageBox.textContent = message;
-    messageBox.className = `message-box message-${type}`;
-    messageBox.style.display = 'block';
-    setTimeout(() => {messageBox.style.display = 'none';}, 3000);
+function mostrarMensagem(mensagem, tipo) {
+    const caixaMensagem = document.getElementById('messageBox');
+    if (!caixaMensagem) return;
+    caixaMensagem.textContent = mensagem;
+    caixaMensagem.className = `message-box message-${tipo}`;
+    caixaMensagem.style.display = 'block';
+    setTimeout(() => {caixaMensagem.style.display = 'none';}, 3000);
 }
 
-function formatStatus(status) {
-    const statusMap = {'pendente': 'Pendente', 'em_andamento': 'Em Andamento', 'concluida': 'Concluída'};
-    return statusMap[status] || status;
+// Formatar status da ficha para texto legivel em pt-BR
+function formatarStatus(status) {
+    const mapaStatus = {'pendente': 'Pendente', 'em_andamento': 'Em Andamento', 'concluida': 'Concluída'};
+    return mapaStatus[status] || status;
 }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('pt-BR');
+// Formatar data ISO para DD/MM/AAAA (exibicao em tabelas e cards)
+function formatarData(textoData) {
+    if (!textoData) return '';
+    return new Date(textoData).toLocaleDateString('pt-BR');
 }
 
-function formatarDataFormulario(dateObj) {
-    const meses = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const dia = dateObj.getDate();
-    const mes = meses[dateObj.getMonth()];
-    const ano = dateObj.getFullYear();
+function formatarDataFormulario(dataObj) {
+    // Mantem o mesmo formato textual usado historicamente nas telas
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const dia = dataObj.getDate();
+    const mes = meses[dataObj.getMonth()];
+    const ano = dataObj.getFullYear();
     return `${dia}-${mes}-${ano}`;
 }
 
+// Preencher campos de data com a data atual ao carregar ou reativar a pagina
 function preencherDatasFormulario() {
-    const hoje = new Date();
-    const dataTexto = formatarDataFormulario(hoje);
 
     const dataDocumento = document.querySelector('input[name="data"]');
     if (dataDocumento) dataDocumento.value = dataTexto;
@@ -179,6 +194,7 @@ function preencherDatasFormulario() {
     if (dataCadastro) dataCadastro.value = dataTexto;
 }
 
+// Reagendar preenchimento de datas na virada de meia-noite
 function agendarAtualizacaoDiaria() {
     const agora = new Date();
     const proximaMeiaNoite = new Date(agora);

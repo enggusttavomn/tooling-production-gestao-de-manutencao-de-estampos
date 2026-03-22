@@ -1,4 +1,8 @@
-﻿<!doctype html>
+﻿<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Arquivo: frontend/producao.html -->
+<!-- Descricao: Tela de pendencias da Producao. Exibe fichas abertas pelo AME aguardando dados de producao. -->
+<!-- Observacao: Requer perfil_ativo='producao', 'admin' ou 'engenheiro'. Os dados sao carregados de /api/fichas. -->
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -304,14 +308,20 @@
     }
   </style>
 </head>
+
+<!-- ===== BODY: layout da tela de producao ===== -->
 <body>
   <main class="page">
     <section class="panel">
+
+      <!-- ===== Cabecalho: logo GE e titulo da tela ===== -->
       <header class="panel-header">
         <div class="head-main">
+          <!-- Logo GE Vernova -->
           <div class="logo-box">
             <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
           </div>
+          <!-- Titulo e perfil do usuario autenticado -->
           <div class="head-text">
             <h1>Pend&ecirc;ncias da Produ&ccedil;&atilde;o</h1>
             <p id="perfilInfo">Perfil: Produ&ccedil;&atilde;o</p>
@@ -319,6 +329,7 @@
         </div>
       </header>
 
+      <!-- ===== Tabela de PENDENTES: fichas aguardando preenchimento da producao ===== -->
       <div class="table-section">
         <div class="section-head">
           <div class="section-title-wrap">
@@ -335,7 +346,7 @@
                 <th>Jobs envolvidos</th>
                 <th>N&ordm; da Ferramenta</th>
                 <th>Descri&ccedil;&atilde;o da Ferramenta</th>
-                <th>Status Ferramental</th>
+                <th>Status da Ferramenta</th>
                 <th>T&eacute;rmino da Produ&ccedil;&atilde;o</th>
                 <th>Status</th>
                 <th>A&ccedil;&atilde;o</th>
@@ -347,12 +358,14 @@
         </div>
       </div>
 
+      <!-- Botoes de acao: voltar ao menu e logout -->
       <div class="actions">
         <div class="left-actions" id="leftActions"></div>
         <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
       </div>
     </section>
 
+    <!-- ===== Painel secundario: historico de itens ja estampados ===== -->
     <section class="panel panel-secondary">
       <div class="table-section">
         <div class="section-head">
@@ -362,6 +375,7 @@
           </div>
           <div class="section-tools">
             <p class="section-note">Hist&oacute;rico de itens j&aacute; estampados</p>
+            <!-- Filtro por numero da ferramenta na secao estampados -->>
             <label class="tool-label" for="filtroFerramentaEstampado">N&ordm; da Ferramenta</label>
             <input
               id="filtroFerramentaEstampado"
@@ -379,7 +393,7 @@
                 <th>Jobs envolvidos</th>
                 <th>N&ordm; da Ferramenta</th>
                 <th>Descri&ccedil;&atilde;o da Ferramenta</th>
-                <th>Status Ferramental</th>
+                <th>Status da Ferramenta</th>
                 <th>T&eacute;rmino da Produ&ccedil;&atilde;o</th>
                 <th>Status</th>
                 <th>A&ccedil;&atilde;o</th>
@@ -393,6 +407,12 @@
     </section>
   </main>
 
+  <!-- ===== SCRIPT: autenticacao, carregamento de dados e logica da tela de producao ===== -->
+  <!--
+    Fluxo: verifica perfil -> carrega /api/fichas -> separa pendentes/estampados
+    via getBlockCode() -> renderiza cada secao com renderPendenciasPorStatus().
+    Botao 'Preencher' abre form.html?modo=preencher.
+  -->
   <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
@@ -443,9 +463,28 @@
       }
 
       function isStampByMetrics(item) {
+        // Verifica mÃºltiplos indicadores de preenchimento/estampagem
         const totalGolpes = Number(item.total_golpes_final || 0);
         const qtdeAfiacao = Number(item.qtde_afiacao || 0);
-        return totalGolpes > 0 || qtdeAfiacao > 0;
+        const numeroGolpesAfiacao = Number(item.numero_golpes_afiacao || 0);
+        const tempoAfiacao = Number(item.tempo_afiacao || 0);
+        const tempoParadaManutencao = Number(item.tempo_parada_manutencao || 0);
+        const dataTerminoProducao = String(item.data_termino_producao || "").trim();
+        const dataAfiacao = String(item.data_afiacao || "").trim();
+        const observacaoManutencao = String(item.observacao_ultima_manutencao_ferramenta || "").trim();
+        const qualidadeAfiacao = String(item.qualidade_afiacao || "").trim();
+        
+        return (
+          totalGolpes > 0 ||
+          qtdeAfiacao > 0 ||
+          numeroGolpesAfiacao > 0 ||
+          tempoAfiacao > 0 ||
+          tempoParadaManutencao > 0 ||
+          dataTerminoProducao.length > 0 ||
+          dataAfiacao.length > 0 ||
+          observacaoManutencao.length > 0 ||
+          qualidadeAfiacao.length > 0
+        );
       }
 
       function getBlockCode(item) {
@@ -455,14 +494,14 @@
         const statusFerramentalJaEstampados =
           statusFerramental.includes("cancelada") ||
           statusFerramental.includes("ferramenta aprovada") ||
-          statusFerramental.includes("já estampado") ||
+          statusFerramental.includes("jÃ¡ estampado") ||
           statusFerramental.includes("ja estampado") ||
           statusFerramental === "na" ||
           statusFerramental === "n/a" ||
-          statusFerramental.includes("liberação prevista") ||
+          statusFerramental.includes("liberaÃ§Ã£o prevista") ||
           statusFerramental.includes("liberacao prevista") ||
           statusFerramental.includes("liberado para cosinox") ||
-          statusFerramental.includes("liberado para produção") ||
+          statusFerramental.includes("liberado para produÃ§Ã£o") ||
           statusFerramental.includes("liberado para producao");
 
         const toBottom =
@@ -576,7 +615,7 @@
 
       function handlePendenciaClick(event) {
         const target = event.target;
-        if (!(target instanceof HTMLElement)) {
+        if (!(target instanceof Element)) {
           return;
         }
         const button = target.closest("button[data-pendencia-id]");
@@ -595,7 +634,7 @@
 
       async function carregarPendencias() {
         try {
-          const response = await fetch(API_URL + "/fichas", { cache: "no-store" });
+          const response = await fetch(API_URL + "/fichas");
           if (!response.ok) {
             throw new Error("Falha ao buscar pendencias da producao");
           }

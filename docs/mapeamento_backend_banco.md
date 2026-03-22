@@ -1,4 +1,4 @@
-﻿# Mapeamento inicial backend x banco_dados
+# Mapeamento inicial backend x banco_dados
 
 ## Rotas ja ligadas ao banco real
 - GET /api/fichas -> SELECT em app_ferramental.banco_dados

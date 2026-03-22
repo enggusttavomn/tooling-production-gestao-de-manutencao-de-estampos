@@ -1,4 +1,8 @@
-<!doctype html>
+﻿<!doctype html>
+<!-- Arquivo: frontend/engenheiro_pendencias.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Tela de pendencias do engenheiro de processo. Lista fichas por status com filtros avancados e permite inserir nova JOB. -->
+<!-- Observacao: Requer perfil_ativo='engenheiro' ou 'admin'. Dados carregados de /api/fichas. -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -21,6 +25,52 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .view-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(7, 66, 56, 0.25);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+    }
+
+    .view-btn {
+      border: 1px solid #6d9f90;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #0b6b57;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .view-btn.is-off {
+      color: #64748b;
+      border-color: #9ca3af;
+      background: #f3f4f6;
+    }
+
+    .view-btn[aria-pressed="true"] {
+      background: #0b6b57;
+      border-color: #085345;
+      color: #ffffff;
+    }
+
+    .view-panel {
+      display: none;
+    }
+
+    .view-panel.is-active {
+      display: block;
     }
 
     .toolbar .btn {
@@ -32,17 +82,357 @@
       border-radius: 12px;
     }
 
+    .toolbar .btn.btn-filter {
+      min-width: 96px;
+    }
+
+    .toolbar .btn.btn-colunas {
+      min-width: 104px;
+    }
+
+    .filter-wrap {
+      position: relative;
+    }
+
+    .btn-filter {
+      border-color: rgba(7, 66, 56, 0.28);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e63946;
+      color: #fff;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .data-filter-panel {
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px 10px;
+      margin: 8px 0 10px;
+    }
+
+    .data-filter-panel.data-filter-panel-hidden {
+      display: none;
+    }
+
+    .data-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 6px 12px;
+      align-items: end;
+    }
+
+    .data-filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .data-filter-field label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0b6b57;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .data-filter-field input,
+    .data-filter-field select {
+      border: 1px solid rgba(7, 66, 56, 0.25);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      height: 30px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .data-filter-field input:focus,
+    .data-filter-field select:focus {
+      border-color: #0b6b57;
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.12);
+    }
+
+    .data-filter-field-range .range-inputs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .data-filter-field-range .range-inputs input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .data-filter-field-range .range-inputs span {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .data-filter-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-sm {
+      padding: 4px 14px;
+      font-size: 12px;
+    }
+
+    .column-filter-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(420px, 92vw);
+      border: 1px solid rgba(2, 6, 23, 0.16);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.2);
+      z-index: 22;
+      padding: 12px 12px 8px;
+    }
+
+    .column-filter-popover[hidden] {
+      display: none;
+    }
+
+    .filter-title {
+      margin: 0 0 8px;
+      color: #0f172a;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .filter-list {
+      max-height: 260px;
+      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+      gap: 8px 12px;
+      padding-right: 2px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: #1e293b;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .filter-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #0b6b57;
+      flex: 0 0 auto;
+    }
+
+    .filter-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(15, 23, 42, 0.12);
+    }
+
+    .btn-link {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #0b6b57;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .analytics-card {
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f7fbf9 0%, #edf5f1 100%);
+      padding: 14px;
+    }
+
+    .analytics-card h3 {
+      margin: 0 0 10px 0;
+      color: #0b6b57;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .analytics-card-wide {
+      grid-column: 1 / -1;
+    }
+
+    .donut-wrap {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      min-height: 190px;
+      align-content: center;
+    }
+
+    .donut {
+      --donut-progress: 0;
+      width: 138px;
+      height: 138px;
+      border-radius: 50%;
+      background: conic-gradient(#0b6b57 calc(var(--donut-progress) * 1%), #d8e5df 0);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .donut::before {
+      content: "";
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #d2ded8;
+      position: absolute;
+    }
+
+    .donut span {
+      position: relative;
+      z-index: 1;
+      font-size: 24px;
+      font-weight: 900;
+      color: #0b6b57;
+    }
+
+    .donut-caption {
+      margin: 0;
+      color: #334155;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .metric-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 170px 1fr 94px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    .metric-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #dbe5df;
+      overflow: hidden;
+    }
+
+    .metric-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0b6b57, #14b8a6);
+      transition: width 0.2s ease;
+    }
+
+    .metric-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      text-align: right;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .kpi-card {
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f7fbf9 0%, #edf5f1 100%);
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      min-height: 92px;
+      align-content: center;
+    }
+
+    .kpi-card span {
+      color: #475569;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 700;
+    }
+
+    .kpi-card strong {
+      color: #0b6b57;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .kpi-note {
+      margin: 8px 0 0 0;
+      font-size: 12px;
+      color: #475569;
+    }
+
     .pendencias-wrap {
       overflow-x: auto;
       border: 1px solid rgba(2, 6, 23, 0.12);
-      border-radius: 12px;
+      border-radius: 14px;
       background: #fff;
+      box-shadow: 0 10px 22px rgba(2, 6, 23, 0.08);
     }
 
     .pendencias-table {
       width: 100%;
       border-collapse: collapse;
-      table-layout: auto;
+      table-layout: fixed;
       font-size: 13px;
       min-width: 1220px;
     }
@@ -51,11 +441,13 @@
       background: #0b6b57;
       color: #fff;
       font-weight: 700;
-      text-align: left;
-      padding: 10px 8px;
+      text-align: center;
+      padding: 12px 12px;
       border-right: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: 1px solid rgba(2, 6, 23, 0.14);
       white-space: nowrap;
-      line-height: 1.25;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
     }
 
     .pendencias-table thead th:last-child {
@@ -64,17 +456,22 @@
 
     .pendencias-table tbody td {
       border-top: 1px solid rgba(2, 6, 23, 0.12);
-      padding: 9px 8px;
+      padding: 11px 10px;
       vertical-align: middle;
       color: #0f172a;
       background: rgba(255, 255, 255, 0.92);
       white-space: normal;
       overflow-wrap: anywhere;
-      line-height: 1.25;
+      line-height: 1.35;
+      text-align: center;
     }
 
     .pendencias-table tbody tr:nth-child(even) td {
       background: rgba(238, 246, 243, 0.9);
+    }
+
+    .pendencias-table tbody tr:hover td {
+      background: rgba(227, 241, 236, 0.95);
     }
 
     .status-badge {
@@ -161,6 +558,50 @@
       cursor: pointer;
     }
 
+    .row-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .btn-row.btn-row-view {
+      min-width: 40px;
+      width: 40px;
+      min-height: 34px;
+      padding: 6px;
+      line-height: 0;
+      border-color: #0b6b57;
+      background: #ffffff;
+      color: #0b6b57;
+      border-width: 1.5px;
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(2, 6, 23, 0.12);
+      transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    }
+
+    .btn-row.btn-row-view:hover {
+      background: #0b6b57;
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(11, 107, 87, 0.26);
+      transform: translateY(-1px);
+    }
+
+    .btn-row.btn-row-view:focus-visible {
+      outline: 2px solid #16a34a;
+      outline-offset: 2px;
+    }
+
+    .btn-row.btn-row-view .icon-eye {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .btn-row.btn-row-edit {
+      min-width: 70px;
+    }
+
     .actions {
       display: flex;
       gap: 10px;
@@ -182,24 +623,145 @@
       font-weight: 700;
     }
 
-    .pendencias-table th:nth-child(1),
-    .pendencias-table td:nth-child(1) { width: 12%; }
-    .pendencias-table th:nth-child(2),
-    .pendencias-table td:nth-child(2) { width: 14%; }
-    .pendencias-table th:nth-child(3),
-    .pendencias-table td:nth-child(3) { width: 10%; }
-    .pendencias-table th:nth-child(4),
-    .pendencias-table td:nth-child(4) { width: 8%; }
-    .pendencias-table th:nth-child(5),
-    .pendencias-table td:nth-child(5) { width: 12%; }
-    .pendencias-table th:nth-child(6),
-    .pendencias-table td:nth-child(6) { width: 18%; }
-    .pendencias-table th:nth-child(7),
-    .pendencias-table td:nth-child(7) { width: 12%; }
-    .pendencias-table th:nth-child(8),
-    .pendencias-table td:nth-child(8) { width: 8%; min-width: 130px; text-align: center; }
-    .pendencias-table th:nth-child(9),
-    .pendencias-table td:nth-child(9) { width: 6%; min-width: 100px; text-align: center; }
+    .pendencias-table th[data-col="numero_ficha"],
+    .pendencias-table td[data-col="numero_ficha"] {
+      width: 120px;
+      min-width: 120px;
+    }
+
+    .pendencias-table th[data-col="job"],
+    .pendencias-table td[data-col="job"] {
+      width: 180px;
+      min-width: 170px;
+    }
+
+    .pendencias-table th[data-col="job_irma"],
+    .pendencias-table td[data-col="job_irma"] {
+      width: 170px;
+      min-width: 160px;
+    }
+
+    .pendencias-table th[data-col="elemento_pep"],
+    .pendencias-table td[data-col="elemento_pep"] {
+      width: 190px;
+      min-width: 170px;
+    }
+
+    .pendencias-table th[data-col="desenhos"],
+    .pendencias-table td[data-col="desenhos"] {
+      width: 240px;
+      min-width: 210px;
+    }
+
+    .pendencias-table th[data-col="status"],
+    .pendencias-table td[data-col="status"] {
+      width: 130px;
+      min-width: 130px;
+      text-align: center;
+    }
+
+    .pendencias-table th[data-col="acao"],
+    .pendencias-table td[data-col="acao"] {
+      width: 150px;
+      min-width: 150px;
+      text-align: center;
+    }
+
+    .pendencias-table tbody td.cell-left {
+      text-align: left;
+    }
+
+    .pendencias-table thead th[data-col="numero_ficha"] {
+      background: #d1d5db;
+      color: #1f2937;
+      border-right: 1px solid #c4c9d1;
+    }
+
+    .pendencias-table tbody td[data-col="numero_ficha"] {
+      background: #f3f4f6 !important;
+      color: #4b5563;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      font-weight: 700;
+    }
+
+    .pendencias-table tbody td.cell-job-lines {
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .pendencias-table tbody td.cell-pep-lines {
+      overflow-wrap: normal;
+      word-break: keep-all;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .pendencias-table tbody td.cell-desenho-lines {
+      white-space: pre-line;
+      line-height: 1.35;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .linked-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      text-align: left;
+    }
+
+    .linked-line {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: start;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px dashed rgba(15, 23, 42, 0.16);
+      line-height: 1.3;
+    }
+
+    .linked-line.no-index {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .linked-line:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .line-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 18px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .line-text {
+      min-height: 18px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .line-text.is-empty {
+      color: #94a3b8;
+    }
+
+    .pendencias-table tbody td.cell-pep-lines .line-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      overflow-wrap: normal;
+    }
 
     @media (max-width: 760px) {
       .page {
@@ -221,6 +783,38 @@
         font-size: 16px;
       }
 
+      .view-switch {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .view-btn {
+        flex: 1 1 110px;
+        text-align: center;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-card-wide {
+        grid-column: auto;
+      }
+
+      .metric-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .metric-value {
+        text-align: left;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .pendencias-table {
         min-width: 980px;
       }
@@ -231,9 +825,12 @@
     }
   </style>
 </head>
+<!-- ===== BODY: layout de pendencias do engenheiro ===== -->
 <body>
   <main class="page">
     <section class="panel">
+
+      <!-- ===== Cabecalho: logo GE, titulo, botao de filtro e botao Inserir JOB ===== -->
       <header class="panel-header">
         <div class="header-row">
           <div class="head-main">
@@ -246,31 +843,92 @@
             </div>
           </div>
           <div class="toolbar">
+            <button type="button" class="btn btn-filter" id="btnFiltroDados" data-table-only="1">Filtro <span class="filter-badge" id="dataFilterBadge" style="display:none">0</span></button>
             <a class="btn" href="form.html?perfil=engenheiro">INSERIR JOB</a>
           </div>
         </div>
       </header>
 
-      <div class="pendencias-wrap">
-        <table class="pendencias-table" aria-label="Tabela de pend&ecirc;ncias do engenheiro de processo">
-          <thead>
-            <tr>
-              <th>N&uacute;mero da Ficha</th>
-              <th>Data Entrega Evento (SAP)</th>
-              <th>AME Resp.</th>
-              <th>JOB</th>
-              <th>N&ordm; da Ferramenta</th>
-              <th>Descri&ccedil;&atilde;o da Ferramenta</th>
-              <th>N&ordm; Desenho Ferramenta</th>
-              <th>Status</th>
-              <th>A&ccedil;&atilde;o</th>
-            </tr>
-          </thead>
-          <tbody id="pendenciasBody"></tbody>
-        </table>
-        <div class="empty" id="emptyState" hidden>Nenhuma pend&ecirc;ncia encontrada.</div>
+      <!-- ===== Painel de filtros (colapsavel): diversos filtros por JOB, ferramental, status e datas ===== -->
+      <div class="view-panel is-active" data-panel="tabela">
+        <div class="data-filter-panel data-filter-panel-hidden" id="dataFilterPanel">
+          <div class="data-filter-grid">
+            <div class="data-filter-field">
+              <label for="fJob">JOB</label>
+              <input type="text" id="fJob" placeholder="Filtrar JOB...">
+            </div>
+            <div class="data-filter-field">
+              <label for="fJobIrma">JOB Irm&atilde;</label>
+              <input type="text" id="fJobIrma" placeholder="Filtrar JOB irm&atilde;...">
+            </div>
+            <div class="data-filter-field">
+              <label for="fElementoPep">Elemento PEP</label>
+              <input type="text" id="fElementoPep" placeholder="Filtrar elemento PEP...">
+            </div>
+            <div class="data-filter-field">
+              <label for="fDesenho">Desenho</label>
+              <input type="text" id="fDesenho" placeholder="Filtrar desenho...">
+            </div>
+            <div class="data-filter-field">
+              <label for="fFerramental">N&ordm; Ferramental</label>
+              <input type="text" id="fFerramental" placeholder="Filtrar ferramental...">
+            </div>
+            <div class="data-filter-field">
+              <label for="fPrensa">Prensa</label>
+              <select id="fPrensa"><option value="">Todas</option></select>
+            </div>
+            <div class="data-filter-field">
+              <label for="fStatusRoteiro">Status Roteiro</label>
+              <select id="fStatusRoteiro"><option value="">Todos</option></select>
+            </div>
+            <div class="data-filter-field">
+              <label for="fStatusFrnr">Status FRNR</label>
+              <select id="fStatusFrnr"><option value="">Todos</option></select>
+            </div>
+            <div class="data-filter-field">
+              <label for="fStatusFerramental">Status Ferramental</label>
+              <select id="fStatusFerramental"><option value="">Todos</option></select>
+            </div>
+            <div class="data-filter-field">
+              <label for="fStatusEntrega">Status Entrega Ferramental</label>
+              <select id="fStatusEntrega"><option value="">Todos</option></select>
+            </div>
+            <div class="data-filter-field data-filter-field-range">
+              <label>Data prevista envio</label>
+              <div class="range-inputs">
+                <input type="date" id="fDataEnvioMin">
+                <span>&ndash;</span>
+                <input type="date" id="fDataEnvioMax">
+              </div>
+            </div>
+            <div class="data-filter-field data-filter-field-range">
+              <label>Data entrega evento</label>
+              <div class="range-inputs">
+                <input type="date" id="fDataEventoMin">
+                <span>&ndash;</span>
+                <input type="date" id="fDataEventoMax">
+              </div>
+            </div>
+          </div>
+          <div class="data-filter-footer">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnAplicarFiltroDados">Aplicar filtros</button>
+            <button type="button" class="btn btn-outline btn-sm" id="btnLimparFiltroDados">Limpar</button>
+          </div>
+        </div>
+
+        <!-- ===== Tabela de pendencias: linhas geradas dinamicamente pelo JS com colunas por contexto ===== -->
+        <div class="pendencias-wrap">
+          <table class="pendencias-table" aria-label="Tabela de pend&ecirc;ncias do engenheiro de processo">
+            <thead>
+              <tr id="pendenciasHeadRow"></tr>
+            </thead>
+            <tbody id="pendenciasBody"></tbody>
+          </table>
+          <div class="empty" id="emptyState" hidden>Nenhuma pend&ecirc;ncia encontrada.</div>
+        </div>
       </div>
 
+      <!-- Botoes de navegacao: Voltar dinamico e logout -->
       <div class="actions">
         <div class="left-actions" id="leftActions"></div>
         <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
@@ -278,6 +936,11 @@
     </section>
   </main>
 
+  <!-- ===== SCRIPT: autenticacao, carregamento de fichas, filtros e redirecionamento ao form ===== -->
+  <!--
+    Fluxo: verifica perfil -> busca /api/fichas -> filtra e renderiza tabela
+    -> botao 'INSERIR JOB' abre form.html -> colunas de acao redirecionam para visualizacao/edicao.
+  -->
   <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
@@ -294,30 +957,544 @@
         const perfilNomes = {
           admin: "Admin",
           engenheiro: "Engenheiro de Processo",
-          producao: "Produção",
+          producao: "ProduÃƒÂ§ÃƒÂ£o",
           ferramenteiro: "Ferramenteiro"
         };
         const partesUsuario = usuarioAtivo.split(":");
         const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
         const nomeUsuario = partesUsuario.slice(1).join(":").trim();
-        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuário";
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "UsuÃƒÂ¡rio";
         let textoPerfil = nomeUsuario ? "Perfil " + perfilLabel + ": " + nomeUsuario : "Perfil " + perfilLabel;
         if (perfilAtivo === "admin") {
-          textoPerfil += " (visualizando pendências do engenheiro)";
+          textoPerfil += " (visualizando pendÃƒÂªncias do engenheiro)";
         }
         perfilInfo.textContent = textoPerfil;
       }
 
       const API_URL = "/api";
+      const FICHAS_CACHE_KEY = "cache_fichas_rows_v1";
+      const FICHAS_CACHE_TTL_MS = 120000;
+      const COLUNAS_VISIVEIS_KEY = "engenheiro_colunas_visiveis_v1";
       let pendencias = [];
+      let filteredPendencias = [];
 
+      const pendenciasTable = document.querySelector(".pendencias-table");
+      const pendenciasHeadRow = document.getElementById("pendenciasHeadRow");
       const pendenciasBody = document.getElementById("pendenciasBody");
       const emptyState = document.getElementById("emptyState");
+      const btnFiltroDados = document.getElementById("btnFiltroDados");
+      const dataFilterPanel = document.getElementById("dataFilterPanel");
+      const dataFilterBadge = document.getElementById("dataFilterBadge");
+      const btnFiltroColunas = document.getElementById("btnFiltroColunas");
+      const columnFilterPopover = document.getElementById("columnFilterPopover");
+      const columnFilterList = document.getElementById("columnFilterList");
+      const btnColunasPadrao = document.getElementById("btnColunasPadrao");
+      const fJob = document.getElementById("fJob");
+      const fJobIrma = document.getElementById("fJobIrma");
+      const fElementoPep = document.getElementById("fElementoPep");
+      const fDesenho = document.getElementById("fDesenho");
+      const fFerramental = document.getElementById("fFerramental");
+      const fPrensa = document.getElementById("fPrensa");
+      const fStatusRoteiro = document.getElementById("fStatusRoteiro");
+      const fStatusFrnr = document.getElementById("fStatusFrnr");
+      const fStatusFerramental = document.getElementById("fStatusFerramental");
+      const fStatusEntrega = document.getElementById("fStatusEntrega");
+      const fDataEnvioMin = document.getElementById("fDataEnvioMin");
+      const fDataEnvioMax = document.getElementById("fDataEnvioMax");
+      const fDataEventoMin = document.getElementById("fDataEventoMin");
+      const fDataEventoMax = document.getElementById("fDataEventoMax");
+      const btnAplicarFiltroDados = document.getElementById("btnAplicarFiltroDados");
+      const btnLimparFiltroDados = document.getElementById("btnLimparFiltroDados");
+      const viewButtons = Array.from(document.querySelectorAll("[data-view]"));
+      const viewPanels = Array.from(document.querySelectorAll("[data-panel]"));
+      const tableOnlyControls = Array.from(document.querySelectorAll("[data-table-only]"));
+      const statusMetricRows = Array.from(document.querySelectorAll("[data-status-row]"));
+      const topJobRows = Array.from(document.querySelectorAll("[data-top-job-row]"));
+      const donutPendencias = document.getElementById("donutPendencias");
+      const donutPendenciasLabel = document.getElementById("donutPendenciasLabel");
+      const donutPendenciasCaption = document.getElementById("donutPendenciasCaption");
+      const kpiRegistrosExibidos = document.getElementById("kpiRegistrosExibidos");
+      const kpiRegistrosBase = document.getElementById("kpiRegistrosBase");
+      const kpiJobsUnicos = document.getElementById("kpiJobsUnicos");
+      const kpiPercentualPendente = document.getElementById("kpiPercentualPendente");
+      const kpiPendente = document.getElementById("kpiPendente");
+      const kpiFerramentaria = document.getElementById("kpiFerramentaria");
+      const kpiProducao = document.getElementById("kpiProducao");
+      const kpiConcluido = document.getElementById("kpiConcluido");
 
-      function createCell(text) {
+      const COLUMN_DEFS = [
+        { key: "numero_ficha", label: "N\u00famero da Ficha", defaultVisible: true, minWidth: 120 },
+        { key: "job", label: "JOB", defaultVisible: true, minWidth: 180, lines: true, showIndex: true, className: "cell-job-lines cell-left" },
+        { key: "job_irma", label: "JOB Irm\u00e3", defaultVisible: true, minWidth: 170, lines: true, className: "cell-job-lines cell-left" },
+        { key: "elemento_pep", label: "Elemento PEP", defaultVisible: true, minWidth: 190, lines: true, className: "cell-pep-lines cell-left" },
+        { key: "tipo_lamina_processo", label: "Tipo da L\u00e2mina / Processo", defaultVisible: false, minWidth: 200, className: "cell-left" },
+        { key: "desenhos", label: "Desenhos", defaultVisible: true, minWidth: 240, className: "cell-desenho-lines cell-left" },
+        { key: "pt", label: "PT", defaultVisible: false, minWidth: 120 },
+        { key: "numero_ferramental", label: "N\u00ba Ferramental", defaultVisible: false, minWidth: 170 },
+        { key: "ficha_processo", label: "Ficha de Processo", defaultVisible: false, minWidth: 170 },
+        { key: "descricao_ferramenta", label: "Descri\u00e7\u00e3o da Ferramenta", defaultVisible: false, minWidth: 230, className: "cell-left" },
+        { key: "numero_desenho_ferramental", label: "N\u00ba Desenho Ferramenta", defaultVisible: false, minWidth: 200 },
+        { key: "status_roteiro", label: "Status do Roteiro", defaultVisible: false, minWidth: 170 },
+        { key: "status_frnr", label: "Status FRNR", defaultVisible: false, minWidth: 160 },
+        { key: "status_ferramental", label: "Status Ferramental", defaultVisible: false, minWidth: 180 },
+        { key: "status_entrega_ferramental", label: "Status Entrega Ferramental", defaultVisible: false, minWidth: 220 },
+        { key: "prensa", label: "Prensa", defaultVisible: false, minWidth: 110 },
+        { key: "data_envio_ferramentaria", label: "Data prevista envio", defaultVisible: false, minWidth: 170, type: "date" },
+        { key: "data_entrega_evento", label: "Data entrega evento", defaultVisible: false, minWidth: 170, type: "date" },
+        { key: "data_emissao_requisicao", label: "Data emiss\u00e3o REQ", defaultVisible: false, minWidth: 160, type: "date" },
+        { key: "data_termino_avaliacao_kit", label: "Data t\u00e9rmino avalia\u00e7\u00e3o", defaultVisible: false, minWidth: 200, type: "date" },
+        { key: "data_termino_producao", label: "Data produ\u00e7\u00e3o", defaultVisible: false, minWidth: 150, type: "date" },
+        { key: "qtde_afiacao", label: "Qtd. afia\u00e7\u00e3o", defaultVisible: false, minWidth: 130, type: "number" },
+        { key: "qtde_total_afiacao", label: "Qtd. total afia\u00e7\u00e3o", defaultVisible: false, minWidth: 170, type: "number" },
+        { key: "total_golpes_final", label: "Golpes final", defaultVisible: false, minWidth: 130, type: "number" },
+        { key: "total_golpes_sem_afiar", label: "Golpes sem afiar", defaultVisible: false, minWidth: 160, type: "number" },
+        { key: "qtde_total_golpes_ferramenta", label: "Total de golpes", defaultVisible: false, minWidth: 150, type: "number" },
+        { key: "qtde_uso_ferramenta", label: "Qtd. uso do estampo", defaultVisible: false, minWidth: 170, type: "number" },
+        { key: "vida_util_ferramenta", label: "Vida util atual (mm)", defaultVisible: false, minWidth: 160, type: "decimal1" },
+        { key: "numero_plan_interno", label: "N\u00ba Requisi\u00e7\u00e3o", defaultVisible: false, minWidth: 160 },
+        { key: "numero_po", label: "N\u00ba PO", defaultVisible: false, minWidth: 140 },
+        { key: "numero_rnc", label: "N\u00ba RNC", defaultVisible: false, minWidth: 140 },
+        { key: "ferramenteiro_responsavel", label: "Ferramenteiro", defaultVisible: false, minWidth: 180, className: "cell-left" },
+        { key: "observacao_ultima_manutencao_ferramenta", label: "Observa\u00e7\u00f5es", defaultVisible: false, minWidth: 220, className: "cell-left" }
+      ];
+
+      const FIXED_COLUMNS = [
+        { key: "status", label: "Status", minWidth: 130 },
+        { key: "acao", label: "A\u00e7\u00e3o", minWidth: 150 }
+      ];
+
+      const COLUMN_KEY_SET = new Set(COLUMN_DEFS.map((col) => col.key));
+      const DEFAULT_VISIBLE_COLUMNS = COLUMN_DEFS.filter((col) => col.defaultVisible).map((col) => col.key);
+
+      let visibleColumnKeys = loadVisibleColumnKeys();
+
+      function readFichasCache() {
+        try {
+          const raw = sessionStorage.getItem(FICHAS_CACHE_KEY);
+          if (!raw) {
+            return null;
+          }
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.rows)) {
+            return null;
+          }
+          const ts = Number(parsed.ts || 0);
+          if (!ts || Date.now() - ts > FICHAS_CACHE_TTL_MS) {
+            return null;
+          }
+          return parsed.rows;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      function writeFichasCache(rows) {
+        try {
+          sessionStorage.setItem(
+            FICHAS_CACHE_KEY,
+            JSON.stringify({ ts: Date.now(), rows: Array.isArray(rows) ? rows : [] })
+          );
+        } catch (_error) {
+          // ignore cache errors
+        }
+      }
+
+      function loadVisibleColumnKeys() {
+        try {
+          const raw = localStorage.getItem(COLUNAS_VISIVEIS_KEY);
+          if (!raw) {
+            return DEFAULT_VISIBLE_COLUMNS.slice();
+          }
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) {
+            return DEFAULT_VISIBLE_COLUMNS.slice();
+          }
+          const valid = parsed
+            .map((value) => String(value || "").trim())
+            .filter((value) => COLUMN_KEY_SET.has(value));
+          return valid.length > 0 ? valid : DEFAULT_VISIBLE_COLUMNS.slice();
+        } catch (_error) {
+          return DEFAULT_VISIBLE_COLUMNS.slice();
+        }
+      }
+
+      function persistVisibleColumnKeys() {
+        try {
+          localStorage.setItem(COLUNAS_VISIVEIS_KEY, JSON.stringify(visibleColumnKeys));
+        } catch (_error) {
+          // ignore storage errors
+        }
+      }
+
+      function getVisibleColumns() {
+        return COLUMN_DEFS.filter((column) => visibleColumnKeys.includes(column.key));
+      }
+
+      function formatValueByType(value, type) {
+        if (value == null || value === "") {
+          return "";
+        }
+        if (type === "date") {
+          return formatDateToBrShort(value);
+        }
+        if (type === "number") {
+          const n = Number(value);
+          return Number.isFinite(n) ? String(n) : String(value);
+        }
+        if (type === "decimal1") {
+          const n = Number(value);
+          return Number.isFinite(n) ? n.toFixed(2) : String(value);
+        }
+        return String(value);
+      }
+
+      function createCell(text, className, colKey) {
         const td = document.createElement("td");
-        td.textContent = text || "";
+        const rawText = text == null ? "" : String(text);
+        td.textContent = rawText;
+        if (rawText && !String(className || "").includes("cell-desenho-lines")) {
+          td.title = rawText;
+        }
+        if (className) {
+          td.className = className;
+        }
+        if (colKey) {
+          td.dataset.col = colKey;
+        }
         return td;
+      }
+
+      function createLinkedLinesCell(lines, className, showIndex, colKey) {
+        const td = document.createElement("td");
+        if (className) {
+          td.className = className;
+        }
+        if (colKey) {
+          td.dataset.col = colKey;
+        }
+
+        const values = Array.isArray(lines) && lines.length > 0 ? lines : [""];
+        const wrap = document.createElement("div");
+        wrap.className = "linked-lines";
+
+        values.forEach((value, index) => {
+          const line = document.createElement("div");
+          line.className = "linked-line";
+
+          const text = document.createElement("span");
+          text.className = "line-text";
+          const cleanValue = String(value || "").trim();
+          if (cleanValue) {
+            text.textContent = cleanValue;
+            text.title = cleanValue;
+          } else {
+            text.textContent = "\u00A0";
+            text.classList.add("is-empty");
+          }
+
+          if (showIndex) {
+            const chip = document.createElement("span");
+            chip.className = "line-index";
+            chip.textContent = "J" + String(index + 1);
+            line.appendChild(chip);
+          } else {
+            line.classList.add("no-index");
+          }
+          line.appendChild(text);
+          wrap.appendChild(line);
+        });
+
+        td.appendChild(wrap);
+        return td;
+      }
+
+      function splitNonEmptyByDoubleSpaceOrLineBreak(value) {
+        return String(value || "")
+          .split(/\|\|+|\r\n|\r|\n|\s{2,}/)
+          .map((part) => part.trim())
+          .filter(Boolean);
+      }
+
+      function splitNonEmptyBySingleSpace(value) {
+        return String(value || "")
+          .split(/\s+/)
+          .map((part) => part.trim())
+          .filter((part) => part && part.toUpperCase() !== "NA");
+      }
+
+      function normalizeText(value) {
+        return String(value || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim();
+      }
+
+      function toDateStamp(value) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+        const rawValue = String(value).trim();
+        if (!rawValue) {
+          return null;
+        }
+        const raw = rawValue.length >= 10 ? rawValue.slice(0, 10) : rawValue;
+        let year;
+        let month;
+        let day;
+        let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+          year = Number(match[1]);
+          month = Number(match[2]);
+          day = Number(match[3]);
+        } else {
+          match = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+          if (!match) {
+            return null;
+          }
+          day = Number(match[1]);
+          month = Number(match[2]);
+          year = Number(match[3]);
+        }
+        if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+          return null;
+        }
+        const dt = new Date(Date.UTC(year, month - 1, day));
+        if (
+          dt.getUTCFullYear() !== year ||
+          dt.getUTCMonth() + 1 !== month ||
+          dt.getUTCDate() !== day
+        ) {
+          return null;
+        }
+        return year * 10000 + month * 100 + day;
+      }
+
+      function fillSelectOptions(selectEl, values, defaultLabel) {
+        if (!selectEl) {
+          return;
+        }
+        const current = selectEl.value;
+        const uniqueValues = Array.from(new Set((values || [])
+          .map((value) => String(value || "").trim())
+          .filter(Boolean)))
+          .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" }));
+        selectEl.innerHTML = "";
+        const optionAll = document.createElement("option");
+        optionAll.value = "";
+        optionAll.textContent = defaultLabel;
+        selectEl.appendChild(optionAll);
+        uniqueValues.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          selectEl.appendChild(option);
+        });
+        if (current && uniqueValues.includes(current)) {
+          selectEl.value = current;
+        } else {
+          selectEl.value = "";
+        }
+      }
+
+      function populateDataFilterSelects() {
+        fillSelectOptions(fPrensa, pendencias.map((item) => item.prensa), "Todas");
+        fillSelectOptions(fStatusRoteiro, pendencias.map((item) => item.status_roteiro || item.status), "Todos");
+        fillSelectOptions(fStatusFrnr, pendencias.map((item) => item.status_frnr), "Todos");
+        fillSelectOptions(fStatusFerramental, pendencias.map((item) => item.status_ferramental), "Todos");
+        fillSelectOptions(fStatusEntrega, pendencias.map((item) => item.status_entrega_ferramental), "Todos");
+      }
+
+      function countActiveDataFilters() {
+        let count = 0;
+        const values = [
+          fJob && fJob.value,
+          fJobIrma && fJobIrma.value,
+          fElementoPep && fElementoPep.value,
+          fDesenho && fDesenho.value,
+          fFerramental && fFerramental.value,
+          fPrensa && fPrensa.value,
+          fStatusRoteiro && fStatusRoteiro.value,
+          fStatusFrnr && fStatusFrnr.value,
+          fStatusFerramental && fStatusFerramental.value,
+          fStatusEntrega && fStatusEntrega.value,
+          fDataEnvioMin && fDataEnvioMin.value,
+          fDataEnvioMax && fDataEnvioMax.value,
+          fDataEventoMin && fDataEventoMin.value,
+          fDataEventoMax && fDataEventoMax.value
+        ];
+        values.forEach((value) => {
+          if (String(value || "").trim() !== "") {
+            count += 1;
+          }
+        });
+        return count;
+      }
+
+      function applyDataFilters() {
+        const jobFilter = normalizeText(fJob && fJob.value);
+        const jobIrmaFilter = normalizeText(fJobIrma && fJobIrma.value);
+        const pepFilter = normalizeText(fElementoPep && fElementoPep.value);
+        const desenhoFilter = normalizeText(fDesenho && fDesenho.value);
+        const ferramentalFilter = normalizeText(fFerramental && fFerramental.value);
+        const prensaFilter = normalizeText(fPrensa && fPrensa.value);
+        const statusRoteiroFilter = normalizeText(fStatusRoteiro && fStatusRoteiro.value);
+        const statusFrnrFilter = normalizeText(fStatusFrnr && fStatusFrnr.value);
+        const statusFerramentalFilter = normalizeText(fStatusFerramental && fStatusFerramental.value);
+        const statusEntregaFilter = normalizeText(fStatusEntrega && fStatusEntrega.value);
+        const dataEnvioMin = toDateStamp(fDataEnvioMin && fDataEnvioMin.value);
+        const dataEnvioMax = toDateStamp(fDataEnvioMax && fDataEnvioMax.value);
+        const dataEventoMin = toDateStamp(fDataEventoMin && fDataEventoMin.value);
+        const dataEventoMax = toDateStamp(fDataEventoMax && fDataEventoMax.value);
+
+        filteredPendencias = pendencias.filter((item) => {
+          if (jobFilter && !normalizeText(item.job).includes(jobFilter)) {
+            return false;
+          }
+          if (jobIrmaFilter && !normalizeText(item.job_irma).includes(jobIrmaFilter)) {
+            return false;
+          }
+          if (pepFilter && !normalizeText(item.elemento_pep).includes(pepFilter)) {
+            return false;
+          }
+          if (desenhoFilter && !normalizeText(item.desenhos).includes(desenhoFilter)) {
+            return false;
+          }
+          if (ferramentalFilter && !normalizeText(item.numero_ferramental).includes(ferramentalFilter)) {
+            return false;
+          }
+          if (prensaFilter && normalizeText(item.prensa) !== prensaFilter) {
+            return false;
+          }
+          if (statusRoteiroFilter && normalizeText(item.status_roteiro || item.status) !== statusRoteiroFilter) {
+            return false;
+          }
+          if (statusFrnrFilter && normalizeText(item.status_frnr) !== statusFrnrFilter) {
+            return false;
+          }
+          if (statusFerramentalFilter && normalizeText(item.status_ferramental) !== statusFerramentalFilter) {
+            return false;
+          }
+          if (statusEntregaFilter && normalizeText(item.status_entrega_ferramental) !== statusEntregaFilter) {
+            return false;
+          }
+
+          const envioStamp = toDateStamp(item.data_envio_ferramentaria);
+          if (dataEnvioMin !== null && (envioStamp === null || envioStamp < dataEnvioMin)) {
+            return false;
+          }
+          if (dataEnvioMax !== null && (envioStamp === null || envioStamp > dataEnvioMax)) {
+            return false;
+          }
+
+          const eventoStamp = toDateStamp(item.data_entrega_evento);
+          if (dataEventoMin !== null && (eventoStamp === null || eventoStamp < dataEventoMin)) {
+            return false;
+          }
+          if (dataEventoMax !== null && (eventoStamp === null || eventoStamp > dataEventoMax)) {
+            return false;
+          }
+
+          return true;
+        });
+
+        const activeFilterCount = countActiveDataFilters();
+        if (dataFilterBadge) {
+          if (activeFilterCount > 0) {
+            dataFilterBadge.textContent = String(activeFilterCount);
+            dataFilterBadge.style.display = "";
+          } else {
+            dataFilterBadge.style.display = "none";
+          }
+        }
+
+        renderPendencias();
+      }
+
+      let applyDataFiltersTimer = null;
+      function scheduleApplyDataFilters() {
+        if (applyDataFiltersTimer) {
+          clearTimeout(applyDataFiltersTimer);
+        }
+        applyDataFiltersTimer = setTimeout(function () {
+          applyDataFilters();
+          applyDataFiltersTimer = null;
+        }, 140);
+      }
+
+      function montarMapaRotorEstatorPorJob(rows) {
+        const mapa = {};
+        (rows || []).forEach((row) => {
+          const job = String(row.job || "").trim();
+          if (!job) {
+            return;
+          }
+
+          const tipo = normalizeText(row.tipo_lamina_processo || row.tipo_manutencao || row.descricao_trabalhos);
+          const desenho = String(row.desenhos || row.numero_desenho_ferramental || "").trim();
+          const pt = String(row.pt || row.area || "").trim();
+
+          if (!mapa[job]) {
+            mapa[job] = { desenhoRotor: "", desenhoEstator: "", ptRotor: "", ptEstator: "" };
+          }
+
+          if (tipo.includes("rotor")) {
+            if (desenho && !mapa[job].desenhoRotor) {
+              mapa[job].desenhoRotor = desenho;
+            }
+            if (pt && !mapa[job].ptRotor) {
+              mapa[job].ptRotor = pt;
+            }
+          }
+
+          if (tipo.includes("estator")) {
+            if (desenho && !mapa[job].desenhoEstator) {
+              mapa[job].desenhoEstator = desenho;
+            }
+            if (pt && !mapa[job].ptEstator) {
+              mapa[job].ptEstator = pt;
+            }
+          }
+        });
+        return mapa;
+      }
+
+      function montarTextoDesenhoRotorEstator(item, mapaRotorEstatorPorJob) {
+        const job = String(item.job || "").trim();
+        const tipo = normalizeText(item.tipo_lamina_processo || item.tipo_manutencao || item.descricao_trabalhos);
+        const desenhoAtual = String(item.desenhos || item.numero_desenho_ferramental || "").trim();
+        const desenhoJob = mapaRotorEstatorPorJob[job] || { desenhoRotor: "", desenhoEstator: "" };
+
+        const rotor = desenhoJob.desenhoRotor || (tipo.includes("rotor") ? desenhoAtual : "");
+        const estator = desenhoJob.desenhoEstator || (tipo.includes("estator") ? desenhoAtual : "");
+
+        return "LÃƒÂ¢m. Rotor: " + (rotor || "-") + "\n" + "LÃƒÂ¢m. Estator: " + (estator || "-");
+      }
+
+      function montarLinhasJobEPep(jobPrincipal, jobsIrmas, elementoPep) {
+        const jobPrincipalLimpo = String(jobPrincipal || "").trim();
+        const irmas = splitNonEmptyBySingleSpace(jobsIrmas);
+        const peps = splitNonEmptyByDoubleSpaceOrLineBreak(elementoPep);
+        const totalLinhas = Math.max(1, irmas.length + 1, peps.length);
+
+        const jobPrincipalLinhas = [];
+        const jobIrmasLinhas = [];
+        const pepsLinhas = [];
+
+        for (let idx = 0; idx < totalLinhas; idx += 1) {
+          jobPrincipalLinhas.push(idx === 0 ? jobPrincipalLimpo : "");
+          jobIrmasLinhas.push(idx === 0 ? "" : (irmas[idx - 1] || ""));
+          pepsLinhas.push(peps[idx] || "");
+        }
+
+        return {
+          jobPrincipalLinhas: jobPrincipalLinhas,
+          jobIrmasLinhas: jobIrmasLinhas,
+          pepsLinhas: pepsLinhas,
+          jobPrincipalTexto: jobPrincipalLinhas.join("\n"),
+          jobIrmasTexto: jobIrmasLinhas.join("\n"),
+          pepsTexto: pepsLinhas.join("\n")
+        };
       }
 
       function formatDateToBrShort(value) {
@@ -369,25 +1546,305 @@
         return { texto: "Pendente", classe: "" };
       }
 
+      function getStatusBucket(status) {
+        const normalized = normalizeStatus(status);
+        if (normalized.includes("cancel")) {
+          return "cancelada";
+        }
+        if (
+          normalized.includes("ferramenta aprovada") ||
+          normalized.includes("ja estamp") ||
+          normalized.includes("liberacao prevista") ||
+          normalized.includes("cisinox") ||
+          normalized.includes("liberado para produ")
+        ) {
+          return "concluido";
+        }
+        if (normalized.includes("ferrament")) {
+          return "ferramentaria";
+        }
+        if (normalized.includes("produc")) {
+          return "producao";
+        }
+        return "pendente";
+      }
+
+      function buildDashboardMetrics(rows) {
+        const list = Array.isArray(rows) ? rows : [];
+        const total = list.length;
+        const baseTotal = Array.isArray(pendencias) ? pendencias.length : 0;
+        const buckets = {
+          pendente: 0,
+          ferramentaria: 0,
+          producao: 0,
+          concluido: 0,
+          cancelada: 0
+        };
+        const jobsMap = new Map();
+
+        list.forEach((item) => {
+          const bucket = getStatusBucket(item && item.status);
+          buckets[bucket] += 1;
+          const job = String((item && item.job) || "").trim();
+          if (job) {
+            jobsMap.set(job, (jobsMap.get(job) || 0) + 1);
+          }
+        });
+
+        const jobsUnicos = jobsMap.size;
+        const percentualPendente = total > 0 ? Math.round((buckets.pendente / total) * 100) : 0;
+        const topJobs = Array.from(jobsMap.entries())
+          .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR", { sensitivity: "base" }))
+          .slice(0, 3);
+
+        return {
+          total: total,
+          baseTotal: baseTotal,
+          jobsUnicos: jobsUnicos,
+          percentualPendente: percentualPendente,
+          buckets: buckets,
+          topJobs: topJobs
+        };
+      }
+
+      function renderDashboard(rows) {
+        const metrics = buildDashboardMetrics(rows);
+        const total = metrics.total;
+
+        if (donutPendencias) {
+          donutPendencias.style.setProperty("--donut-progress", String(metrics.percentualPendente));
+        }
+        if (donutPendenciasLabel) {
+          donutPendenciasLabel.textContent = String(metrics.percentualPendente) + "%";
+        }
+        if (donutPendenciasCaption) {
+          donutPendenciasCaption.textContent =
+            String(metrics.buckets.pendente) + " pendentes de " + String(total) + " registros";
+        }
+
+        statusMetricRows.forEach((row) => {
+          const key = String(row.getAttribute("data-status-row") || "").trim();
+          const count = Number(metrics.buckets[key] || 0);
+          const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+          const fill = row.querySelector(".metric-fill");
+          const value = row.querySelector(".metric-value");
+          if (fill) {
+            fill.style.width = String(percent) + "%";
+          }
+          if (value) {
+            value.textContent = String(count) + " (" + String(percent) + "%)";
+          }
+        });
+
+        const maxTopCount = metrics.topJobs.reduce((max, item) => Math.max(max, item[1]), 0);
+        topJobRows.forEach((row, idx) => {
+          const top = metrics.topJobs[idx];
+          const label = row.querySelector("[data-top-job-label]");
+          const value = row.querySelector("[data-top-job-value]");
+          const fill = row.querySelector(".metric-fill");
+          if (!top) {
+            if (label) {
+              label.textContent = "-";
+            }
+            if (value) {
+              value.textContent = "0";
+            }
+            if (fill) {
+              fill.style.width = "0%";
+            }
+            return;
+          }
+          const width = maxTopCount > 0 ? Math.round((top[1] / maxTopCount) * 100) : 0;
+          if (label) {
+            label.textContent = top[0];
+            label.title = top[0];
+          }
+          if (value) {
+            value.textContent = String(top[1]);
+          }
+          if (fill) {
+            fill.style.width = String(width) + "%";
+          }
+        });
+
+        if (kpiRegistrosExibidos) {
+          kpiRegistrosExibidos.textContent = String(metrics.total);
+        }
+        if (kpiRegistrosBase) {
+          kpiRegistrosBase.textContent = String(metrics.baseTotal);
+        }
+        if (kpiJobsUnicos) {
+          kpiJobsUnicos.textContent = String(metrics.jobsUnicos);
+        }
+        if (kpiPercentualPendente) {
+          kpiPercentualPendente.textContent = String(metrics.percentualPendente) + "%";
+        }
+        if (kpiPendente) {
+          kpiPendente.textContent = String(metrics.buckets.pendente);
+        }
+        if (kpiFerramentaria) {
+          kpiFerramentaria.textContent = String(metrics.buckets.ferramentaria);
+        }
+        if (kpiProducao) {
+          kpiProducao.textContent = String(metrics.buckets.producao);
+        }
+        if (kpiConcluido) {
+          kpiConcluido.textContent = String(metrics.buckets.concluido);
+        }
+      }
+
+      function setActiveView(nextView) {
+        const view = String(nextView || "tabela").trim().toLowerCase();
+        const allowed = ["tabela", "graficos", "kpis"];
+        const selected = allowed.includes(view) ? view : "tabela";
+
+        viewButtons.forEach((button) => {
+          const key = String(button.getAttribute("data-view") || "").trim().toLowerCase();
+          const active = key === selected;
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+          button.classList.toggle("is-off", !active);
+        });
+
+        viewPanels.forEach((panel) => {
+          const key = String(panel.getAttribute("data-panel") || "").trim().toLowerCase();
+          panel.classList.toggle("is-active", key === selected);
+        });
+
+        const isTable = selected === "tabela";
+        tableOnlyControls.forEach((element) => {
+          element.hidden = !isTable;
+        });
+
+        if (!isTable) {
+          closeColumnFilterPopover();
+        }
+      }
+
+      function getColumnValue(item, column) {
+        switch (column.key) {
+          case "numero_ficha":
+            return item.numero_ficha_engenheiro;
+          case "job":
+            return item.job_principal_linhas_array_engenheiro;
+          case "job_irma":
+            return item.job_irma_linhas_array_engenheiro;
+          case "elemento_pep":
+            return item.elemento_pep_linhas_array_engenheiro;
+          case "desenhos":
+            return item.desenho_rotor_estator_engenheiro;
+          default:
+            return item[column.key];
+        }
+      }
+
+      function createColumnCell(item, column) {
+        if (column.lines) {
+          return createLinkedLinesCell(
+            getColumnValue(item, column),
+            column.className || "",
+            Boolean(column.showIndex),
+            column.key
+          );
+        }
+        const rawValue = getColumnValue(item, column);
+        const text = formatValueByType(rawValue, column.type);
+        return createCell(text, column.className || "", column.key);
+      }
+
+      function renderHead() {
+        if (!pendenciasHeadRow) {
+          return;
+        }
+        const visibleColumns = getVisibleColumns();
+        pendenciasHeadRow.innerHTML = "";
+
+        visibleColumns.forEach((column) => {
+          const th = document.createElement("th");
+          th.textContent = column.label;
+          th.dataset.col = column.key;
+          pendenciasHeadRow.appendChild(th);
+        });
+
+        FIXED_COLUMNS.forEach((column) => {
+          const th = document.createElement("th");
+          th.textContent = column.label;
+          th.dataset.col = column.key;
+          pendenciasHeadRow.appendChild(th);
+        });
+      }
+
+      function updateTableMinWidth() {
+        if (!pendenciasTable) {
+          return;
+        }
+        const columns = getVisibleColumns().concat(FIXED_COLUMNS);
+        const totalWidth = columns.reduce((sum, column) => sum + Number(column.minWidth || 150), 0);
+        pendenciasTable.style.minWidth = String(Math.max(980, totalWidth)) + "px";
+      }
+
+      function renderColumnFilterOptions() {
+        if (!columnFilterList) {
+          return;
+        }
+        columnFilterList.innerHTML = "";
+        COLUMN_DEFS.forEach((column) => {
+          const label = document.createElement("label");
+          label.className = "filter-item";
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.value = column.key;
+          input.checked = visibleColumnKeys.includes(column.key);
+          input.addEventListener("change", function () {
+            const key = column.key;
+            if (input.checked) {
+              if (!visibleColumnKeys.includes(key)) {
+                visibleColumnKeys.push(key);
+              }
+            } else {
+              visibleColumnKeys = visibleColumnKeys.filter((value) => value !== key);
+            }
+            persistVisibleColumnKeys();
+            renderHead();
+            renderPendencias();
+          });
+
+          const text = document.createElement("span");
+          text.textContent = column.label;
+
+          label.appendChild(input);
+          label.appendChild(text);
+          columnFilterList.appendChild(label);
+        });
+      }
+
+      function closeColumnFilterPopover() {
+        if (columnFilterPopover) {
+          columnFilterPopover.hidden = true;
+        }
+      }
+
       function renderPendencias() {
+        updateTableMinWidth();
         pendenciasBody.innerHTML = "";
-        if (pendencias.length === 0) {
+        const rowsToRender = Array.isArray(filteredPendencias) ? filteredPendencias : pendencias;
+        renderDashboard(rowsToRender);
+        if (rowsToRender.length === 0) {
           emptyState.hidden = false;
           return;
         }
         emptyState.hidden = true;
 
-        pendencias.forEach((item) => {
+        const visibleColumns = getVisibleColumns();
+
+        rowsToRender.forEach((item) => {
           const tr = document.createElement("tr");
-          tr.appendChild(createCell(item.numero_ficha_engenheiro));
-          tr.appendChild(createCell(item.data_entrega_evento_sap_engenheiro));
-          tr.appendChild(createCell(item.ame_resp_abertura_engenheiro));
-          tr.appendChild(createCell(item.job_cabecalho_engenheiro));
-          tr.appendChild(createCell(item.numero_ferramenta_engenheiro));
-          tr.appendChild(createCell(item.descricao_ferramenta_engenheiro));
-          tr.appendChild(createCell(item.numero_desenho_ferramenta_engenheiro));
+          visibleColumns.forEach((column) => {
+            tr.appendChild(createColumnCell(item, column));
+          });
 
           const tdStatus = document.createElement("td");
+          tdStatus.dataset.col = "status";
           const badge = document.createElement("span");
           const status = getStatusMeta(item.status);
           badge.className = "status-badge" + (status.classe ? " " + status.classe : "");
@@ -396,49 +1853,134 @@
           tr.appendChild(tdStatus);
 
           const tdAcao = document.createElement("td");
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "btn-row";
-          btn.textContent = "Visualizar";
-          btn.dataset.pendenciaId = item.id;
-          tdAcao.appendChild(btn);
+          tdAcao.dataset.col = "acao";
+          const actions = document.createElement("div");
+          actions.className = "row-actions";
+
+          const btnVisualizar = document.createElement("button");
+          btnVisualizar.type = "button";
+          btnVisualizar.className = "btn-row btn-row-view";
+          btnVisualizar.innerHTML = '<svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.8-6 10-6 10 6 10 6-3.8 6-10 6-10-6-10-6z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="12" cy="12" r="2.8" fill="currentColor"></circle></svg>';
+          btnVisualizar.title = "Visualizar";
+          btnVisualizar.setAttribute("aria-label", "Visualizar");
+          btnVisualizar.dataset.pendenciaId = item.id;
+          btnVisualizar.dataset.acao = "visualizar";
+
+          const btnEditar = document.createElement("button");
+          btnEditar.type = "button";
+          btnEditar.className = "btn-row btn-row-edit";
+          btnEditar.textContent = "Editar";
+          btnEditar.dataset.pendenciaId = item.id;
+          btnEditar.dataset.acao = "editar";
+
+          actions.appendChild(btnVisualizar);
+          actions.appendChild(btnEditar);
+          tdAcao.appendChild(actions);
           tr.appendChild(tdAcao);
 
           pendenciasBody.appendChild(tr);
         });
       }
 
-      function toEngenheiroPendencia(item) {
+      function toEngenheiroPendencia(item, mapaRotorEstatorPorJob) {
+        const linhas = montarLinhasJobEPep(item.job, item.job_envolvidas, item.elemento_pep);
         return {
           id: String(item.numero_ficha || item.id || ""),
           numero_ficha_engenheiro: String(item.numero_ficha || ""),
-          data_entrega_evento_sap_engenheiro: formatDateToBrShort(item.data_entrega_evento || item.data_cadastro),
           ame_resp_abertura_engenheiro: item.responsavel_abertura || item.responsavel || "",
           job_cabecalho_engenheiro: item.job || "",
+          job_irma_engenheiro: item.job_envolvidas || "",
+          job_principal_linhas_array_engenheiro: linhas.jobPrincipalLinhas,
+          job_irma_linhas_array_engenheiro: linhas.jobIrmasLinhas,
+          elemento_pep_linhas_array_engenheiro: linhas.pepsLinhas,
+          job_principal_linhas_engenheiro: linhas.jobPrincipalTexto,
+          job_irma_linhas_engenheiro: linhas.jobIrmasTexto,
+          elemento_pep_linhas_engenheiro: linhas.pepsTexto,
+          desenho_rotor_estator_engenheiro: montarTextoDesenhoRotorEstator(item, mapaRotorEstatorPorJob),
+          pt_engenheiro: item.pt || item.area || "",
           numero_ferramenta_engenheiro: item.numero_ferramental || "",
           descricao_ferramenta_engenheiro: item.descricao_ferramenta || item.descricao || "",
           numero_desenho_ferramenta_engenheiro: item.numero_desenho_ferramental || "",
+          numero_ficha: String(item.numero_ficha || ""),
+          job: String(item.job || "").trim(),
+          job_irma: String(item.job_envolvidas || "").trim(),
+          elemento_pep: String(item.elemento_pep || "").trim(),
+          tipo_lamina_processo: item.tipo_lamina_processo || item.tipo_manutencao || "",
+          desenhos: item.desenhos || item.numero_desenho_ferramental || "",
+          pt: item.pt || item.area || "",
+          numero_ferramental: item.numero_ferramental || item.codigo_ferramenta || "",
+          ficha_processo: item.ficha_processo || "",
+          descricao_ferramenta: item.descricao_ferramenta || item.descricao || "",
+          numero_desenho_ferramental: item.numero_desenho_ferramental || item.numero_desenho_ferramenta || "",
+          status_roteiro: item.status_roteiro || item.status || "",
+          status_frnr: item.status_frnr || "",
+          status_ferramental: item.status_ferramental || item.status_ferramental_lob || "",
+          status_entrega_ferramental: item.status_entrega_ferramental || "",
+          prensa: item.prensa || "",
+          data_envio_ferramentaria: item.data_envio_ferramentaria || "",
+          data_entrega_evento: item.data_entrega_evento || "",
+          data_emissao_requisicao: item.data_emissao_requisicao || item.data_cadastro || "",
+          data_termino_avaliacao_kit: item.data_termino_avaliacao_kit || "",
+          data_termino_producao: item.data_termino_producao || item.data_termino || "",
+          qtde_afiacao: item.qtde_afiacao,
+          qtde_total_afiacao: item.qtde_total_afiacao,
+          total_golpes_final: item.total_golpes_final,
+          total_golpes_sem_afiar: item.total_golpes_sem_afiar,
+          qtde_total_golpes_ferramenta: item.qtde_total_golpes_ferramenta || item.total_golpes_final,
+          qtde_uso_ferramenta: item.qtde_uso_ferramenta,
+          vida_util_ferramenta: item.vida_util_ferramenta,
+          numero_plan_interno: item.numero_plan_interno || "",
+          numero_po: item.numero_po || "",
+          numero_rnc: item.numero_rnc || "",
+          ferramenteiro_responsavel: item.ferramenteiro || item.ferramenteiro_responsavel || "",
+          observacao_ultima_manutencao_ferramenta: item.observacao_ultima_manutencao_ferramenta || item.observacoes || "",
           status: item.status_roteiro || item.status || "Pendente"
         };
       }
 
+      function setPendenciasFromRows(rows) {
+        if (Array.isArray(rows)) {
+          const mapaRotorEstatorPorJob = montarMapaRotorEstatorPorJob(rows);
+          pendencias = rows.map((row) => toEngenheiroPendencia(row, mapaRotorEstatorPorJob));
+        } else {
+          pendencias = [];
+        }
+        filteredPendencias = pendencias.slice();
+        populateDataFilterSelects();
+      }
+
       async function carregarPendencias() {
+        let renderedFromCache = false;
+        const cachedRows = readFichasCache();
+        if (cachedRows) {
+          setPendenciasFromRows(cachedRows);
+          applyDataFilters();
+          renderedFromCache = true;
+        }
+
         try {
-          const response = await fetch(API_URL + "/fichas", { cache: "no-store" });
+          const response = await fetch(API_URL + "/fichas");
           if (!response.ok) {
             throw new Error("Falha ao buscar pendencias do banco");
           }
           const rows = await response.json();
-          pendencias = Array.isArray(rows) ? rows.map(toEngenheiroPendencia) : [];
+          writeFichasCache(rows);
+          setPendenciasFromRows(rows);
+          applyDataFilters();
         } catch (_error) {
+          if (renderedFromCache) {
+            return;
+          }
           pendencias = [];
+          filteredPendencias = [];
+          populateDataFilterSelects();
+          applyDataFilters();
         }
-        renderPendencias();
       }
 
       pendenciasBody.addEventListener("click", function (event) {
         const target = event.target;
-        if (!(target instanceof HTMLElement)) {
+        if (!(target instanceof Element)) {
           return;
         }
         const button = target.closest("button[data-pendencia-id]");
@@ -450,9 +1992,115 @@
         if (!pendencia) {
           return;
         }
+        const acao = button.getAttribute("data-acao") || "visualizar";
 
         sessionStorage.setItem("engenheiro_pendencia_ativa", JSON.stringify(pendencia));
+        if (acao === "editar") {
+          window.location.href = "form.html?perfil=engenheiro&modo=editar";
+          return;
+        }
         window.location.href = "form.html?perfil=engenheiro&modo=visualizar";
+      });
+
+      if (btnFiltroDados && dataFilterPanel) {
+        btnFiltroDados.addEventListener("click", function () {
+          dataFilterPanel.classList.toggle("data-filter-panel-hidden");
+        });
+      }
+
+      if (btnAplicarFiltroDados) {
+        btnAplicarFiltroDados.addEventListener("click", applyDataFilters);
+      }
+
+      const liveFilterInputs = [
+        fJob,
+        fJobIrma,
+        fElementoPep,
+        fDesenho,
+        fFerramental,
+        fPrensa,
+        fStatusRoteiro,
+        fStatusFrnr,
+        fStatusFerramental,
+        fStatusEntrega,
+        fDataEnvioMin,
+        fDataEnvioMax,
+        fDataEventoMin,
+        fDataEventoMax
+      ];
+
+      liveFilterInputs.forEach((inputEl) => {
+        if (!inputEl) {
+          return;
+        }
+        inputEl.addEventListener("input", scheduleApplyDataFilters);
+        inputEl.addEventListener("change", applyDataFilters);
+      });
+
+      if (btnLimparFiltroDados) {
+        btnLimparFiltroDados.addEventListener("click", function () {
+          liveFilterInputs.forEach((inputEl) => {
+            if (!inputEl) {
+              return;
+            }
+            inputEl.value = "";
+          });
+          filteredPendencias = pendencias.slice();
+          if (dataFilterBadge) {
+            dataFilterBadge.style.display = "none";
+          }
+          renderPendencias();
+        });
+      }
+
+      viewButtons.forEach((button) => {
+        button.addEventListener("click", function () {
+          const view = String(button.getAttribute("data-view") || "").trim().toLowerCase();
+          setActiveView(view);
+        });
+      });
+
+      if (btnFiltroColunas && columnFilterPopover) {
+        btnFiltroColunas.addEventListener("click", function () {
+          const willOpen = columnFilterPopover.hidden;
+          if (willOpen) {
+            renderColumnFilterOptions();
+          }
+          columnFilterPopover.hidden = !willOpen;
+        });
+      }
+
+      if (btnColunasPadrao) {
+        btnColunasPadrao.addEventListener("click", function () {
+          visibleColumnKeys = DEFAULT_VISIBLE_COLUMNS.slice();
+          persistVisibleColumnKeys();
+          renderColumnFilterOptions();
+          renderHead();
+          renderPendencias();
+        });
+      }
+
+      document.addEventListener("click", function (event) {
+        if (!columnFilterPopover || !btnFiltroColunas) {
+          return;
+        }
+        const target = event.target;
+        if (!(target instanceof Element)) {
+          return;
+        }
+        if (columnFilterPopover.hidden) {
+          return;
+        }
+        if (target === btnFiltroColunas || btnFiltroColunas.contains(target) || columnFilterPopover.contains(target)) {
+          return;
+        }
+        closeColumnFilterPopover();
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeColumnFilterPopover();
+        }
       });
 
       const leftActions = document.getElementById("leftActions");
@@ -474,8 +2122,11 @@
         });
       }
 
+      setActiveView("tabela");
+      renderHead();
       carregarPendencias();
     })();
   </script>
 </body>
 </html>
+

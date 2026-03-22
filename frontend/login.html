@@ -1,37 +1,51 @@
-﻿<!doctype html>
+﻿<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Arquivo: frontend/login.html -->
+<!-- Descricao: Tela de login do sistema de fichas de manutencao de estampos. Seleciona perfil e valida senha via JS. -->
+<!-- Observacao: Nao ha autenticacao server-side; a senha e validada no front (uso interno). -->
+<!doctype html>
 <html lang="pt-br">
+
+<!-- ===== HEAD: configuracoes basicas da pagina ===== -->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Estamparia - Login</title>
+  <!-- Folha de estilos do login (login.css) -->
   <link rel="stylesheet" href="login.css">
 </head>
 
+<!-- ===== BODY: conteudo visivel da pagina ===== -->
 <body>
 
+  <!-- Logo da empresa exibida acima do cartao de login -->
   <div class="brand">
     <img src="assets/gevernova_logo.jpg" alt="Logo GE Vernova">
   </div>
 
+  <!-- Cartao central de login -->
   <div class="card">
+    <!-- Icone decorativo GE exibido no topo do cartao -->
     <div class="hero-icon" aria-hidden="true">
       GE
     </div>
+    <!-- Badge de identificacao da empresa -->
     <div class="pill">GE VERNOVA</div>
 
     <h1>ESTAMPARIA</h1>
-    <div class="sub">Selecione o usuário e digite a senha.</div>
+    <div class="sub">Selecione o usuÃ¡rio e digite a senha.</div>
 
+    <!-- Formulario de autenticacao: selecao de usuario + senha -->
     <form id="loginForm" novalidate>
+      <!-- Campo de selecao do usuario, agrupado por perfil de acesso -->
       <div class="field">
-        <label>Usuário</label>
+        <label>UsuÃ¡rio</label>
         <select name="usuario" required>
           <option value="" selected>Selecione</option>
           <optgroup label="Engenheiro de processo">
             <option value="engenheiro:Bruno Almeida" data-profile="engenheiro">Bruno Almeida</option>
             <option value="engenheiro:Diego Martins" data-profile="engenheiro">Diego Martins</option>
           </optgroup>
-          <optgroup label="Produção">
+          <optgroup label="ProduÃ§Ã£o">
             <option value="producao:Fabio Teixeira" data-profile="producao">Fabio Teixeira</option>
             <option value="producao:Hugo Fernandes" data-profile="producao">Hugo Fernandes</option>
             <option value="producao:Joao Cardoso" data-profile="producao">Joao Cardoso</option>
@@ -39,6 +53,11 @@
           <optgroup label="Ferramenteiro">
             <option value="ferramenteiro:Lucas Barros (verificar)" data-profile="ferramenteiro">Lucas Barros (verificar)</option>
             <option value="ferramenteiro:Nicolas Vieira" data-profile="ferramenteiro">Nicolas Vieira</option>
+          </optgroup>
+          <optgroup label="Planejamento">
+            <option value="planejamento:Otavio Lima" data-profile="planejamento">Otavio Lima</option>
+            <option value="planejamento:Rafael Moreira" data-profile="planejamento">Rafael Moreira</option>
+            <option value="planejamento:Thiago Correia" data-profile="planejamento">Thiago Correia</option>
           </optgroup>
           <optgroup label="Admin">
             <option value="admin:Sabrina Freitas" data-profile="admin">Sabrina Freitas</option>
@@ -48,22 +67,28 @@
         </select>
       </div>
 
+      <!-- Campo de senha numerica (PIN) -->
       <div class="field">
         <label>Senha</label>
-        <input type="password" name="password" placeholder="••••••••" required>
+        <input type="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
       </div>
 
-      <div id="loginError" class="error" style="display:none;">Email e senha inválidos.</div>
+      <!-- Mensagem de erro exibida quando usuario ou senha estao incorretos -->
+      <div id="loginError" class="error" style="display:none;">Email e senha invÃ¡lidos.</div>
 
+      <!-- Botao de envio do formulario -->
       <button type="submit" aria-label="Entrar com email">
         <span aria-hidden="true">&#9993;</span>
-        Entrar com Usuário
+        Entrar com UsuÃ¡rio
       </button>
     </form>
 
+    <!-- Espacador / rodape do cartao -->
     <div class="foot"></div>
   </div>
 
+  <!-- ===== SCRIPT: validacao do login e roteamento por perfil ===== -->
+  <!-- Valida a senha numerica e redireciona para a tela correta de acordo com o perfil selecionado -->
   <script>
     const form = document.getElementById('loginForm');
     const error = document.getElementById('loginError');
@@ -72,7 +97,8 @@
       engenheiro: 'engenheiro.html',
       producao: 'producao.html',
       ferramenteiro: 'ferramenteiro.html',
-      admin: 'admin.html'
+      admin: 'admin.html',
+      planejamento: 'planejamento.html'
     };
 
     form.addEventListener('submit', (event) => {
@@ -101,3 +127,4 @@
 
 </body>
 </html>
+

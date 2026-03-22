@@ -1,4 +1,8 @@
-﻿<!doctype html>
+﻿<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Arquivo: frontend/impressao_fichas.html -->
+<!-- Descricao: Tela de listagem de fichas com filtros e botao de impressao individual. Suporta tipo=manutencao ou tipo=processo. -->
+<!-- Observacao: Requer perfil_ativo='admin' ou 'engenheiro'. O botao 'Imprimir' redireciona para impressao_modelo.html. -->
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -80,32 +84,114 @@
       justify-content: space-between;
       align-items: center;
     }
-    
-    .table-tools {
+
+    .panel-header-tools {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-filter {
+      border-color: rgba(7, 66, 56, 0.28);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e63946;
+      color: #fff;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .filter-panel {
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px 10px;
+      margin: 8px 0 10px;
+    }
+
+    .filter-panel.filter-panel-hidden {
+      display: none;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 6px 12px;
+      align-items: end;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .filter-field label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0b6b57;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-field input {
+      border: 1px solid rgba(7, 66, 56, 0.25);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      height: 30px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .filter-field input:focus {
+      border-color: #0b6b57;
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.12);
+    }
+
+    .filter-field-range .range-inputs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .filter-field-range .range-inputs input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .filter-field-range .range-inputs span {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .filter-footer {
       display: flex;
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-      margin: 0 0 10px;
+      margin-top: 8px;
     }
 
-    .table-tools label {
+    .btn-sm {
+      padding: 4px 14px;
       font-size: 12px;
-      font-weight: 700;
-      color: #334155;
-      white-space: nowrap;
-    }
-
-    .table-tools input {
-      width: 280px;
-      max-width: 44vw;
-      min-height: 34px;
-      border: 1px solid rgba(2, 6, 23, 0.16);
-      border-radius: 8px;
-      background: #fff;
-      padding: 6px 10px;
-      font-size: 13px;
-      color: #0f172a;
     }
 
     .left-actions {
@@ -132,11 +218,18 @@
     .pendencias-table th:nth-child(5),
     .pendencias-table td:nth-child(5) { width: 13%; }
     .pendencias-table th:nth-child(6),
-    .pendencias-table td:nth-child(6) { width: 22%; }
+    .pendencias-table td:nth-child(6) { width: 18%; }
     .pendencias-table th:nth-child(7),
-    .pendencias-table td:nth-child(7) { width: 12%; }
+    .pendencias-table td:nth-child(7) { width: 14%; }
     .pendencias-table th:nth-child(8),
     .pendencias-table td:nth-child(8) { width: 8%; text-align: center; }
+
+    .pendencias-table td:nth-child(7) {
+      font-size: 12px;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: keep-all;
+    }
 
     .pendencias-table td:nth-child(8) {
       overflow-wrap: normal;
@@ -160,42 +253,76 @@
       .actions {
         justify-content: center;
       }
-
-      .table-tools {
-        justify-content: flex-start;
-      }
-
-      .table-tools input {
-        width: 100%;
-        max-width: none;
-      }
     }
   </style>
 </head>
+
+<!-- ===== BODY: layout da tela de impressao de fichas ===== -->
 <body>
   <main class="page">
     <section class="panel">
+
+      <!-- ===== Cabecalho: logo, titulo dinamico e botao de filtro ===== -->
+      <!-- O titulo muda conforme o parametro tipo=manutencao|processo na URL -->
       <header class="panel-header">
         <div class="head-main">
+          <!-- Logo GE Vernova -->
           <div class="logo-box">
             <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
           </div>
+          <!-- Titulo da tela (manutencao ou processo) definido dinamicamente pelo JS -->
           <div class="head-text">
             <h1 id="tituloTela">Impress&atilde;o de Fichas</h1>
             <p id="subtituloTela">Perfil: Admin</p>
           </div>
         </div>
+        <!-- Botao que exibe/oculta o painel de filtros -->
+        <div class="panel-header-tools">
+          <button type="button" class="btn btn-filter" id="btnFiltro">Filtro <span class="filter-badge" id="filterBadge" style="display:none">0</span></button>
+        </div>
       </header>
 
-      <div class="table-tools">
-        <label for="filtroNumeroFerramenta">N&ordm; da Ferramenta</label>
-        <input
-          id="filtroNumeroFerramenta"
-          type="search"
-          placeholder="Buscar por n&uacute;mero da ferramenta"
-          autocomplete="off">
+      <!-- ===== Painel de filtros (colapsavel) ===== -->
+      <!-- Filtros: numero da ficha, JOB, ferramenta, descricao, desenho, data de entrega -->
+      <div class="filter-panel filter-panel-hidden" id="filterPanel">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <label for="fNumeroFicha">N&ordm; da Ficha</label>
+            <input id="fNumeroFicha" type="text" placeholder="Filtrar ficha..." autocomplete="off">
+          </div>
+          <div class="filter-field">
+            <label for="fJob">JOB</label>
+            <input id="fJob" type="text" placeholder="Filtrar JOB..." autocomplete="off">
+          </div>
+          <div class="filter-field">
+            <label for="fNumeroFerramenta">N&ordm; da Ferramenta</label>
+            <input id="fNumeroFerramenta" type="text" placeholder="Filtrar ferramenta..." autocomplete="off">
+          </div>
+          <div class="filter-field">
+            <label for="fDescricaoFerramenta">Descri&ccedil;&atilde;o da Ferramenta</label>
+            <input id="fDescricaoFerramenta" type="text" placeholder="Filtrar descri&ccedil;&atilde;o..." autocomplete="off">
+          </div>
+          <div class="filter-field">
+            <label for="fDesenhoFerramenta">N&ordm; Desenho Ferramenta</label>
+            <input id="fDesenhoFerramenta" type="text" placeholder="Filtrar desenho..." autocomplete="off">
+          </div>
+          <div class="filter-field filter-field-range">
+            <label>Data Entrega Evento (SAP)</label>
+            <div class="range-inputs">
+              <input type="date" id="fDataEntregaMin">
+              <span>&ndash;</span>
+              <input type="date" id="fDataEntregaMax">
+            </div>
+          </div>
+        </div>
+        <div class="filter-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnAplicarFiltro">Aplicar filtros</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnLimparFiltro">Limpar</button>
+        </div>
       </div>
 
+      <!-- ===== Tabela de fichas carregada da API ===== -->
+      <!-- Colunas: Numero da Ficha, Data Entrega SAP, AME Resp., JOB, Ferramenta, Descricao, Desenho, Acao -->
       <div class="pendencias-wrap">
         <table class="pendencias-table" aria-label="Tabela de fichas para impress&atilde;o">
           <thead>
@@ -215,6 +342,7 @@
         <div class="empty" id="emptyState" hidden>Nenhuma ficha encontrada.</div>
       </div>
 
+      <!-- Botoes de navegacao: exportar, voltar e logout -->
       <div class="actions">
         <div class="left-actions" id="leftActions"></div>
         <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
@@ -222,6 +350,12 @@
     </section>
   </main>
 
+  <!-- ===== SCRIPT: autenticacao, carregamento e impressao individual de fichas ===== -->
+  <!--
+    Fluxo: verifica perfil -> le tipo da URL -> carrega /api/fichas ->
+    renderiza com renderFichas() -> clique em 'Imprimir' salva no sessionStorage
+    e redireciona para impressao_modelo.html.
+  -->
     <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
@@ -236,11 +370,12 @@
       const tipo = params.get("tipo") === "processo" ? "processo" : "manutencao";
       const API_URL = "/api";
       let fichas = [];
+      let filteredFichas = [];
 
       const tituloTela = document.getElementById("tituloTela");
       const subtituloTela = document.getElementById("subtituloTela");
       if (tituloTela) {
-        tituloTela.textContent = tipo === "processo" ? "Impressao de Fichas de Processo" : "Impressao de Fichas de Manutencao";
+        tituloTela.textContent = tipo === "processo" ? "Impressao de Fichas de Processo" : "Fichas de Manutencao";
       }
       if (subtituloTela) {
         const perfilNomes = {
@@ -260,8 +395,18 @@
 
       const fichasBody = document.getElementById("fichasBody");
       const emptyState = document.getElementById("emptyState");
-      const filtroNumeroFerramenta = document.getElementById("filtroNumeroFerramenta");
-      let termoFiltroFerramenta = "";
+      const btnFiltro = document.getElementById("btnFiltro");
+      const filterPanel = document.getElementById("filterPanel");
+      const filterBadge = document.getElementById("filterBadge");
+      const fNumeroFicha = document.getElementById("fNumeroFicha");
+      const fJob = document.getElementById("fJob");
+      const fNumeroFerramenta = document.getElementById("fNumeroFerramenta");
+      const fDescricaoFerramenta = document.getElementById("fDescricaoFerramenta");
+      const fDesenhoFerramenta = document.getElementById("fDesenhoFerramenta");
+      const fDataEntregaMin = document.getElementById("fDataEntregaMin");
+      const fDataEntregaMax = document.getElementById("fDataEntregaMax");
+      const btnAplicarFiltro = document.getElementById("btnAplicarFiltro");
+      const btnLimparFiltro = document.getElementById("btnLimparFiltro");
 
       function createCell(text) {
         const td = document.createElement("td");
@@ -271,7 +416,7 @@
 
       function repairMojibake(value) {
         let text = String(value || "");
-        if (!/[ÃÂâ]/.test(text)) {
+        if (!/[ÃƒÃ‚Ã¢]/.test(text)) {
           return text;
         }
         for (let i = 0; i < 3; i += 1) {
@@ -284,7 +429,7 @@
               break;
             }
             text = decoded;
-            if (!/[ÃÂâ]/.test(text)) {
+            if (!/[ÃƒÃ‚Ã¢]/.test(text)) {
               break;
             }
           } catch (_error) {
@@ -295,7 +440,11 @@
       }
 
       function normalizeText(value) {
-        return repairMojibake(value).trim().toLowerCase();
+        return repairMojibake(value)
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .trim()
+          .toLowerCase();
       }
 
       function formatDateToBrShort(value) {
@@ -309,6 +458,129 @@
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const day = String(dt.getDate()).padStart(2, "0");
         return day + "-" + monthNames[dt.getMonth()] + "-" + dt.getFullYear();
+      }
+
+      function toDateStamp(value) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+        const raw = String(value).trim();
+        if (!raw) {
+          return null;
+        }
+        let year;
+        let month;
+        let day;
+        let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+          year = Number(match[1]);
+          month = Number(match[2]);
+          day = Number(match[3]);
+        } else {
+          match = raw.match(/^(\d{2})-([A-Za-z]{3})-(\d{4})$/);
+          if (!match) {
+            return null;
+          }
+          const monthMap = {
+            jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+            jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12
+          };
+          day = Number(match[1]);
+          month = monthMap[String(match[2] || "").toLowerCase()] || 0;
+          year = Number(match[3]);
+        }
+        if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day) || month < 1 || month > 12) {
+          return null;
+        }
+        const dt = new Date(Date.UTC(year, month - 1, day));
+        if (
+          dt.getUTCFullYear() !== year ||
+          dt.getUTCMonth() + 1 !== month ||
+          dt.getUTCDate() !== day
+        ) {
+          return null;
+        }
+        return year * 10000 + month * 100 + day;
+      }
+
+      function countActiveFilters() {
+        let count = 0;
+        const values = [
+          fNumeroFicha && fNumeroFicha.value,
+          fJob && fJob.value,
+          fNumeroFerramenta && fNumeroFerramenta.value,
+          fDescricaoFerramenta && fDescricaoFerramenta.value,
+          fDesenhoFerramenta && fDesenhoFerramenta.value,
+          fDataEntregaMin && fDataEntregaMin.value,
+          fDataEntregaMax && fDataEntregaMax.value
+        ];
+        values.forEach((value) => {
+          if (String(value || "").trim() !== "") {
+            count += 1;
+          }
+        });
+        return count;
+      }
+
+      function applyFilters() {
+        const numeroFichaFilter = normalizeText(fNumeroFicha && fNumeroFicha.value);
+        const jobFilter = normalizeText(fJob && fJob.value);
+        const numeroFerramentaFilter = normalizeText(fNumeroFerramenta && fNumeroFerramenta.value);
+        const descricaoFerramentaFilter = normalizeText(fDescricaoFerramenta && fDescricaoFerramenta.value);
+        const desenhoFerramentaFilter = normalizeText(fDesenhoFerramenta && fDesenhoFerramenta.value);
+        const dataEntregaMin = toDateStamp(fDataEntregaMin && fDataEntregaMin.value);
+        const dataEntregaMax = toDateStamp(fDataEntregaMax && fDataEntregaMax.value);
+
+        filteredFichas = fichas.filter((item) => {
+          if (numeroFichaFilter && !normalizeText(item.numero_ficha).includes(numeroFichaFilter)) {
+            return false;
+          }
+          if (jobFilter && !normalizeText(item.job_cabecalho).includes(jobFilter)) {
+            return false;
+          }
+          if (numeroFerramentaFilter && !normalizeText(item.numero_ferramenta).includes(numeroFerramentaFilter)) {
+            return false;
+          }
+          if (descricaoFerramentaFilter && !normalizeText(item.descricao_ferramenta).includes(descricaoFerramentaFilter)) {
+            return false;
+          }
+          if (desenhoFerramentaFilter && !normalizeText(item.numero_desenho_ferramenta).includes(desenhoFerramentaFilter)) {
+            return false;
+          }
+
+          const dataEntregaStamp = toDateStamp(item.data_entrega_evento_sap);
+          if (dataEntregaMin !== null && (dataEntregaStamp === null || dataEntregaStamp < dataEntregaMin)) {
+            return false;
+          }
+          if (dataEntregaMax !== null && (dataEntregaStamp === null || dataEntregaStamp > dataEntregaMax)) {
+            return false;
+          }
+
+          return true;
+        });
+
+        const activeFilterCount = countActiveFilters();
+        if (filterBadge) {
+          if (activeFilterCount > 0) {
+            filterBadge.textContent = String(activeFilterCount);
+            filterBadge.style.display = "";
+          } else {
+            filterBadge.style.display = "none";
+          }
+        }
+
+        renderFichas();
+      }
+
+      let applyFiltersTimer = null;
+      function scheduleApplyFilters() {
+        if (applyFiltersTimer) {
+          clearTimeout(applyFiltersTimer);
+        }
+        applyFiltersTimer = setTimeout(function () {
+          applyFilters();
+          applyFiltersTimer = null;
+        }, 140);
       }
 
       function toFichaTabela(item) {
@@ -327,9 +599,7 @@
 
       function renderFichas() {
         fichasBody.innerHTML = "";
-        const filtradas = termoFiltroFerramenta
-          ? fichas.filter((item) => normalizeText(item.numero_ferramenta).includes(termoFiltroFerramenta))
-          : fichas;
+        const filtradas = Array.isArray(filteredFichas) ? filteredFichas : fichas;
         if (filtradas.length === 0) {
           emptyState.hidden = false;
           return;
@@ -361,7 +631,7 @@
 
       async function carregarFichas() {
         try {
-          const response = await fetch(API_URL + "/fichas", { cache: "no-store" });
+          const response = await fetch(API_URL + "/fichas");
           if (!response.ok) {
             throw new Error("Falha ao carregar fichas");
           }
@@ -370,12 +640,13 @@
         } catch (_error) {
           fichas = [];
         }
-        renderFichas();
+        filteredFichas = fichas.slice();
+        applyFilters();
       }
 
       fichasBody.addEventListener("click", function (event) {
         const target = event.target;
-        if (!(target instanceof HTMLElement)) {
+        if (!(target instanceof Element)) {
           return;
         }
         const button = target.closest("button[data-ficha-id]");
@@ -392,9 +663,46 @@
         window.location.href = "impressao_modelo.html?tipo=" + encodeURIComponent(tipo) + "&ficha=" + encodeURIComponent(ficha.numero_ficha);
       });
 
-      if (filtroNumeroFerramenta) {
-        filtroNumeroFerramenta.addEventListener("input", function () {
-          termoFiltroFerramenta = normalizeText(filtroNumeroFerramenta.value);
+      if (btnFiltro && filterPanel) {
+        btnFiltro.addEventListener("click", function () {
+          filterPanel.classList.toggle("filter-panel-hidden");
+        });
+      }
+
+      if (btnAplicarFiltro) {
+        btnAplicarFiltro.addEventListener("click", applyFilters);
+      }
+
+      const liveFilterInputs = [
+        fNumeroFicha,
+        fJob,
+        fNumeroFerramenta,
+        fDescricaoFerramenta,
+        fDesenhoFerramenta,
+        fDataEntregaMin,
+        fDataEntregaMax
+      ];
+
+      liveFilterInputs.forEach((inputEl) => {
+        if (!inputEl) {
+          return;
+        }
+        inputEl.addEventListener("input", scheduleApplyFilters);
+        inputEl.addEventListener("change", applyFilters);
+      });
+
+      if (btnLimparFiltro) {
+        btnLimparFiltro.addEventListener("click", function () {
+          liveFilterInputs.forEach((inputEl) => {
+            if (!inputEl) {
+              return;
+            }
+            inputEl.value = "";
+          });
+          filteredFichas = fichas.slice();
+          if (filterBadge) {
+            filterBadge.style.display = "none";
+          }
           renderFichas();
         });
       }

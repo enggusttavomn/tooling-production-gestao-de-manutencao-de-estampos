@@ -1,4 +1,8 @@
-﻿-- Criar banco de dados
+﻿-- Arquivo: database/database.sql
+-- Descricao: script SQL do projeto Fichas de Manutencao.
+-- Observacao: cabecalho de documentacao para padronizacao e organizacao.
+
+-- Criar banco de dados
 CREATE DATABASE IF NOT EXISTS fichas_manutencao CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Selecionar banco
@@ -6,6 +10,11 @@ USE fichas_manutencao;
 
 -- Tabela de fichas de manutencao
 CREATE TABLE IF NOT EXISTS fichas (
+-- Notas de manutencao:
+-- - Objetivo: preservar integridade de dados e compatibilidade de schema.
+-- - Cuidado: documentar impacto de alteracoes em colunas e constraints.
+-- - Ao alterar: validar em base local antes de aplicar em ambiente compartilhado.
+
     id INT AUTO_INCREMENT PRIMARY KEY,
     equipamento VARCHAR(255) NOT NULL,
     tag VARCHAR(100) NOT NULL,
@@ -46,3 +55,4 @@ INSERT INTO fichas (equipamento, tag, tipo_manutencao, data_execucao, responsave
 ('Compressor de Ar', 'CA-015', 'corretiva', '2026-02-06', 'Maria Santos', 'Producao', 'Substituicao de valvula de seguranca', 4.0, 'em_andamento'),
 ('Trocador de Calor', 'TC-023', 'preventiva', '2026-02-15', 'Pedro Costa', 'Processo', 'Limpeza quimica e teste de pressao', 6.5, 'pendente'),
 ('Motor Eletrico', 'ME-045', 'preditiva', '2026-02-08', 'Ana Oliveira', 'Manutencao', 'Analise de vibracao e termografia', 3.0, 'concluida');
+

@@ -1,243 +1,759 @@
-<!doctype html>
+﻿<!doctype html>
+<!-- Arquivo: frontend/planejamento.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Tela de planejamento do roteiro da JOB. O engenheiro digita o numero da JOB e visualiza ferramentais, status e prensas. -->
+<!-- Observacao: Requer perfil_ativo='engenheiro', 'admin' ou 'planejamento'. Os blocos sao gerados dinamicamente via JS. -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Planejamento de Roteiro</title>
+  <title>Planejamento de Roteiro da JOB</title>
   <link rel="stylesheet" href="admin.css">
   <style>
     :root {
-      --pl-green-700: #0b6b57;
-      --pl-green-500: #138a6f;
-      --pl-soft-bg: #f7fbf9;
-      --pl-soft-line: rgba(7, 66, 56, 0.2);
+      --pl-900: #03382f;
+      --pl-800: #0a5c4b;
+      --pl-700: #0d6f5a;
+      --pl-600: #138369;
+      --pl-500: #22a17f;
+      --pl-sand: #edf4f1;
+      --pl-mint: #e8f6f1;
+      --pl-line: rgba(6, 46, 38, 0.16);
+      --pl-ink: #0f172a;
+      --pl-muted: #516072;
+      --pl-shadow-soft: 0 10px 18px rgba(2, 6, 23, 0.09);
+      --pl-shadow-strong: 0 14px 24px rgba(2, 6, 23, 0.12);
+      --pl-danger: #a11f1f;
+      --pl-warn: #845400;
+    }
+
+    body {
+      background: linear-gradient(140deg, var(--bg-1), var(--bg-2));
+    }
+
+    body::before {
+      display: none;
     }
 
     .page {
-      max-width: 1420px;
+      max-width: 1560px;
+      padding: 22px 18px 28px;
+    }
+
+    .panel {
+      position: relative;
+      padding: 22px 22px 18px;
+      border-radius: 22px;
+      border-color: rgba(7, 66, 56, 0.18);
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 220px;
+      height: 220px;
+      background: none;
+      pointer-events: none;
+    }
+
+    .panel-header {
+      border-bottom-color: rgba(19, 131, 105, 0.26);
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+    }
+
+    .head-main {
+      gap: 16px;
+      grid-template-columns: 74px minmax(0, 1fr);
+    }
+
+    .logo-box {
+      width: 68px;
+      height: 68px;
+      border-width: 3px;
+      box-shadow: 0 12px 28px rgba(2, 16, 13, 0.22);
+    }
+
+    h1 {
+      font-size: clamp(32px, 3vw, 48px);
+      letter-spacing: 0.01em;
+      color: var(--pl-700);
+      text-shadow: none;
+    }
+
+    #perfilInfo {
+      margin-top: 6px;
+      font-size: 15px;
+      color: var(--pl-muted);
+      font-weight: 700;
     }
 
     .planner-card {
-      border: 1px solid var(--pl-soft-line);
-      border-radius: 14px;
-      background: linear-gradient(180deg, #ffffff, #f3f8f6);
-      padding: 16px;
-      margin-bottom: 14px;
+      position: relative;
+      border: 1px solid var(--pl-line);
+      border-radius: 18px;
+      background: linear-gradient(130deg, #ffffff, #f8fbfa);
+      box-shadow: var(--pl-shadow-soft);
+      padding: 20px 18px 18px;
+      margin-bottom: 16px;
+    }
+
+    .planner-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--pl-500), var(--pl-800));
+    }
+
+    .planner-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .planner-title {
-      margin: 0 0 12px;
+      margin: 0;
       font-family: "Space Grotesk", "Manrope", sans-serif;
-      font-size: 18px;
+      font-size: 24px;
+      line-height: 1;
       font-weight: 800;
-      color: var(--pl-green-700);
+      color: var(--pl-800);
       text-transform: uppercase;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
+    }
+
+    .planner-kicker {
+      margin: 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+      color: var(--pl-700);
+      background: rgba(13, 111, 90, 0.11);
+      border: 1px solid rgba(13, 111, 90, 0.2);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .planner-hint {
+      margin: 0 0 14px;
+      color: var(--pl-muted);
+      font-size: 14px;
+      font-weight: 700;
     }
 
     .planner-search {
       display: grid;
-      grid-template-columns: 110px minmax(260px, 420px) auto;
+      grid-template-columns: 86px minmax(320px, 520px) auto;
       gap: 12px;
-      align-items: center;
+      align-items: start;
     }
 
     .planner-search label {
       font-weight: 800;
-      font-size: 16px;
-      color: #0f172a;
+      font-size: 15px;
+      color: var(--pl-ink);
       text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 14px;
+    }
+
+    .planner-input-wrap {
+      display: grid;
+      gap: 6px;
     }
 
     .planner-search input {
-      min-height: 42px;
-      border: 1px solid #bfd2cb;
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 0 10px;
-      font-size: 18px;
+      min-height: 52px;
+      border: 1px solid rgba(10, 92, 75, 0.38);
+      background: linear-gradient(140deg, #ffffff, #f8fcfa);
+      border-radius: 12px;
+      padding: 0 16px;
+      font-size: 22px;
       font-weight: 800;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
+      color: #071620;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96);
     }
 
     .planner-search input:focus {
-      outline: 2px solid rgba(19, 138, 111, 0.28);
-      border-color: #138a6f;
+      outline: 3px solid rgba(19, 131, 105, 0.24);
+      border-color: var(--pl-600);
+    }
+
+    .input-help {
+      font-size: 12px;
+      color: #4c5b6d;
+      font-weight: 700;
+      letter-spacing: 0.01em;
     }
 
     .planner-btn {
-      min-height: 42px;
-      padding: 0 20px;
-      border: 1px solid rgba(7, 66, 56, 0.3);
-      border-radius: 8px;
-      background: linear-gradient(145deg, var(--pl-green-500), var(--pl-green-700));
+      min-height: 54px;
+      padding: 0 26px;
+      border: 1px solid rgba(5, 52, 42, 0.35);
+      border-radius: 12px;
+      background: linear-gradient(130deg, var(--pl-500), var(--pl-800));
       color: #fff;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 800;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
       cursor: pointer;
       justify-self: start;
+      box-shadow: 0 8px 14px rgba(2, 6, 23, 0.14);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .planner-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 18px rgba(2, 6, 23, 0.16);
+    }
+
+    .planner-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.76;
+      transform: none;
+      box-shadow: 0 4px 8px rgba(2, 6, 23, 0.08);
     }
 
     .planner-results {
       display: grid;
-      gap: 12px;
+      gap: 14px;
     }
 
     .planner-block {
-      border: 1px solid var(--pl-soft-line);
-      border-radius: 12px;
-      background: #f8fbfa;
+      border: 1px solid var(--pl-line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
       overflow: hidden;
-      box-shadow: 0 8px 16px rgba(2, 6, 23, 0.06);
+      box-shadow: var(--pl-shadow-strong);
+      animation: planner-rise 0.35s ease;
+    }
+
+    @keyframes planner-rise {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .planner-block-head {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--pl-soft-line);
-      background: linear-gradient(180deg, #e8f2ee, #e2efea);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--pl-line);
+      background: linear-gradient(180deg, #e5f4ee, #dcf0e8);
+    }
+
+    .planner-head-main {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .planner-head-side {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-left: auto;
     }
 
     .planner-key {
-      display: grid;
-      grid-template-columns: auto 1fr;
+      display: flex;
       gap: 8px;
       align-items: center;
+      min-height: 30px;
+      border: 1px solid rgba(7, 66, 56, 0.16);
+      border-radius: 10px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.75);
+      white-space: nowrap;
     }
 
     .planner-key span {
       font-size: 12px;
       font-weight: 800;
-      color: var(--pl-green-700);
+      color: var(--pl-900);
       text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
 
     .planner-key strong {
-      font-size: 14px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #09121c;
+      letter-spacing: 0.02em;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 800;
-      color: #0f172a;
+      background: rgba(255, 255, 255, 0.84);
+      color: #223245;
+      border: 1px solid rgba(34, 50, 69, 0.2);
+      white-space: nowrap;
+    }
+
+    .meta-chip strong {
+      font-size: 13px;
+      font-weight: 900;
+      color: #071b2a;
+    }
+
+    .meta-chip.warn {
+      color: var(--pl-warn);
+      border-color: rgba(132, 84, 0, 0.22);
+      background: #fff7df;
+    }
+
+    .meta-chip.cancel {
+      color: var(--pl-danger);
+      border-color: rgba(161, 31, 31, 0.22);
+      background: #ffe9e9;
+    }
+
+    .meta-chip.empty {
+      color: #526276;
+      border-color: rgba(82, 98, 118, 0.22);
+      background: #f1f5f9;
     }
 
     .planner-wrap {
       overflow-x: auto;
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff, #f8fbfa);
     }
 
     .planner-table {
       width: 100%;
-      min-width: 980px;
-      border-collapse: collapse;
+      min-width: 1160px;
+      border-collapse: separate;
+      border-spacing: 0;
       table-layout: fixed;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .planner-table th,
     .planner-table td {
-      border: 1px solid rgba(2, 6, 23, 0.15);
-      padding: 8px 8px;
+      border-right: 1px solid rgba(15, 23, 42, 0.1);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+      padding: 10px 8px;
       vertical-align: middle;
     }
 
     .planner-table th {
-      background: #dceee6;
-      color: var(--pl-green-700);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(180deg, #0d705c, #0a5c4b);
+      color: #effff9;
       text-transform: uppercase;
       font-size: 12px;
       font-weight: 800;
+      letter-spacing: 0.05em;
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
+      border-bottom: none;
     }
 
     .planner-table td {
       background: #fff;
-      color: #111827;
-      font-weight: 600;
+      color: #0f1d2d;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .planner-table th:last-child,
+    .planner-table td:last-child {
+      border-right: none;
+    }
+
+    .planner-table tbody td:empty::after {
+      content: "\00a0";
     }
 
     .planner-table tbody tr:nth-child(even) td {
-      background: #f8fbfa;
+      background: #f4faf7;
+    }
+
+    .planner-table tbody tr:hover td {
+      background: #e8f6f0;
     }
 
     .planner-table td.status-cell {
-      font-weight: 800;
-      text-transform: none;
+      font-weight: 900;
     }
 
-    .planner-table td.status-cell.status-ok {
-      background: #a9d99b;
-      color: #111827;
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 900;
+      border: 1px solid transparent;
     }
 
-    .planner-table td.status-cell.status-warn {
-      background: #fff36a;
-      color: #c91f1f;
+    .status-pill.status-ok {
+      background: #d8f2de;
+      border-color: rgba(22, 110, 35, 0.22);
+      color: #155724;
     }
 
-    .planner-table td.status-cell.status-cancel {
-      background: #a9d99b;
-      color: #111827;
+    .status-pill.status-warn {
+      background: #fff4cc;
+      border-color: rgba(132, 84, 0, 0.26);
+      color: #714e00;
     }
 
-    .planner-table td.tipo-destaque {
-      color: #0b4db8;
-      font-weight: 800;
+    .status-pill.status-cancel {
+      background: #fee6e6;
+      border-color: rgba(161, 31, 31, 0.24);
+      color: #8b1d1d;
     }
 
-    .planner-empty {
-      border: 1px dashed rgba(7, 66, 56, 0.3);
-      border-radius: 10px;
-      padding: 14px;
-      text-align: center;
-      color: #475569;
+    .status-pill.status-neutral {
+      background: #edf2f7;
+      border-color: rgba(61, 77, 96, 0.2);
+      color: #4b5a6d;
+    }
+
+    .type-value {
+      color: #1f324a;
       font-weight: 700;
-      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .type-value.type-highlight {
+      color: #0b4db8;
+      font-weight: 900;
+    }
+
+    .press-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #eaf4ff;
+      color: #0b4db8;
+      border: 1px solid rgba(11, 77, 184, 0.24);
+    }
+
+    .muted-cell {
+      color: #8693a4;
+      font-weight: 700;
+    }
+
+    .planner-table th:nth-child(1),
+    .planner-table td:nth-child(1) {
+      width: 176px;
+    }
+
+    .planner-table th:nth-child(2),
+    .planner-table td:nth-child(2) {
+      width: 188px;
+    }
+
+    .planner-table th:nth-child(3),
+    .planner-table td:nth-child(3) {
+      width: 220px;
+    }
+
+    .planner-table th:nth-child(4),
+    .planner-table td:nth-child(4) {
+      width: 150px;
+    }
+
+    .planner-table th:nth-child(5),
+    .planner-table td:nth-child(5) {
+      width: 210px;
+    }
+
+    .planner-table th:nth-child(7),
+    .planner-table td:nth-child(7) {
+      width: 150px;
     }
 
     .actions {
       justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .planner-block-loading .planner-wrap {
+      display: none;
+    }
+
+    .planner-loading {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      background: linear-gradient(180deg, #ffffff, #f8fbfa);
+    }
+
+    .planner-loading span {
+      display: block;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #e3eaef, #f1f5f9, #e3eaef);
+      background-size: 200% 100%;
+      animation: loading-wave 1.25s linear infinite;
+    }
+
+    .planner-loading span:nth-child(1) { width: 92%; }
+    .planner-loading span:nth-child(2) { width: 80%; }
+    .planner-loading span:nth-child(3) { width: 88%; }
+
+    @keyframes loading-wave {
+      from {
+        background-position: 200% 0;
+      }
+      to {
+        background-position: -200% 0;
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .planner-search {
+        grid-template-columns: 80px minmax(280px, 1fr) auto;
+      }
+
+      .planner-btn {
+        width: 100%;
+      }
     }
 
     @media (max-width: 900px) {
+      .panel {
+        padding: 18px 16px;
+      }
+
+      h1 {
+        font-size: clamp(26px, 6vw, 34px);
+      }
+
+      .planner-title {
+        font-size: 20px;
+      }
+
       .planner-search {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .planner-search label {
+        font-size: 15px;
+        padding-top: 0;
+      }
+
+      .planner-search input {
+        font-size: 20px;
+      }
+
+      .planner-btn {
+        font-size: 14px;
+        justify-self: stretch;
+      }
+
+      .planner-block-head,
+      .planner-head-main,
+      .planner-head-side {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .planner-head-side {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 12px 8px 18px;
+      }
+
+      .panel {
+        border-radius: 16px;
+        padding: 14px 10px;
+      }
+
+      .head-main {
+        grid-template-columns: 58px minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .logo-box {
+        width: 56px;
+        height: 56px;
+      }
+
+      .planner-card {
+        border-radius: 14px;
+        padding: 15px 12px 13px;
+      }
+
+      .planner-title {
+        font-size: 18px;
+      }
+
+      .planner-hint {
+        font-size: 13px;
+      }
+
+      .planner-wrap {
+        overflow: visible;
+        background: none;
+        padding: 10px;
+      }
+
+      .planner-table {
+        min-width: 0;
+        border-spacing: 0 10px;
+      }
+
+      .planner-table thead {
+        display: none;
+      }
+
+      .planner-table tbody {
+        display: grid;
+        gap: 10px;
+      }
+
+      .planner-table tbody tr {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 8px 16px rgba(2, 16, 13, 0.09);
+      }
+
+      .planner-table tbody tr:nth-child(even) td,
+      .planner-table tbody tr:hover td {
+        background: transparent;
+      }
+
+      .planner-table td {
+        border: none;
+        padding: 0;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 114px minmax(0, 1fr);
+        gap: 8px;
+        align-items: start;
+        background: transparent;
+      }
+
+      .planner-table td::before {
+        content: attr(data-label);
+        font-size: 11px;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 900;
+        color: #496073;
+      }
+
+      .planner-table td.status-cell {
         grid-template-columns: 1fr;
       }
 
-      .planner-block-head {
-        grid-template-columns: 1fr;
+      .planner-table td.status-cell::before {
+        display: none;
+      }
+
+      .status-pill {
+        justify-content: flex-start;
+      }
+
+      .actions {
+        gap: 10px;
+      }
+
+      .actions .btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
       }
     }
   </style>
 </head>
+<!-- ===== BODY: layout da tela de planejamento por JOB ===== -->
 <body>
   <main class="page">
     <section class="panel">
+
+      <!-- ===== Cabecalho: logo e titulo da tela ===== -->
       <header class="panel-header">
         <div class="head-main">
+          <!-- Logo GE Vernova -->
           <div class="logo-box">
             <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
           </div>
+          <!-- Titulo e perfil do usuario autenticado -->
           <div class="head-text">
             <h1>Planejamento de Roteiro da JOB</h1>
-            <p id="perfilInfo">Perfil Engenheiro de Processo</p>
+            <p id="perfilInfo">Perfil do Engenheiro de Processo</p>
           </div>
         </div>
       </header>
 
-      <section class="planner-card" aria-label="Busca por job para planejamento">
-        <h2 class="planner-title">Planejamento</h2>
+      <!-- ===== Card de busca: campo para digitar o numero da JOB ===== -->
+      <section class="planner-card" aria-label="Busca de JOB para planejamento">
+        <div class="planner-title-row">
+          <h2 class="planner-title">Planejamento</h2>
+          <p class="planner-kicker">Roteiro da JOB</p>
+        </div>
+        <p class="planner-hint">Digite a JOB para visualizar os dados abaixo: status, desenho, ferramental e prensa.</p>
+        <!-- Campo de busca: JOB + botao Gerar Bloco -->
         <div class="planner-search">
           <label for="jobInput">JOB</label>
-          <input id="jobInput" name="job" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 2280091">
-          <button type="button" class="btn planner-btn" id="btnGerar">Gerar bloco</button>
+          <div class="planner-input-wrap">
+            <input id="jobInput" name="job" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 2280091">
+            <small class="input-help">Use o mesmo codigo exibido na ficha para retorno exato no banco.</small>
+          </div>
+          <button type="button" class="btn planner-btn" id="btnGerar">Gerar Bloco</button>
         </div>
       </section>
 
-      <section class="planner-results" id="plannerResults" aria-live="polite">
-        <div class="planner-empty" id="plannerEmpty">Digite uma JOB e clique em "Gerar bloco".</div>
-      </section>
+      <!-- ===== Area de resultados: blocos de ferramentais gerados dinamicamente pelo JS ===== -->
+      <section class="planner-results" id="plannerResults" aria-live="polite"></section>
 
+      <!-- Botoes de navegacao: voltar e logout -->
       <div class="actions">
         <a class="btn btn-outline" href="engenheiro.html">Voltar</a>
         <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
@@ -245,11 +761,16 @@
     </section>
   </main>
 
+  <!-- ===== SCRIPT: autenticacao, busca por JOB e geracao de blocos de planejamento ===== -->
+  <!--
+    Fluxo: verifica perfil -> clique 'Gerar Bloco' -> chama /api/fichas?job=X
+    -> agrupa por ferramental -> renderiza planner-block com tabela de status.
+  -->
   <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
       const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
-      const perfisPermitidos = ["engenheiro", "admin"];
+      const perfisPermitidos = ["engenheiro", "admin", "planejamento"];
       if (!perfisPermitidos.includes(perfilAtivo)) {
         window.location.replace("login.html");
         return;
@@ -259,7 +780,12 @@
       if (perfilInfo) {
         const partesUsuario = usuarioAtivo.split(":");
         const nomeUsuario = partesUsuario.slice(1).join(":").trim();
-        const perfilNome = perfilAtivo === "admin" ? "Admin (visao do engenheiro)" : "Engenheiro de Processo";
+        let perfilNome = "Engenheiro de Processo";
+        if (perfilAtivo === "admin") {
+          perfilNome = "Admin (visao do engenheiro)";
+        } else if (perfilAtivo === "planejamento") {
+          perfilNome = "Planejamento";
+        }
         perfilInfo.textContent = nomeUsuario ? ("Perfil " + perfilNome + ": " + nomeUsuario) : ("Perfil " + perfilNome);
       }
 
@@ -272,88 +798,179 @@
         });
       }
 
-      const jobsBase = {
-        "2280091": {
-          job: "2280091",
-          jobIrma: "2852242/2",
-          rows: [
-            { status: "Corrigir Roteiro", statusClass: "status-warn", tipoLamina: "L&acirc;m. Estator", tipoDestaque: true, desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "No roteiro", statusClass: "status-ok", tipoLamina: "L&acirc;m. Excitatriz", desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "Incluir no Roteiro", statusClass: "status-warn", tipoLamina: "L&acirc;m. Extremidade", desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "Cancelado", statusClass: "status-cancel", tipoLamina: "L&acirc;m. Facetada", desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "NA", statusClass: "status-ok", tipoLamina: "L&acirc;m. Rotor", tipoDestaque: true, desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "No roteiro", statusClass: "status-ok", tipoLamina: "L&acirc;m. Sep Ext.", desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" },
-            { status: "No roteiro", statusClass: "status-ok", tipoLamina: "L&acirc;m. Sep. Int.", desenho: "", pt: "", numeroFerramenta: "", descricaoFerramenta: "", prensa: "" }
-          ]
-        }
-      };
-
       function normalizeJob(value) {
-        return String(value || "").replace(/[^0-9A-Za-z-]/g, "").trim();
+        return String(value || "").replace(/\s+/g, "").toUpperCase().trim();
       }
 
-      function getDataFromPendencias(jobValue) {
-        const raw = sessionStorage.getItem("engenheiro_pendencias");
-        if (!raw) {
+      function statusClassFromText(status) {
+        const normalized = String(status || "").trim().toLowerCase();
+        if (!normalized) {
+          return "status-neutral";
+        }
+        if (normalized.includes("cancel")) {
+          return "status-cancel";
+        }
+        if (normalized.includes("corrigir") || normalized.includes("incluir")) {
+          return "status-warn";
+        }
+        return "status-ok";
+      }
+
+      function tipoDestaque(tipoLamina) {
+        const normalized = String(tipoLamina || "").toLowerCase();
+        return normalized.includes("rotor") || normalized.includes("estator");
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function displayCell(value) {
+        const normalized = String(value || "").trim();
+        if (!normalized) {
+          return '<span class="muted-cell">-</span>';
+        }
+        return escapeHtml(normalized);
+      }
+
+      async function getDataFromApi(jobValue) {
+        const response = await fetch("/api/fichas?search=" + encodeURIComponent(jobValue));
+        if (!response.ok) {
+          throw new Error("Falha ao consultar os dados no banco.");
+        }
+
+        const rows = await response.json();
+        if (!Array.isArray(rows)) {
           return null;
         }
-        try {
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) {
-            return null;
-          }
-          const found = parsed.find(function (item) {
-            return normalizeJob(item && item.job_cabecalho_engenheiro) === jobValue;
-          });
-          if (!found) {
-            return null;
-          }
-          return {
-            job: jobValue,
-            jobIrma: "",
-            rows: [
-              {
-                status: String(found.status || "NA"),
-                statusClass: "status-warn",
-                tipoLamina: "L&acirc;m. Estator",
-                tipoDestaque: true,
-                desenho: String(found.numero_desenho_ferramenta_engenheiro || ""),
-                pt: "",
-                numeroFerramenta: String(found.numero_ferramenta_engenheiro || ""),
-                descricaoFerramenta: String(found.descricao_ferramenta_engenheiro || ""),
-                prensa: ""
-              }
-            ]
-          };
-        } catch (_error) {
+
+        const filteredRows = rows.filter(function (row) {
+          return normalizeJob(row && row.job) === jobValue;
+        });
+
+        if (filteredRows.length === 0) {
           return null;
         }
+
+        const jobIrmas = Array.from(
+          new Set(
+            filteredRows
+              .map(function (row) { return String((row && row.job_envolvidas) || "").trim(); })
+              .filter(function (value) { return value && value.toUpperCase() !== "NA"; })
+          )
+        );
+
+        return {
+          job: jobValue,
+          jobIrma: jobIrmas.length ? jobIrmas.join(" | ") : "NA",
+          totalLinhas: filteredRows.length,
+          rows: filteredRows.map(function (row) {
+            const status = String((row && (row.status_roteiro || row.status)) || "").trim();
+            const tipoLamina = String((row && (row.tipo_lamina_processo || row.tipo_manutencao)) || "").trim();
+            return {
+              status: status,
+              statusClass: statusClassFromText(status),
+              tipoLamina: tipoLamina,
+              tipoDestaque: tipoDestaque(tipoLamina),
+              desenho: String((row && (row.numero_desenho_ferramental || row.desenhos)) || "").trim(),
+              pt: String((row && (row.pt || row.area)) || "").trim(),
+              numeroFerramenta: String((row && (row.numero_ferramental || row.codigo_ferramenta)) || "").trim(),
+              descricaoFerramenta: String((row && (row.descricao_ferramenta || row.descricao)) || "").trim(),
+              prensa: String((row && row.prensa) || "").trim()
+            };
+          })
+        };
+      }
+
+      function buildStatusSummary(rows) {
+        return rows.reduce(function (acc, row) {
+          const status = String((row && row.status) || "").trim();
+          if (!status) {
+            acc.empty += 1;
+            return acc;
+          }
+          if ((row && row.statusClass) === "status-warn") {
+            acc.warn += 1;
+          } else if ((row && row.statusClass) === "status-cancel") {
+            acc.cancel += 1;
+          } else {
+            acc.ok += 1;
+          }
+          return acc;
+        }, { ok: 0, warn: 0, cancel: 0, empty: 0 });
+      }
+
+      function renderPlannerHeader(data) {
+        const summary = buildStatusSummary(data.rows || []);
+        const chips = [];
+        chips.push('<span class="meta-chip">Linhas <strong>' + String(data.totalLinhas || 0) + "</strong></span>");
+        if (summary.warn > 0) {
+          chips.push('<span class="meta-chip warn">Ajustar <strong>' + String(summary.warn) + "</strong></span>");
+        }
+        if (summary.cancel > 0) {
+          chips.push('<span class="meta-chip cancel">Cancelado <strong>' + String(summary.cancel) + "</strong></span>");
+        }
+        if (!data.isLoading && (data.totalLinhas || 0) === 0) {
+          chips.push('<span class="meta-chip empty">Sem dados no banco</span>');
+        }
+
+        return (
+          '<div class="planner-block-head">' +
+            '<div class="planner-head-main">' +
+              '<div class="planner-key"><span>JOB</span><strong>' + escapeHtml(data.job || "--") + "</strong></div>" +
+              '<div class="planner-key"><span>JOB Irma</span><strong>' + escapeHtml(data.jobIrma || "NA") + "</strong></div>" +
+            "</div>" +
+            '<div class="planner-head-side">' + chips.join("") + "</div>" +
+          "</div>"
+        );
+      }
+
+      function renderLoadingBlock(jobValue) {
+        return (
+          '<article class="planner-block planner-block-loading">' +
+            renderPlannerHeader({ job: jobValue || "--", jobIrma: "...", totalLinhas: 0, rows: [], isLoading: true }) +
+            '<div class="planner-loading">' +
+              "<span></span>" +
+              "<span></span>" +
+              "<span></span>" +
+            "</div>" +
+          "</article>"
+        );
       }
 
       function renderPlannerBlock(data) {
         const rowsHtml = data.rows.map(function (row) {
-          const statusClass = String(row.statusClass || "status-ok");
-          const tipoClass = row.tipoDestaque ? ' class="tipo-destaque"' : "";
+          const statusClass = String(row.statusClass || "status-neutral");
+          const tipoClass = row.tipoDestaque ? "type-highlight" : "";
+          const statusText = row.status ? escapeHtml(row.status) : "Sem status";
+          const tipoHtml = row.tipoLamina
+            ? '<span class="type-value ' + tipoClass + '">' + escapeHtml(row.tipoLamina) + "</span>"
+            : '<span class="muted-cell">-</span>';
+          const prensaHtml = row.prensa
+            ? '<span class="press-tag">' + escapeHtml(row.prensa) + "</span>"
+            : '<span class="muted-cell">-</span>';
+
           return (
             "<tr>" +
-              '<td class="status-cell ' + statusClass + '">' + String(row.status || "") + "</td>" +
-              "<td" + tipoClass + ">" + String(row.tipoLamina || "") + "</td>" +
-              "<td>" + String(row.desenho || "") + "</td>" +
-              "<td>" + String(row.pt || "") + "</td>" +
-              "<td>" + String(row.numeroFerramenta || "") + "</td>" +
-              "<td>" + String(row.descricaoFerramenta || "") + "</td>" +
-              "<td>" + String(row.prensa || "") + "</td>" +
+              '<td class="status-cell" data-label="Status Roteiro"><span class="status-pill ' + statusClass + '">' + statusText + "</span></td>" +
+              '<td data-label="Tipo da Lamina">' + tipoHtml + "</td>" +
+              '<td data-label="Desenho">' + displayCell(row.desenho) + "</td>" +
+              '<td data-label="PT">' + displayCell(row.pt) + "</td>" +
+              '<td data-label="N. Ferramenta">' + displayCell(row.numeroFerramenta) + "</td>" +
+              '<td data-label="Descricao da Ferramenta">' + displayCell(row.descricaoFerramenta) + "</td>" +
+              '<td data-label="Prensa">' + prensaHtml + "</td>" +
             "</tr>"
           );
         }).join("");
 
         return (
           '<article class="planner-block">' +
-            '<div class="planner-block-head">' +
-              '<div class="planner-key"><span>JOB</span><strong>' + String(data.job || "") + "</strong></div>" +
-              '<div class="planner-key"><span>JOB Irm&atilde;</span><strong>' + String(data.jobIrma || "") + "</strong></div>" +
-              '<div class="planner-key"><span>Linhas geradas</span><strong>' + String(data.rows.length) + "</strong></div>" +
-            "</div>" +
+            renderPlannerHeader(data) +
             '<div class="planner-wrap">' +
               '<table class="planner-table" aria-label="Tabela de planejamento da JOB">' +
                 "<thead><tr>" +
@@ -372,36 +989,74 @@
         );
       }
 
+      function buildBlankRows(count) {
+        const rows = [];
+        for (let i = 0; i < count; i += 1) {
+          rows.push({
+            status: "",
+            statusClass: "status-neutral",
+            tipoLamina: "",
+            tipoDestaque: false,
+            desenho: "",
+            pt: "",
+            numeroFerramenta: "",
+            descricaoFerramenta: "",
+            prensa: ""
+          });
+        }
+        return rows;
+      }
+
+      function buildEmptyPlannerData(jobValue) {
+        return {
+          job: jobValue || "",
+          jobIrma: "",
+          totalLinhas: 0,
+          rows: buildBlankRows(7)
+        };
+      }
+
       const jobInput = document.getElementById("jobInput");
       const btnGerar = document.getElementById("btnGerar");
       const plannerResults = document.getElementById("plannerResults");
-      const plannerEmpty = document.getElementById("plannerEmpty");
 
-      function gerarBloco() {
+      async function gerarBloco() {
         const jobValue = normalizeJob(jobInput ? jobInput.value : "");
         if (!jobValue) {
-          alert("Digite uma JOB valida para gerar o bloco.");
-          if (jobInput) {
-            jobInput.focus();
+          plannerResults.innerHTML = renderPlannerBlock(buildEmptyPlannerData(""));
+          return;
+        }
+
+        if (btnGerar) {
+          btnGerar.disabled = true;
+          btnGerar.textContent = "Carregando...";
+        }
+
+        plannerResults.innerHTML = renderLoadingBlock(jobValue);
+
+        try {
+          const data = await getDataFromApi(jobValue);
+          if (!data) {
+            plannerResults.innerHTML = renderPlannerBlock(buildEmptyPlannerData(jobValue));
+            return;
           }
-          return;
+          plannerResults.innerHTML = renderPlannerBlock(data);
+        } catch (_error) {
+          alert("Nao foi possivel carregar os dados do banco para esta JOB.");
+          plannerResults.innerHTML = renderPlannerBlock(buildEmptyPlannerData(jobValue));
+        } finally {
+          if (btnGerar) {
+            btnGerar.disabled = false;
+            btnGerar.textContent = "Gerar Bloco";
+          }
         }
-
-        const data = jobsBase[jobValue] || getDataFromPendencias(jobValue);
-        if (!data) {
-          alert("JOB " + jobValue + " nao encontrada na base de exemplo.");
-          return;
-        }
-
-        if (plannerEmpty && plannerEmpty.parentElement) {
-          plannerEmpty.remove();
-        }
-        plannerResults.insertAdjacentHTML("beforeend", renderPlannerBlock(data));
       }
 
       if (btnGerar) {
         btnGerar.addEventListener("click", gerarBloco);
       }
+
+      plannerResults.innerHTML = renderPlannerBlock(buildEmptyPlannerData(""));
 
       if (jobInput) {
         jobInput.addEventListener("keydown", function (event) {
@@ -415,3 +1070,5 @@
   </script>
 </body>
 </html>
+
+

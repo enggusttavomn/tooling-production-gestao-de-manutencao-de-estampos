@@ -1,0 +1,1075 @@
+﻿<!doctype html>
+<!-- Arquivo: frontend/planejamento_estampos.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Tela do plano de manutencao de estampos. Lista todos os ferramentais com status, vida util, golpes e datas. Suporta filtros e impressao. -->
+<!-- Observacao: Requer acesso autenticado. Os dados sao carregados de /api/fichas e renderizados na pendencias-table. -->
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plano de Manuten&ccedil;&atilde;o de Estampos</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .page {
+      height: 100vh;
+      max-width: none;
+      padding: 10px 14px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      flex-shrink: 0;
+    }
+
+    .panel-header-tools {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    @media print {
+      html, body { height: auto; overflow: visible; }
+      .page { height: auto; overflow: visible; padding: 0; }
+      .panel { overflow: visible; flex: none; }
+      .pendencias-wrap { overflow: visible; flex: none; height: auto; }
+      .filter-panel { display: none !important; }
+      .actions { display: none; }
+    }
+
+    .btn-print {
+      border-color: rgba(7, 66, 56, 0.32);
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #f6fffc;
+    }
+
+    .btn-filter {
+      border-color: rgba(7, 66, 56, 0.28);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e63946;
+      color: #fff;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .filter-panel {
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.97);
+      border: 1px solid rgba(7, 66, 56, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px 10px;
+      margin-top: 8px;
+    }
+
+    .filter-panel.filter-panel-hidden {
+      display: none;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 6px 12px;
+      align-items: end;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .filter-field label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #0b6b57;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-field input,
+    .filter-field select {
+      border: 1px solid rgba(7, 66, 56, 0.25);
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #0f172a;
+      background: #fff;
+      outline: none;
+      height: 30px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .filter-field input:focus,
+    .filter-field select:focus {
+      border-color: #0b6b57;
+      box-shadow: 0 0 0 2px rgba(11, 107, 87, 0.12);
+    }
+
+    .filter-field-range .range-inputs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .filter-field-range .range-inputs input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .filter-field-range-number .range-inputs input {
+      max-width: 86px;
+    }
+
+    .filter-field-range-date .range-inputs input {
+      max-width: 126px;
+    }
+
+    .filter-field-range .range-inputs span {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .filter-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-sm {
+      padding: 4px 14px;
+      font-size: 12px;
+    }
+
+    .pendencias-wrap {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+      border: 1px solid rgba(2, 6, 23, 0.12);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(2, 6, 23, 0.08);
+      margin-top: 8px;
+    }
+
+    .pendencias-table {
+      width: 100%;
+      min-width: 2140px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .pendencias-table thead th {
+      background: #0b6b57;
+      color: #fff;
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: normal;
+      line-height: 1.25;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .pendencias-table thead th:last-child {
+      border-right: none;
+    }
+
+    .pendencias-table tbody td {
+      border-top: 1px solid rgba(2, 6, 23, 0.12);
+      padding: 9px 8px;
+      vertical-align: middle;
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.92);
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .pendencias-table tbody tr:nth-child(even) td {
+      background: rgba(238, 246, 243, 0.9);
+    }
+
+    .pendencias-table tbody tr:hover td {
+      background: rgba(227, 241, 236, 0.95);
+    }
+
+    .pendencias-table th:nth-child(1),
+    .pendencias-table td:nth-child(1) { width: 8%; }
+    .pendencias-table th:nth-child(2),
+    .pendencias-table td:nth-child(2) { width: 11%; }
+    .pendencias-table th:nth-child(3),
+    .pendencias-table td:nth-child(3) { width: 6%; text-align: center; }
+    .pendencias-table th:nth-child(4),
+    .pendencias-table td:nth-child(4) { width: 10%; }
+    .pendencias-table th:nth-child(5),
+    .pendencias-table td:nth-child(5) { width: 12%; }
+    .pendencias-table th:nth-child(6),
+    .pendencias-table td:nth-child(6) { width: 11%; text-align: center; }
+    .pendencias-table th:nth-child(7),
+    .pendencias-table td:nth-child(7) { width: 11%; text-align: center; }
+    .pendencias-table th:nth-child(8),
+    .pendencias-table td:nth-child(8) { width: 12%; }
+    .pendencias-table th:nth-child(9),
+    .pendencias-table td:nth-child(9) { width: 11%; text-align: center; }
+    .pendencias-table th:nth-child(10),
+    .pendencias-table td:nth-child(10) { width: 10%; text-align: center; }
+    .pendencias-table th:nth-child(11),
+    .pendencias-table td:nth-child(11) { width: 7%; text-align: center; }
+    .pendencias-table th:nth-child(12),
+    .pendencias-table td:nth-child(12) { width: 8%; text-align: center; }
+    .pendencias-table th:nth-child(13),
+    .pendencias-table td:nth-child(13) { width: 8%; text-align: center; }
+    .pendencias-table th:nth-child(14),
+    .pendencias-table td:nth-child(14) { width: 8%; text-align: center; }
+
+    .life-mm {
+      font-weight: 800;
+      border-radius: 6px;
+      padding: 4px 6px;
+      display: inline-block;
+      min-width: 60px;
+    }
+
+    .life-mm.life-good {
+      background: #e9f8f4;
+      color: #0b6b57;
+    }
+
+    .life-mm.life-warn {
+      background: #fff6dd;
+      color: #7c5300;
+    }
+
+    .life-mm.life-crit {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .empty {
+      padding: 16px;
+      text-align: center;
+      color: #6b7280;
+      font-weight: 700;
+    }
+
+    .is-center {
+      text-align: center;
+    }
+
+    .actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .left-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      border-color: rgba(7, 66, 56, 0.32);
+      background: linear-gradient(145deg, #137f67, #0b6b57);
+      color: #f6fffc;
+    }
+
+    .btn-secondary {
+      border-color: rgba(7, 66, 56, 0.3);
+      background: linear-gradient(145deg, #ffffff, #eef4f1);
+      color: #0b6b57;
+    }
+
+    .btn-outline {
+      border-color: rgba(2, 6, 23, 0.18);
+      background: #ffffff;
+      color: #334155;
+    }
+
+  </style>
+</head>
+<!-- ===== BODY: layout do plano de manutencao de estampos ===== -->
+<body>
+  <main class="page">
+    <section class="panel">
+
+      <!-- ===== Cabecalho: logo GE, titulo e botoes de filtro/impressao ===== -->
+      <header class="panel-header">
+        <div class="head-main">
+          <div class="logo-box">
+            <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
+          </div>
+          <div class="head-text">
+            <h1>Plano de Manuten&ccedil;&atilde;o de Estampos</h1>
+            <p id="perfilInfo">Gerenciamento de rotina de manuten&ccedil;&atilde;o preventiva</p>
+          </div>
+        </div>
+        <div class="panel-header-tools">
+          <button type="button" class="btn btn-filter" id="btnFiltro">Filtro <span class="filter-badge" id="filterBadge" style="display:none">0</span></button>
+          <button type="button" class="btn btn-print" id="btnImprimir">Impress&atilde;o</button>
+        </div>
+      </header>
+
+      <!-- ===== Painel de filtros (colapsavel): busca por JOB, ferramental, prensa, status e faixas de data/numero ===== -->
+      <div class="filter-panel filter-panel-hidden" id="filterPanel">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <label for="fJob">JOB</label>
+            <input type="text" id="fJob" placeholder="Filtrar JOB...">
+          </div>
+          <div class="filter-field">
+            <label for="fFerramental">N&ordm; Ferramental</label>
+            <input type="text" id="fFerramental" placeholder="Filtrar ferramental...">
+          </div>
+          <div class="filter-field">
+            <label for="fPrensa">Prensa</label>
+            <select id="fPrensa"><option value="">Todas</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fFrnr">Status FRNR</label>
+            <select id="fFrnr"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fEntrega">Status Entrega</label>
+            <select id="fEntrega"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fLob">Status Ferramenta LOB</label>
+            <select id="fLob"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fFerramentaria">Status Ferramentaria</label>
+            <select id="fFerramentaria"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-field">
+            <label for="fFicha">Emitido Ficha</label>
+            <select id="fFicha"><option value="">Todos</option></select>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-number">
+            <label>Vida &Uacute;til (mm)</label>
+            <div class="range-inputs">
+              <input type="number" id="fVidaMin" placeholder="M&iacute;n" step="0.01" min="0">
+              <span>&ndash;</span>
+              <input type="number" id="fVidaMax" placeholder="M&aacute;x" step="0.01" min="0">
+            </div>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-date">
+            <label>Envio p/ Ferramentaria</label>
+            <div class="range-inputs">
+              <input type="date" id="fDataPrevistaMin">
+              <span>&ndash;</span>
+              <input type="date" id="fDataPrevistaMax">
+            </div>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-date">
+            <label>Emiss&atilde;o REQ Ferramenta</label>
+            <div class="range-inputs">
+              <input type="date" id="fDataEmissaoMin">
+              <span>&ndash;</span>
+              <input type="date" id="fDataEmissaoMax">
+            </div>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-date">
+            <label>T&eacute;rmino Avalia&ccedil;&atilde;o KIT</label>
+            <div class="range-inputs">
+              <input type="date" id="fDataTerminoMin">
+              <span>&ndash;</span>
+              <input type="date" id="fDataTerminoMax">
+            </div>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-number">
+            <label>Autom&aacute;tico Total de Golpes</label>
+            <div class="range-inputs">
+              <input type="number" id="fGolpesMin" placeholder="M&iacute;n" step="1" min="0">
+              <span>&ndash;</span>
+              <input type="number" id="fGolpesMax" placeholder="M&aacute;x" step="1" min="0">
+            </div>
+          </div>
+          <div class="filter-field filter-field-range filter-field-range-number">
+            <label>Qtde de uso do estampo</label>
+            <div class="range-inputs">
+              <input type="number" id="fUsoMin" placeholder="M&iacute;n" step="1" min="0">
+              <span>&ndash;</span>
+              <input type="number" id="fUsoMax" placeholder="M&aacute;x" step="1" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="filter-footer">
+          <button type="button" class="btn btn-secondary btn-sm" id="btnAplicarFiltro">Aplicar filtros</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnLimparFiltro">Limpar</button>
+        </div>
+      </div>
+
+      <!-- ===== Tabela de estampos: 14 colunas com dados de planejamento, status e datas ===== -->
+      <div class="pendencias-wrap">
+        <table class="pendencias-table" aria-label="Tabela de planejamento de manuten&ccedil;&atilde;o de estampos">
+          <thead>
+            <tr>
+              <th>JOB</th>
+              <th>N&ordm; Ferramental</th>
+              <th>Prensa</th>
+              <th>Status FRNR</th>
+              <th>Status da Entrega da Ferramenta</th>
+              <th>Data prevista de envio p/ ferramentaria</th>
+              <th>Data de Emiss&atilde;o da REQ Ferramenta</th>
+              <th>Status da Ferramenta LOB</th>
+              <th>Data Termino da Avalia&ccedil;&atilde;o - Entrega KIT</th>
+              <th>Status Ferramentaria</th>
+              <th>Vida Util Atual (mm)</th>
+              <th>Autom&aacute;tico Total de Golpes</th>
+              <th>Emitido Ficha de Manuten&ccedil;&atilde;o</th>
+              <th>Qtde de uso do estampo</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="14" class="empty">Carregando dados...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Botoes de acao: exportar dados como CSV e fazer logout -->
+      <div class="actions">
+        <div class="left-actions">
+          <button type="button" class="btn btn-secondary" id="btnExportar">Exportar CSV</button>
+        </div>
+        <div class="left-actions">
+          <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== SCRIPT: autenticacao, carregamento de dados, filtros e exportacao CSV ===== -->
+  <!--
+    Fluxo: verifica perfil -> busca /api/fichas -> popula selects de filtro
+    -> renderiza linhas da tabela -> aplica filtros -> exporta CSV.
+  -->
+  <script>
+    (function () {
+      const perfilAtivo = String(sessionStorage.getItem("perfil_ativo") || "").trim().toLowerCase();
+      const usuarioAtivo = sessionStorage.getItem("usuario_ativo") || "";
+      const perfisPermitidos = ["engenheiro", "admin", "planejamento", "ferramenteiro", "producao"];
+      if (perfisPermitidos.indexOf(perfilAtivo) === -1) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      const perfilInfo = document.getElementById("perfilInfo");
+      if (perfilInfo) {
+        const perfilNomes = {
+          admin: "Administrador",
+          engenheiro: "Engenheiro de Processo",
+          planejamento: "Planejamento",
+          ferramenteiro: "Ferramenteiro",
+          producao: "Producao"
+        };
+        const partesUsuario = usuarioAtivo.split(":");
+        const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
+        const nomeUsuario = partesUsuario.slice(1).join(":").trim();
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuario";
+        perfilInfo.textContent = nomeUsuario ? ("Perfil " + perfilLabel + ": " + nomeUsuario) : ("Perfil " + perfilLabel);
+      }
+
+      const API_URL = "/api";
+      const FICHAS_CACHE_KEY = "cache_fichas_rows_v1";
+      const FICHAS_CACHE_TTL_MS = 120000;
+      const tableBody = document.getElementById("tableBody");
+      const btnImprimir = document.getElementById("btnImprimir");
+      const btnExportar = document.getElementById("btnExportar");
+      const btnSair = document.getElementById("btnSair");
+      const btnFiltro = document.getElementById("btnFiltro");
+      const filterPanel = document.getElementById("filterPanel");
+      const filterBadge = document.getElementById("filterBadge");
+      const fJob = document.getElementById("fJob");
+      const fFerramental = document.getElementById("fFerramental");
+      const fPrensa = document.getElementById("fPrensa");
+      const fFrnr = document.getElementById("fFrnr");
+      const fEntrega = document.getElementById("fEntrega");
+      const fLob = document.getElementById("fLob");
+      const fFerramentaria = document.getElementById("fFerramentaria");
+      const fFicha = document.getElementById("fFicha");
+      const fVidaMin = document.getElementById("fVidaMin");
+      const fVidaMax = document.getElementById("fVidaMax");
+      const fDataPrevistaMin = document.getElementById("fDataPrevistaMin");
+      const fDataPrevistaMax = document.getElementById("fDataPrevistaMax");
+      const fDataEmissaoMin = document.getElementById("fDataEmissaoMin");
+      const fDataEmissaoMax = document.getElementById("fDataEmissaoMax");
+      const fDataTerminoMin = document.getElementById("fDataTerminoMin");
+      const fDataTerminoMax = document.getElementById("fDataTerminoMax");
+      const fGolpesMin = document.getElementById("fGolpesMin");
+      const fGolpesMax = document.getElementById("fGolpesMax");
+      const fUsoMin = document.getElementById("fUsoMin");
+      const fUsoMax = document.getElementById("fUsoMax");
+      const btnAplicarFiltro = document.getElementById("btnAplicarFiltro");
+      const btnLimparFiltro = document.getElementById("btnLimparFiltro");
+
+      let rows = [];
+      let filteredRows = [];
+
+      function readFichasCache() {
+        try {
+          const raw = sessionStorage.getItem(FICHAS_CACHE_KEY);
+          if (!raw) {
+            return null;
+          }
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.rows)) {
+            return null;
+          }
+          const ts = Number(parsed.ts || 0);
+          if (!ts || Date.now() - ts > FICHAS_CACHE_TTL_MS) {
+            return null;
+          }
+          return parsed.rows;
+        } catch (_error) {
+          return null;
+        }
+      }
+
+      function writeFichasCache(rowsValue) {
+        try {
+          sessionStorage.setItem(
+            FICHAS_CACHE_KEY,
+            JSON.stringify({ ts: Date.now(), rows: Array.isArray(rowsValue) ? rowsValue : [] })
+          );
+        } catch (_error) {
+          // ignore cache errors
+        }
+      }
+
+      function formatDate(value) {
+        if (!value) {
+          return "-";
+        }
+        const raw = String(value).trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+          return raw;
+        }
+        const parts = raw.split("-");
+        return parts[2] + "/" + parts[1] + "/" + parts[0];
+      }
+
+      function toDateStamp(value) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+        const rawValue = String(value).trim();
+        if (!rawValue) {
+          return null;
+        }
+        const raw = rawValue.length >= 10 ? rawValue.slice(0, 10) : rawValue;
+
+        let year;
+        let month;
+        let day;
+        let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+          year = Number(match[1]);
+          month = Number(match[2]);
+          day = Number(match[3]);
+        } else {
+          match = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+          if (!match) {
+            return null;
+          }
+          day = Number(match[1]);
+          month = Number(match[2]);
+          year = Number(match[3]);
+        }
+
+        if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+          return null;
+        }
+
+        const dt = new Date(Date.UTC(year, month - 1, day));
+        if (
+          dt.getUTCFullYear() !== year ||
+          dt.getUTCMonth() + 1 !== month ||
+          dt.getUTCDate() !== day
+        ) {
+          return null;
+        }
+
+        return (year * 10000) + (month * 100) + day;
+      }
+
+      function parseOptionalNumber(value) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+        const numeric = Number(value);
+        return Number.isFinite(numeric) ? numeric : null;
+      }
+
+      function normalizeRange(minValue, maxValue) {
+        if (minValue !== null && maxValue !== null && minValue > maxValue) {
+          return { min: maxValue, max: minValue };
+        }
+        return { min: minValue, max: maxValue };
+      }
+
+      function formatDecimal(value) {
+        if (value === null || value === undefined || value === "") {
+          return "-";
+        }
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return String(value);
+        }
+        return numeric.toFixed(2);
+      }
+
+      function formatInteger(value) {
+        if (value === null || value === undefined || value === "") {
+          return "-";
+        }
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return String(value);
+        }
+        return String(Math.trunc(numeric));
+      }
+
+      function toPlannerRow(item) {
+        return {
+          job: String(item.job || "").trim(),
+          numeroFerramental: String(item.numero_ferramental || "").trim(),
+          prensa: String(item.prensa || "").trim(),
+          statusFrnr: String(item.status_frnr || "").trim(),
+          statusEntregaFerramenta: String(item.status_entrega_ferramental || "").trim(),
+          dataPrevistaEnvio: item.data_envio_ferramentaria || "",
+          dataEmissaoReqFerramenta: item.data_emissao_requisicao || "",
+          statusFerramentaLobPcp: String(item.status_ferramental || item.status_ferramental_lob || "").trim(),
+          dataTerminoAvaliacaoKit: item.data_termino_avaliacao_kit || item.data_termino_producao || "",
+          statusFerramentaria: String(item.status_roteiro || "").trim(),
+          vidaUtilAtualMm: item.vida_util_ferramenta,
+          automaticoTotalGolpes: item.qtde_total_golpes_ferramenta || item.total_golpes_final || "",
+          emitidoFichaManutencao: String(item.ficha_processo || "").trim(),
+          qtdeUsoEstampo: item.qtde_uso_ferramenta || ""
+        };
+      }
+
+      function createCell(text, className) {
+        const td = document.createElement("td");
+        td.textContent = text;
+        if (className) {
+          td.className = className;
+        }
+        return td;
+      }
+
+      function lifeClass(value) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) {
+          return "";
+        }
+        if (num <= 2.5) {
+          return "life-crit";
+        }
+        if (num <= 5) {
+          return "life-warn";
+        }
+        return "life-good";
+      }
+
+      function renderTable(data) {
+        tableBody.innerHTML = "";
+        if (!data.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 14;
+          td.className = "empty";
+          td.textContent = "Nenhum registro encontrado.";
+          tr.appendChild(td);
+          tableBody.appendChild(tr);
+          return;
+        }
+
+        data.forEach(function (row) {
+          const tr = document.createElement("tr");
+          tr.appendChild(createCell(row.job || "-"));
+          tr.appendChild(createCell(row.numeroFerramental || "-"));
+          tr.appendChild(createCell(row.prensa || "-", "is-center"));
+          tr.appendChild(createCell(row.statusFrnr || "-"));
+          tr.appendChild(createCell(row.statusEntregaFerramenta || "-"));
+          tr.appendChild(createCell(formatDate(row.dataPrevistaEnvio), "is-center"));
+          tr.appendChild(createCell(formatDate(row.dataEmissaoReqFerramenta), "is-center"));
+          tr.appendChild(createCell(row.statusFerramentaLobPcp || "-"));
+          tr.appendChild(createCell(formatDate(row.dataTerminoAvaliacaoKit), "is-center"));
+          tr.appendChild(createCell(row.statusFerramentaria || "-", "is-center"));
+
+          const tdVida = document.createElement("td");
+          const mm = document.createElement("span");
+          mm.className = "life-mm " + lifeClass(row.vidaUtilAtualMm);
+          mm.textContent = formatDecimal(row.vidaUtilAtualMm);
+          tdVida.appendChild(mm);
+          tr.appendChild(tdVida);
+
+          tr.appendChild(createCell(formatInteger(row.automaticoTotalGolpes), "is-center"));
+          tr.appendChild(createCell(row.emitidoFichaManutencao, "is-center"));
+          tr.appendChild(createCell(formatInteger(row.qtdeUsoEstampo), "is-center"));
+          tableBody.appendChild(tr);
+        });
+      }
+
+      function buildCsv(data) {
+        const header = [
+          "JOB",
+          "N_FERRAMENTAL",
+          "PRENSA",
+          "STATUS_FRNR",
+          "STATUS_ENTREGA_FERRAMENTA",
+          "DATA_PREVISTA_ENVIO_FERRAMENTARIA",
+          "DATA_EMISSAO_REQ_FERRAMENTA",
+          "STATUS_FERRAMENTA_LOB_PCP",
+          "DATA_TERMINO_AVALIACAO_ENTREGA_KIT",
+          "STATUS_FERRAMENTA_LIBERADO_PRODUCAO",
+          "VIDA_UTIL_ATUAL_MM",
+          "AUTOMATICO_TOTAL_GOLPES_ACUMULADOS",
+          "EMITIDO_FICHA_MANUTENCAO",
+          "QTDE_USO_ESTAMPO"
+        ];
+        const lines = [header.join(",")];
+
+        data.forEach(function (row) {
+          const values = [
+            row.job || "",
+            row.numeroFerramental || "",
+            row.prensa || "",
+            row.statusFrnr || "",
+            row.statusEntregaFerramenta || "",
+            formatDate(row.dataPrevistaEnvio),
+            formatDate(row.dataEmissaoReqFerramenta),
+            row.statusFerramentaLobPcp || "",
+            formatDate(row.dataTerminoAvaliacaoKit),
+            row.statusFerramentaria || "",
+            formatDecimal(row.vidaUtilAtualMm),
+            formatInteger(row.automaticoTotalGolpes),
+            row.emitidoFichaManutencao || "",
+            formatInteger(row.qtdeUsoEstampo)
+          ];
+
+          const escaped = values.map(function (value) {
+            const text = String(value || "");
+            return '"' + text.replace(/"/g, '""') + '"';
+          });
+          lines.push(escaped.join(","));
+        });
+
+        return lines.join("\n");
+      }
+
+      function exportCsv() {
+        const csv = buildCsv(filteredRows);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "plano_manutencao_estampos.csv";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      }
+
+      async function loadRows() {
+        tableBody.innerHTML = '<tr><td colspan="14" class="empty">Carregando dados...</td></tr>';
+        let renderedFromCache = false;
+        const cachedRows = readFichasCache();
+        if (cachedRows) {
+          rows = cachedRows.map(toPlannerRow);
+          filteredRows = rows.slice();
+          populateSelects();
+          renderTable(filteredRows);
+          renderedFromCache = true;
+        }
+
+        try {
+          const response = await fetch(API_URL + "/fichas");
+          if (!response.ok) {
+            throw new Error("Falha ao carregar dados");
+          }
+          const result = await response.json();
+          writeFichasCache(result);
+          rows = Array.isArray(result) ? result.map(toPlannerRow) : [];
+          filteredRows = rows.slice();
+          populateSelects();
+          renderTable(filteredRows);
+        } catch (_error) {
+          if (renderedFromCache) {
+            return;
+          }
+          rows = [];
+          filteredRows = [];
+          tableBody.innerHTML = '<tr><td colspan="14" class="empty">N&atilde;o foi poss&iacute;vel carregar os dados da tabela.</td></tr>';
+        }
+      }
+
+      function populateSelect(selectEl, values) {
+        const current = selectEl.value;
+        while (selectEl.options.length > 1) { selectEl.remove(1); }
+        values.slice().sort().forEach(function (v) {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v || "(vazio)";
+          selectEl.appendChild(opt);
+        });
+        if (current) { selectEl.value = current; }
+      }
+
+      function populateSelects() {
+        function unique(key) {
+          const seen = {};
+          const out = [];
+          rows.forEach(function (r) {
+            const v = String(r[key] || "").trim();
+            if (v && v !== "-" && !seen[v]) { seen[v] = true; out.push(v); }
+          });
+          return out;
+        }
+        populateSelect(fPrensa, unique("prensa"));
+        populateSelect(fFrnr, unique("statusFrnr"));
+        populateSelect(fEntrega, unique("statusEntregaFerramenta"));
+        populateSelect(fLob, unique("statusFerramentaLobPcp"));
+        populateSelect(fFerramentaria, unique("statusFerramentaria"));
+        populateSelect(fFicha, unique("emitidoFichaManutencao"));
+      }
+
+      function countActiveFilters() {
+        let n = 0;
+        if (fJob.value.trim()) { n++; }
+        if (fFerramental.value.trim()) { n++; }
+        if (fPrensa.value) { n++; }
+        if (fFrnr.value) { n++; }
+        if (fEntrega.value) { n++; }
+        if (fLob.value) { n++; }
+        if (fFerramentaria.value) { n++; }
+        if (fFicha.value) { n++; }
+        if (fVidaMin.value !== "") { n++; }
+        if (fVidaMax.value !== "") { n++; }
+        if (fDataPrevistaMin.value) { n++; }
+        if (fDataPrevistaMax.value) { n++; }
+        if (fDataEmissaoMin.value) { n++; }
+        if (fDataEmissaoMax.value) { n++; }
+        if (fDataTerminoMin.value) { n++; }
+        if (fDataTerminoMax.value) { n++; }
+        if (fGolpesMin.value !== "") { n++; }
+        if (fGolpesMax.value !== "") { n++; }
+        if (fUsoMin.value !== "") { n++; }
+        if (fUsoMax.value !== "") { n++; }
+        return n;
+      }
+
+      function applyFilters() {
+        const job = fJob.value.trim().toLowerCase();
+        const ferramental = fFerramental.value.trim().toLowerCase();
+        const prensa = fPrensa.value;
+        const frnr = fFrnr.value;
+        const entrega = fEntrega.value;
+        const lob = fLob.value;
+        const ferramentaria = fFerramentaria.value;
+        const ficha = fFicha.value;
+        const vidaRange = normalizeRange(parseOptionalNumber(fVidaMin.value), parseOptionalNumber(fVidaMax.value));
+        const dataPrevistaRange = normalizeRange(toDateStamp(fDataPrevistaMin.value), toDateStamp(fDataPrevistaMax.value));
+        const dataEmissaoRange = normalizeRange(toDateStamp(fDataEmissaoMin.value), toDateStamp(fDataEmissaoMax.value));
+        const dataTerminoRange = normalizeRange(toDateStamp(fDataTerminoMin.value), toDateStamp(fDataTerminoMax.value));
+        const golpesRange = normalizeRange(parseOptionalNumber(fGolpesMin.value), parseOptionalNumber(fGolpesMax.value));
+        const usoRange = normalizeRange(parseOptionalNumber(fUsoMin.value), parseOptionalNumber(fUsoMax.value));
+
+        filteredRows = rows.filter(function (row) {
+          if (job && !(row.job || "").toLowerCase().includes(job)) { return false; }
+          if (ferramental && !(row.numeroFerramental || "").toLowerCase().includes(ferramental)) { return false; }
+          if (prensa && row.prensa !== prensa) { return false; }
+          if (frnr && row.statusFrnr !== frnr) { return false; }
+          if (entrega && row.statusEntregaFerramenta !== entrega) { return false; }
+          if (lob && row.statusFerramentaLobPcp !== lob) { return false; }
+          if (ferramentaria && row.statusFerramentaria !== ferramentaria) { return false; }
+          if (ficha && row.emitidoFichaManutencao !== ficha) { return false; }
+          if (vidaRange.min !== null || vidaRange.max !== null) {
+            const v = parseOptionalNumber(row.vidaUtilAtualMm);
+            if (v === null) { return false; }
+            if (vidaRange.min !== null && v < vidaRange.min) { return false; }
+            if (vidaRange.max !== null && v > vidaRange.max) { return false; }
+          }
+          if (dataPrevistaRange.min !== null || dataPrevistaRange.max !== null) {
+            const d = toDateStamp(row.dataPrevistaEnvio);
+            if (d === null) { return false; }
+            if (dataPrevistaRange.min !== null && d < dataPrevistaRange.min) { return false; }
+            if (dataPrevistaRange.max !== null && d > dataPrevistaRange.max) { return false; }
+          }
+          if (dataEmissaoRange.min !== null || dataEmissaoRange.max !== null) {
+            const d = toDateStamp(row.dataEmissaoReqFerramenta);
+            if (d === null) { return false; }
+            if (dataEmissaoRange.min !== null && d < dataEmissaoRange.min) { return false; }
+            if (dataEmissaoRange.max !== null && d > dataEmissaoRange.max) { return false; }
+          }
+          if (dataTerminoRange.min !== null || dataTerminoRange.max !== null) {
+            const d = toDateStamp(row.dataTerminoAvaliacaoKit);
+            if (d === null) { return false; }
+            if (dataTerminoRange.min !== null && d < dataTerminoRange.min) { return false; }
+            if (dataTerminoRange.max !== null && d > dataTerminoRange.max) { return false; }
+          }
+          if (golpesRange.min !== null || golpesRange.max !== null) {
+            const v = parseOptionalNumber(row.automaticoTotalGolpes);
+            if (v === null) { return false; }
+            if (golpesRange.min !== null && v < golpesRange.min) { return false; }
+            if (golpesRange.max !== null && v > golpesRange.max) { return false; }
+          }
+          if (usoRange.min !== null || usoRange.max !== null) {
+            const v = parseOptionalNumber(row.qtdeUsoEstampo);
+            if (v === null) { return false; }
+            if (usoRange.min !== null && v < usoRange.min) { return false; }
+            if (usoRange.max !== null && v > usoRange.max) { return false; }
+          }
+          return true;
+        });
+
+        const count = countActiveFilters();
+        if (count > 0) {
+          filterBadge.textContent = count;
+          filterBadge.style.display = "";
+        } else {
+          filterBadge.style.display = "none";
+        }
+        renderTable(filteredRows);
+      }
+
+      let applyFiltersTimer = null;
+      function scheduleApplyFilters() {
+        if (applyFiltersTimer) {
+          clearTimeout(applyFiltersTimer);
+        }
+        applyFiltersTimer = setTimeout(function () {
+          applyFilters();
+          applyFiltersTimer = null;
+        }, 180);
+      }
+
+      if (btnImprimir) {
+        btnImprimir.addEventListener("click", function () {
+          window.print();
+        });
+      }
+
+      btnExportar.addEventListener("click", exportCsv);
+
+      if (btnFiltro) {
+        btnFiltro.addEventListener("click", function () {
+          filterPanel.classList.toggle("filter-panel-hidden");
+        });
+      }
+
+      if (btnAplicarFiltro) {
+        btnAplicarFiltro.addEventListener("click", applyFilters);
+      }
+
+      [fJob, fFerramental].forEach(function (inputEl) {
+        if (!inputEl) { return; }
+        inputEl.addEventListener("input", scheduleApplyFilters);
+      });
+
+      [
+        fPrensa,
+        fFrnr,
+        fEntrega,
+        fLob,
+        fFerramentaria,
+        fFicha,
+        fDataPrevistaMin,
+        fDataPrevistaMax,
+        fDataEmissaoMin,
+        fDataEmissaoMax,
+        fDataTerminoMin,
+        fDataTerminoMax
+      ].forEach(function (inputEl) {
+        if (!inputEl) { return; }
+        inputEl.addEventListener("change", applyFilters);
+      });
+
+      [fVidaMin, fVidaMax, fGolpesMin, fGolpesMax, fUsoMin, fUsoMax].forEach(function (inputEl) {
+        if (!inputEl) { return; }
+        inputEl.addEventListener("input", scheduleApplyFilters);
+      });
+
+      if (btnLimparFiltro) {
+        btnLimparFiltro.addEventListener("click", function () {
+          fJob.value = "";
+          fFerramental.value = "";
+          fPrensa.value = "";
+          fFrnr.value = "";
+          fEntrega.value = "";
+          fLob.value = "";
+          fFerramentaria.value = "";
+          fFicha.value = "";
+          fVidaMin.value = "";
+          fVidaMax.value = "";
+          fDataPrevistaMin.value = "";
+          fDataPrevistaMax.value = "";
+          fDataEmissaoMin.value = "";
+          fDataEmissaoMax.value = "";
+          fDataTerminoMin.value = "";
+          fDataTerminoMax.value = "";
+          fGolpesMin.value = "";
+          fGolpesMax.value = "";
+          fUsoMin.value = "";
+          fUsoMax.value = "";
+          filterBadge.style.display = "none";
+          filteredRows = rows.slice();
+          renderTable(filteredRows);
+        });
+      }
+
+      btnSair.addEventListener("click", function () {
+        sessionStorage.removeItem("perfil_ativo");
+        sessionStorage.removeItem("usuario_ativo");
+        window.location.replace("login.html");
+      });
+
+      loadRows();
+    })();
+  </script>
+</body>
+</html>
+

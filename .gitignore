@@ -23,6 +23,13 @@ _tmp/
 _tmp_pdf/
 _pdf_renders/
 *.log
+__bg_test_*.txt
+__probe_*.log
+__comments_*.txt
+
+# Runtime artifacts in reorganized backend
+backend/logs/
+backend/tmp/
 
 # Editor/OS
 .vscode/

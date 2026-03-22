@@ -1,9 +1,24 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&family=Space+Grotesk:wght@500;700&display=swap");
+﻿/*
+ * Arquivo: frontend/login.css
+ * Descricao: Estilos da tela de login. Define layout centralizado com card de autenticacao, logo GE e inputs de usuario/senha.
+ * Observacao: Importa fonte Manrope via Google Fonts; variaveis de cores definidas em :root.
+ */
+
+/* ===== IMPORTACOES E VARIAVEIS GLOBAIS ===== */
+
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&family=Space+Grotesk:wght@500;700&display=swap");
 
 :root{
   --gv-900:#043c33;
   --gv-700:#0b6b57;
   --gv-500:#138a6f;
+/*
+ * Notas de manutencao:
+ * - Objetivo: manter consistencia visual entre telas.
+ * - Cuidado: evitar impacto global em seletores reutilizados.
+ * - Ao alterar: revisar responsividade e estados de componentes.
+ */
+
   --ink:#0f172a;
   --muted:#6b7280;
   --bg-1:#f5f8f6;
@@ -17,6 +32,7 @@
   --danger-tx:#b91c1c;
 }
 
+/* ===== BASE DA PAGINA E FUNDO GRADIENTE ===== */
 body{
   margin:0;
   font-family:"Manrope","Segoe UI",Arial,sans-serif;
@@ -59,6 +75,7 @@ body::after{
   opacity:.7;
 }
 
+/* ===== LOGO GE: posicionado no canto superior direito ===== */
 /* logo GE topo direito */
 .brand{
   position:fixed;
@@ -96,6 +113,7 @@ body::after{
   opacity:.97;
 }
 
+/* ===== CARD DE LOGIN: container central com inputs e botao ===== */
 /* CARD */
 .card{
   width:min(520px, 92vw);
@@ -268,6 +286,7 @@ button:active{
   font-size:12px;
 }
 
+/* ===== RESPONSIVIDADE ===== */
 @media (max-width:520px){
   .card{
     padding:72px 22px 24px;
@@ -283,3 +302,4 @@ button:active{
     font-size:28px;
   }
 }
+

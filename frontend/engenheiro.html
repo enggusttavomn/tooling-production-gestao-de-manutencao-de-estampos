@@ -1,89 +1,134 @@
-<!doctype html>
+﻿<!doctype html>
+<!-- Arquivo: frontend/engenheiro.html -->
+<!-- Notas de manutencao: objetivo=preservar estrutura da tela; cuidado=nao quebrar ids/classes usados pelo JS; ao alterar=testar fluxo completo da pagina. -->
+<!-- Descricao: Painel de menu do Engenheiro de Processo (AME). Exibe tiles para fichas, planejamento e consultas. -->
+<!-- Observacao: Requer perfil_ativo='engenheiro' no sessionStorage; redireciona para login.html caso contrario. -->
 <html lang="pt-BR">
+
+<!-- ===== HEAD: configuracoes basicas da pagina ===== -->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel de Gerenciamento</title>
+  <title>Painel do Engenheiro</title>
+  <!-- Estilos compartilhados do painel (admin.css) -->
   <link rel="stylesheet" href="admin.css">
 </head>
+
+<!-- ===== BODY: layout do painel de navegacao ===== -->
 <body>
   <main class="page">
     <section class="panel">
+
+      <!-- ===== Cabecalho do painel: logo, titulo e acesso ao dashboard ===== -->
       <header class="panel-header">
-        <div class="head-main">
+        <div class="head-main head-main-with-dashboard">
+          <!-- Logo da GE Vernova -->
           <div class="logo-box">
             <img src="assets/gevernova_logo.jpg" alt="GE Vernova">
           </div>
+          <!-- Titulo do menu e perfil do usuario autenticado -->
           <div class="head-text">
-            <h1>Menu de An&aacute;lise de Eventos AME Estamparia</h1>
-            <p id="perfilInfo">Perfil Engenheiro de Processo</p>
+            <h1>MENU - AME Estamparia</h1>
+            <p id="perfilInfo">Perfil do Engenheiro de Processo</p>
           </div>
+          <!-- Botao de atalho para o Dashboard -->
+          <a class="btn-dashboard-top" href="dashboard.html">DASHBOARD</a>
         </div>
       </header>
 
-      <div class="menu-grid">
-        <a class="menu-tile flag" href="engenheiro_pendencias.html">
-          <span class="tile-top">AME</span>
-          <span class="tile-line">An&aacute;lise de eventos</span>
-          <span class="tile-line">INSERIR JOB</span>
-        </a>
+      <!-- ===== Grade de tiles de navegacao por setor ===== -->
+      <div class="menu-groups">
 
-        <a class="menu-tile" href="impressao_fichas.html?tipo=manutencao">
-          <span class="tile-top">AME</span>
-          <span class="tile-line">Imprimir ficha de manuten&ccedil;&atilde;o</span>
-        </a>
+        <!-- Grupo AME: fichas, plano de manutencao, processo, sufixo e consulta de vida -->
+        <section class="tile-group" aria-labelledby="grupoAmeTitulo">
+          <div class="tile-group-head">
+            <h2 class="tile-group-title" id="grupoAmeTitulo">AME</h2>
+          </div>
+          <div class="menu-grid menu-grid-group">
+            <a class="menu-tile flag" href="engenheiro_pendencias.html">
+              <span class="tile-top">JOB</span>
+              <span class="tile-line tile-line-nowrap">An&aacute;lise de eventos e Inser&ccedil;&atilde;o</span>
+            </a>
 
-        <a class="menu-tile flag" href="#">
-          <span class="tile-top">AME</span>
-          <span class="tile-line">An&aacute;lise de eventos</span>
-        </a>
+            <a class="menu-tile" href="impressao_fichas.html?tipo=manutencao">
+              <span class="tile-top">Ficha de Manuten&ccedil;&atilde;o</span>
+              <span class="tile-line">An&aacute;lise e Impress&atilde;o</span>
+            </a>
 
-        <a class="menu-tile" href="impressao_fichas.html?tipo=processo">
-          <span class="tile-top">AME</span>
-          <span class="tile-line">Imprimir ficha de processo</span>
-        </a>
+            <a class="menu-tile" href="planejamento_estampos.html">
+              <span class="tile-top">PLANO DE MANUTEN&Ccedil;&Atilde;O</span>
+              <span class="tile-line">An&aacute;lise e Impress&atilde;o</span>
+            </a>
 
-        <a class="menu-tile" href="producao.html">
-          <span class="tile-top">Produ&ccedil;&atilde;o</span>
-          <span class="tile-line">Lan&ccedil;ar dados da ficha de</span>
-          <span class="tile-line">manuten&ccedil;&atilde;o</span>
-        </a>
+            <a class="menu-tile menu-tile-dev" data-dev-label="Em desenvolvimento" href="impressao_fichas.html?tipo=processo">
+              <span class="tile-top">Ficha de Processo</span>
+              <span class="tile-line">An&aacute;lise e Impress&atilde;o</span>
+            </a>
 
-        <a class="menu-tile flag" href="#">
-          <span class="tile-top">Incluir</span>
-          <span class="tile-line">Novo sufixo</span>
-        </a>
+            <a class="menu-tile menu-tile-dev flag" data-dev-label="Em desenvolvimento" href="#">
+              <span class="tile-top">SUFIXO</span>
+              <span class="tile-line">Consulta e Inclus&atilde;o</span>
+            </a>
 
-        <a class="menu-tile" href="ferramenteiro.html">
-          <span class="tile-top">Ferramenteiro</span>
-          <span class="tile-line">Lan&ccedil;ar dados da ficha de</span>
-          <span class="tile-line">manuten&ccedil;&atilde;o</span>
-        </a>
+            <a class="menu-tile" href="consulta_vida_baixa.html">
+              <span class="tile-top">Consulta</span>
+              <span class="tile-line tile-line-nowrap">Ferramentas com vida baixa &lt; 2 mm</span>
+            </a>
+          </div>
+        </section>
 
-        <a class="menu-tile flag" href="#">
-          <span class="tile-top">Consulta</span>
-          <span class="tile-line">Ferramentas com vida baixa</span>
-          <span class="tile-line">&lt; 2 mm</span>
-        </a>
+        <!-- Grupos laterais: Ferramenteiro e Producao -->
+        <div class="tile-group-row">
+          <!-- Grupo Ferramenteiro: acesso a tela de preenchimento das fichas -->
+          <section class="tile-group" aria-labelledby="grupoFerramenteiro">
+            <div class="tile-group-head">
+              <h2 class="tile-group-title" id="grupoFerramenteiro">Ferramenteiro</h2>
+            </div>
+            <div class="menu-grid menu-grid-group menu-grid-single">
+              <a class="menu-tile" href="ferramenteiro.html">
+                <span class="tile-top">Ferramenteiro</span>
+                <span class="tile-line tile-line-nowrap">Inserir dados das fichas de manuten&ccedil;&atilde;o</span>
+              </a>
+            </div>
+          </section>
 
-        <a class="menu-tile flag" href="planejamento.html">
-          <span class="tile-top">Planejamento</span>
-          <span class="tile-line">Gerar dados para incluir no</span>
-          <span class="tile-line">roteiro da JOB</span>
-        </a>
+          <!-- Grupo Producao -->
+          <section class="tile-group" aria-labelledby="grupoProducao">
+            <div class="tile-group-head">
+              <h2 class="tile-group-title" id="grupoProducao">Produ&ccedil;&atilde;o</h2>
+            </div>
+            <div class="menu-grid menu-grid-group menu-grid-single">
+              <a class="menu-tile" href="producao.html">
+                <span class="tile-top">Produ&ccedil;&atilde;o</span>
+                <span class="tile-line tile-line-nowrap">Inserir dados das fichas de manuten&ccedil;&atilde;o</span>
+              </a>
+            </div>
+          </section>
+        </div>
 
-        <a class="menu-tile" href="#">
-          <span class="tile-top">AME</span>
-          <span class="tile-line">Imprimir plano de manuten&ccedil;&atilde;o</span>
-        </a>
+        <!-- Grupo Planejamento -->
+        <section class="tile-group" aria-labelledby="grupoPlanejamento">
+          <div class="tile-group-head">
+            <h2 class="tile-group-title" id="grupoPlanejamento">Planejamento</h2>
+          </div>
+            <div class="menu-grid menu-grid-group menu-grid-single">
+            <a class="menu-tile flag" href="planejamento.html">
+              <span class="tile-top">Planejamento</span>
+              <span class="tile-line tile-line-nowrap">Dados para inclus&atilde;o no roteiro da JOB</span>
+            </a>
+          </div>
+        </section>
       </div>
 
+      <!-- Botao de logout -->
       <div class="actions">
         <button type="button" class="btn btn-outline" id="btnSair">Sair</button>
       </div>
     </section>
   </main>
 
+  <!-- ===== SCRIPT: verificacao de perfil, exibicao de nome e logout ===== -->
+  <!-- Garante que apenas o perfil 'engenheiro' acessa esta tela -->
   <script>
     (function () {
       const perfilAtivo = sessionStorage.getItem("perfil_ativo");
@@ -97,15 +142,16 @@
       const perfilInfo = document.getElementById("perfilInfo");
       if (perfilInfo) {
         const perfilNomes = {
-          admin: "Admin",
+          admin: "Administrador",
           engenheiro: "Engenheiro de Processo",
-          producao: "Produção",
-          ferramenteiro: "Ferramenteiro"
+          producao: "ProduÃƒÂ§ÃƒÂ£o",
+          ferramenteiro: "Ferramenteiro",
+          planejamento: "Planejamento"
         };
         const partesUsuario = usuarioAtivo.split(":");
         const perfilUsuario = (partesUsuario[0] || perfilAtivo || "").trim().toLowerCase();
         const nomeUsuario = partesUsuario.slice(1).join(":").trim();
-        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "Usuário";
+        const perfilLabel = perfilNomes[perfilUsuario] || perfilNomes[perfilAtivo] || "UsuÃƒÂ¡rio";
         perfilInfo.textContent = nomeUsuario ? "Perfil " + perfilLabel + ": " + nomeUsuario : "Perfil " + perfilLabel;
       }
 
@@ -121,3 +167,4 @@
   </script>
 </body>
 </html>
+

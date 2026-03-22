@@ -1,9 +1,24 @@
+﻿/*
+ * Arquivo: frontend/admin.css
+ * Descricao: Estilos da tela admin/engenheiro/planejamento. Controla layout do painel de tiles, cabecalho e responsividade.
+ * Observacao: Importa fonte Manrope via Google Fonts; variaveis de cores definidas em :root.
+ */
+
+/* ===== IMPORTACOES E VARIAVEIS GLOBAIS ===== */
+
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;500;700;800&family=Space+Grotesk:wght@500;700&display=swap");
 
 :root {
   --gv-900: #043c33;
   --gv-700: #0b6b57;
   --gv-500: #138a6f;
+/*
+ * Notas de manutencao:
+ * - Objetivo: manter consistencia visual entre telas.
+ * - Cuidado: evitar impacto global em seletores reutilizados.
+ * - Ao alterar: revisar responsividade e estados de componentes.
+ */
+
   --ink: #0f172a;
   --muted: #6b7280;
   --bg-1: #f5f8f6;
@@ -15,9 +30,8 @@
   --tile-bg: linear-gradient(145deg, #137f67, #0b6b57);
 }
 
+/* ===== RESET E BASE DA PAGINA ===== */
 * {
-  box-sizing: border-box;
-}
 
 body {
   margin: 0;
@@ -54,6 +68,7 @@ body::after {
   right: -40px;
 }
 
+/* ===== LAYOUT PRINCIPAL: page, panel, panel-header ===== */
 .page {
   max-width: 980px;
   margin: 0 auto;
@@ -78,6 +93,49 @@ body::after {
   border-bottom: 2px solid rgba(19, 138, 111, 0.22);
 }
 
+.panel-header-top {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 12px;
+}
+
+.panel-header-top-compact {
+  margin: 0 0 8px;
+}
+
+.dashboard-shortcut {
+  width: min(280px, 100%);
+  min-height: 78px;
+  padding: 10px 12px;
+}
+
+.btn-dashboard-top {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  min-width: 224px;
+  padding: 12px 28px;
+  border-radius: 13px;
+  border: 1px solid rgba(7, 66, 56, 0.24);
+  background: linear-gradient(145deg, #ffffff, #edf4f1);
+  color: #0b6b57;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 12px rgba(2, 6, 23, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn-dashboard-top:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(11, 107, 87, 0.14);
+  filter: saturate(1.01);
+}
+
 .btn-back-top {
   margin-bottom: 10px;
 }
@@ -87,6 +145,19 @@ body::after {
   grid-template-columns: 64px 1fr;
   align-items: center;
   gap: 12px;
+}
+
+.head-main.head-main-with-dashboard {
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  column-gap: 16px;
+}
+
+.head-main.head-main-with-dashboard .head-text {
+  min-width: 0;
+}
+
+.head-main.head-main-with-dashboard .btn-dashboard-top {
+  justify-self: end;
 }
 
 .logo-box {
@@ -130,6 +201,52 @@ h1 {
   gap: 12px;
   max-width: 980px;
   margin: 0 auto;
+}
+
+.menu-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.tile-group {
+  border: 1px solid rgba(7, 66, 56, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.44);
+  padding: 10px;
+}
+
+.tile-group-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 2px;
+  margin: 0 0 10px;
+}
+
+.tile-group-title {
+  margin: 0;
+  font-family: "Space Grotesk", "Manrope", sans-serif;
+  font-size: 16px;
+  line-height: 1.1;
+  color: var(--gv-700);
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.menu-grid-group {
+  margin: 0;
+  max-width: none;
+}
+
+.tile-group-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.menu-grid-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .workspace {
@@ -290,6 +407,25 @@ h1 {
   filter: saturate(1.02);
 }
 
+.menu-tile.menu-tile-dev::before {
+  content: attr(data-dev-label);
+  position: absolute;
+  top: -1px;
+  right: 12px;
+  padding: 2px 8px 3px;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid #f0bf57;
+  border-top: none;
+  background: #ffe2a4;
+  color: #5c3b00;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  pointer-events: none;
+}
+
 .menu-tile.flag::after {
   content: "";
   position: absolute;
@@ -324,6 +460,12 @@ h1 {
   max-width: 28ch;
 }
 
+.tile-line-nowrap {
+  max-width: none;
+  white-space: nowrap;
+  font-size: clamp(11px, 1.6vw, 14px);
+}
+
 .actions {
   margin-top: 14px;
   display: flex;
@@ -331,6 +473,7 @@ h1 {
   gap: 8px;
 }
 
+/* ===== BOTOES: btn base, variantes e hover ===== */
 .btn {
   min-height: 38px;
   padding: 8px 14px;
@@ -350,7 +493,15 @@ h1 {
   box-shadow: 0 12px 24px rgba(11, 107, 87, 0.18);
 }
 
+/* ===== RESPONSIVIDADE ===== */
 @media (max-width: 900px) {
+  .btn-dashboard-top {
+    min-width: 198px;
+    min-height: 50px;
+    padding: 10px 22px;
+    font-size: 15px;
+  }
+
   h1 {
     font-size: 22px;
   }
@@ -371,6 +522,33 @@ h1 {
 @media (max-width: 760px) {
   .panel {
     padding: 18px;
+  }
+
+  .head-main.head-main-with-dashboard {
+    grid-template-columns: 64px minmax(0, 1fr);
+    row-gap: 8px;
+    column-gap: 12px;
+  }
+
+  .head-main.head-main-with-dashboard .btn-dashboard-top {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
+  .btn-dashboard-top {
+    min-width: 174px;
+    min-height: 46px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .tile-group-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tile-group-title {
+    font-size: 15px;
   }
 
   .workspace {
@@ -398,3 +576,4 @@ h1 {
     width: 100%;
   }
 }
+
