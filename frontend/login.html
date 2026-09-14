@@ -32,20 +32,20 @@
     <div class="pill">GE VERNOVA</div>
 
     <h1>ESTAMPARIA</h1>
-    <div class="sub">Selecione o usuÃ¡rio e digite a senha.</div>
+    <div class="sub">Selecione o usuário e digite a senha.</div>
 
     <!-- Formulario de autenticacao: selecao de usuario + senha -->
     <form id="loginForm" novalidate>
       <!-- Campo de selecao do usuario, agrupado por perfil de acesso -->
       <div class="field">
-        <label>UsuÃ¡rio</label>
+        <label>Usuário</label>
         <select name="usuario" required>
           <option value="" selected>Selecione</option>
           <optgroup label="Engenheiro de processo">
             <option value="engenheiro:Bruno Almeida" data-profile="engenheiro">Bruno Almeida</option>
             <option value="engenheiro:Diego Martins" data-profile="engenheiro">Diego Martins</option>
           </optgroup>
-          <optgroup label="ProduÃ§Ã£o">
+          <optgroup label="Produção">
             <option value="producao:Fabio Teixeira" data-profile="producao">Fabio Teixeira</option>
             <option value="producao:Hugo Fernandes" data-profile="producao">Hugo Fernandes</option>
             <option value="producao:Joao Cardoso" data-profile="producao">Joao Cardoso</option>
@@ -74,12 +74,12 @@
       </div>
 
       <!-- Mensagem de erro exibida quando usuario ou senha estao incorretos -->
-      <div id="loginError" class="error" style="display:none;">Email e senha invÃ¡lidos.</div>
+      <div id="loginError" class="error" style="display:none;">Email e senha inválidos.</div>
 
       <!-- Botao de envio do formulario -->
       <button type="submit" aria-label="Entrar com email">
         <span aria-hidden="true">&#9993;</span>
-        Entrar com UsuÃ¡rio
+        Entrar com Usuário
       </button>
     </form>
 

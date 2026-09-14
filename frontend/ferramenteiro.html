@@ -480,7 +480,7 @@
       }
 
       function isPreenchidoByMetrics(item) {
-        // Verifica mÃºltiplos indicadores de preenchimento
+        // Verifica múltiplos indicadores de preenchimento
         const totalGolpes = Number(item.total_golpes_final || 0);
         const qtdeAfiacao = Number(item.qtde_afiacao || 0);
         const numeroGolpesAfiacao = Number(item.numero_golpes_afiacao || 0);
@@ -511,14 +511,14 @@
         const statusFerramentalPreenchidos =
           statusFerramental.includes("cancelada") ||
           statusFerramental.includes("ferramenta aprovada") ||
-          statusFerramental.includes("jÃ¡ estampado") ||
+          statusFerramental.includes("já estampado") ||
           statusFerramental.includes("ja estampado") ||
           statusFerramental === "na" ||
           statusFerramental === "n/a" ||
-          statusFerramental.includes("liberaÃ§Ã£o prevista") ||
+          statusFerramental.includes("liberação prevista") ||
           statusFerramental.includes("liberacao prevista") ||
           statusFerramental.includes("liberado para cosinox") ||
-          statusFerramental.includes("liberado para produÃ§Ã£o") ||
+          statusFerramental.includes("liberado para produção") ||
           statusFerramental.includes("liberado para producao");
 
         const toBottom =
